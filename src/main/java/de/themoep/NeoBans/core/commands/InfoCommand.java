@@ -92,7 +92,7 @@ public class InfoCommand extends AbstractCommand {
                                     plugin.getLanguageConfig().getTranslation(
                                             "neobans.message.info.currentban.temporary",
                                             ImmutableMap.of(
-                                                    "date",
+                                                    "endtime",
                                                     sdf.format(enddate),
                                                     "duration",
                                                     ((TempbanEntry) be).getFormattedDuration(plugin.getLanguageConfig(), true)
