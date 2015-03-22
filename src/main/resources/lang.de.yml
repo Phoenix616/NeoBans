@@ -20,12 +20,14 @@ neobans:
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempban: |
-      &cDu wurdest von &e%sender%&c für &e%time%&c gebannt!
+      &cDu wurdest von &e%sender%&c für &e%duration%&c gebannt!
+      &fAblauf des Bans: &c%endtime%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanwithreason: |
-      &cDu wurdest von &e%sender%&c für &e%time%&c gebannt!
+      &cDu wurdest von &e%sender%&c für &e%duration%&c gebannt!
       &cGrund: &e%reason%&c."
+      &fAblauf des Bans: &c%endtime%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   join:
@@ -40,23 +42,25 @@ neobans:
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanned: |
       &c&lDu (%player%) bist gebannt.&r
-      &fRestdauer: &c%time%&r
+      &fAblauf des Bans: &c%endtime%&r
+      &fRestdauer: &c%duration%&r
       
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbannedwithreason: |
       &c&lDu (%player%) bist gebannt.&r
       &6Grund: &f%reason%&r
-      &fRestdauer: &c%time%&r
+      &fAblauf des Bans: &c%endtime%&r
+      &fRestdauer: &c%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   message:
-    kick: "&e%player%&6 wurde von &e%sender%&6 gekick."
-    kickwithreason: "&e%player%&6 wurde von &e%sender%&6 gekickt. Grund: &e%reason%&6."
-    ban: "&e%player%&6 wurde von &e%sender%&6 gebannt."
-    banwithreason: "&e%player%&6 wurde von &e%sender%&6 gebannt. Grund: &e%reason%&6."
-    tempban: "&e%player%&6 wurde von &e%sender%&6 für &e%time%&6 gebannt."
-    tempbanwithreason: "&e%player%&6 wurde von &e%sender%&6 für &e%time%&6 gebannt. Grund: &e%reason%&6."
-    unban: "&e%player%&6 wurde entbannt."
+    kick: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gekick."
+    kickwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gekickt. Grund: &e%reason%&6."
+    ban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt."
+    banwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt. Grund: &e%reason%&6."
+    tempban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%time%&6 gebannt."
+    tempbanwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%time%&6 gebannt. Grund: &e%reason%&6."
+    unban: "&f[&c!&f] &e%player%&6 wurde entbannt."
     info:
       name: "&cName: &e%player%"
       currentban:
@@ -65,7 +69,7 @@ neobans:
         time: "&cBanned at: &e%time%"
         comment: "&cComment: &e%comment%"
         # temporary can have an %until% value which will display something like 4d 2h 23m 12s
-        temporary: "&cBanned until: &e%date%"
+        temporary: "&cBanned until: &e%endtime%"
       previous:
         bans: "&cPrevious bans: &e%count%"
         tempbans: "&cPrevious tempbans: &e%count%"
@@ -80,18 +84,18 @@ neobans:
     uuidnotfound: "&cCould not find an UUID for player &e%player%&c!"
     kicknotallowed: "&cYou are not allowed to kick the player &e%player%c!"
 time:
-  format: "dd/MM/yyyy HH:mm:ss z"
-  year: "year"
-  years: "years"
-  month: "month"
-  months: "months"
-  week: "week"
-  weeks: "weeks"
-  day: "day"
-  days: "days"
-  hour: "hour"
-  hours: "hours"
-  minute: "minute"
-  minutes: "minutes"
-  second: "second"
-  seconds: "seconds"
+  format: "dd.MM.yyyy HH:mm:ss z"
+  year: "Jahr"
+  years: "Jahre"
+  month: "Monat"
+  months: "Monate"
+  week: "Woche"
+  weeks: "Wochen"
+  day: "Tag"
+  days: "Tage"
+  hour: "Stunde"
+  hours: "Stunden"
+  minute: "Minute"
+  minutes: "Minuten"
+  second: "Sekund"
+  seconds: "Sekunden"
