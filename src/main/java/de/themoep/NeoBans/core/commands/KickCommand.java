@@ -2,6 +2,7 @@ package de.themoep.NeoBans.core.commands;
 
 import com.google.common.collect.ImmutableMap;
 
+import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
@@ -21,9 +22,16 @@ public class KickCommand extends AbstractCommand {
     public void execute() {
         final String toKick = args[0];
         String reason = "";
-        if(args.length > 1)
-            for(int i = 1; i < args.length; i++)
-                reason += args[i] + " ";
+        boolean silent = false;
+        if(args.length > 1) {
+            for (int i = 1; i < args.length; i++) {
+                if(i == 1 && args[i].equalsIgnoreCase("-silent")) {
+                    silent = true;
+                } else {
+                    reason += args[i] + " ";
+                }
+            }
+        }
         reason = reason.trim();
         
         String kickmsg = (reason.isEmpty()) 
@@ -37,7 +45,8 @@ public class KickCommand extends AbstractCommand {
         
         int success = plugin.kickPlayer(sender, toKick, kickmsg);
         if(success == 1) {
-            plugin.broadcast(sender, plugin.getConfig().getBroadcastDestination("kick"), kickbc);
+            BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("kick");
+            plugin.broadcast(sender, bd, kickbc);
             final String finalReason = reason;
             plugin.runAsync(new Runnable() {
                 @Override

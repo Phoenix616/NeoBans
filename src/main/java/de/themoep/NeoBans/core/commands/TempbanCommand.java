@@ -2,10 +2,7 @@ package de.themoep.NeoBans.core.commands;
 
 import com.google.common.collect.ImmutableMap;
 
-import de.themoep.NeoBans.core.Entry;
-import de.themoep.NeoBans.core.EntryType;
-import de.themoep.NeoBans.core.NeoBansPlugin;
-import de.themoep.NeoBans.core.TempbanEntry;
+import de.themoep.NeoBans.core.*;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -29,9 +26,16 @@ public class TempbanCommand extends AbstractCommand {
                 String toBan = args[0];
                 String duration = args[1];
                 String reason = "";
-                if (args.length > 2)
-                    for (int i = 2; i < args.length; i++)
-                        reason += args[i] + " ";
+                boolean silent = false;
+                if (args.length > 2) {
+                    for (int i = 2; i < args.length; i++) {
+                        if (i == 2 && args[i].equalsIgnoreCase("-silent")) {
+                            silent = true;
+                        } else {
+                            reason += args[i] + " ";
+                        }
+                    }
+                }
                 reason = reason.trim();
 
                 if (reason.length() < 140) {
@@ -53,7 +57,8 @@ public class TempbanCommand extends AbstractCommand {
                         Entry entry = plugin.getBanManager().addBan(tbe);
                         if (entry.getType() != EntryType.FAILURE) {
                             plugin.kickPlayer(sender, toBan, banmsg);
-                            plugin.broadcast(sender, plugin.getConfig().getBroadcastDestination("tempban"), banbc);
+                            BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("tempban");
+                            plugin.broadcast(sender, bd, banbc);
                         } else {
                             sender.sendMessage(entry.getReason());
                         }

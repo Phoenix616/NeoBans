@@ -2,10 +2,7 @@ package de.themoep.NeoBans.core.commands;
 
 import com.google.common.collect.ImmutableMap;
 
-import de.themoep.NeoBans.core.Entry;
-import de.themoep.NeoBans.core.EntryType;
-import de.themoep.NeoBans.core.NeoBansPlugin;
-import de.themoep.NeoBans.core.BanEntry;
+import de.themoep.NeoBans.core.*;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -26,9 +23,16 @@ public class BanCommand extends AbstractCommand {
             public void run() {
                 String toBan = args[0];
                 String reason = "";
-                if(args.length > 1)
-                    for(int i = 1; i < args.length; i++)
-                        reason += args[i] + " ";
+                boolean silent = false;
+                if(args.length > 1) {
+                    for (int i = 1; i < args.length; i++) {
+                        if(i == 1 && args[i].equalsIgnoreCase("-silent")) {
+                            silent = true;
+                        } else {
+                            reason += args[i] + " ";
+                        }
+                    }
+                }
                 reason = reason.trim();
                 
                 if(reason.length() < 140) {
@@ -49,7 +53,8 @@ public class BanCommand extends AbstractCommand {
                     Entry entry = plugin.getBanManager().addBan(be);
                     if (entry.getType() != EntryType.FAILURE) {
                         plugin.kickPlayer(sender, toBan, banmsg);
-                        plugin.broadcast(sender, plugin.getConfig().getBroadcastDestination("ban"), banbc);
+                        BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("ban");
+                        plugin.broadcast(sender, bd, banbc);
                     } else {
                         sender.sendMessage(entry.getReason());
                     }
