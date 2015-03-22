@@ -212,7 +212,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                     sender.sendMessage(message);
                 break;
             case SENDER:
-                sender.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + " " + message);
+                sender.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + message);
                 break;
         }
         this.getLogger().info(message);
