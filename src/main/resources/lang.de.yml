@@ -9,25 +9,29 @@ neobans:
     kick: "&cDu wurdest von &e%sender%&c gekickt!"
     kickwithreason: |
       &cDu wurdest von &e%sender%&c gekickt!
-      &cGrund: &e%reason%&c
+      &cGrund: &6%reason%&r
     ban: |
       &cDu wurdest von &e%sender%&c gebannt!
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     banwithreason: |
       &cDu wurdest von &e%sender%&c gebannt! 
-      &cGrund: &e%reason%&c
+      &cGrund: &6%reason%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempban: |
-      &cDu wurdest von &e%sender%&c für &e%duration%&c gebannt!
-      &fAblauf des Bans: &c%endtime%&r
+      &cDu wurdest von &e%sender%&c zweitweise gebannt!
+      
+      &cAblauf des Bans: &6%endtime%&r
+      &fRestdauer: &c%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanwithreason: |
-      &cDu wurdest von &e%sender%&c für &e%duration%&c gebannt!
-      &cGrund: &e%reason%&c."
-      &fAblauf des Bans: &c%endtime%&r
+      &cDu wurdest von &e%sender%&c zweitweise gebannt!
+      &cGrund: &e%reason%&r
+      
+      &cAblauf des Bans: &6%endtime%&r
+      &fRestdauer: &c%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   join:
@@ -37,20 +41,22 @@ neobans:
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     bannedwithreason: |
       &c&lDu (%player%) bist gebannt.&r
-      &6Grund: &f%reason%&r
+      &cGrund: &6%reason%&r
       
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanned: |
       &c&lDu (%player%) bist gebannt.&r
+      
       &fAblauf des Bans: &c%endtime%&r
       &fRestdauer: &c%duration%&r
       
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbannedwithreason: |
       &c&lDu (%player%) bist gebannt.&r
-      &6Grund: &f%reason%&r
-      &fAblauf des Bans: &c%endtime%&r
-      &fRestdauer: &c%duration%&r
+      &cGrund: &6%reason%&r
+      
+      &cAblauf des Bans: &6%endtime%&r
+      &cRestdauer: &6%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   message:
@@ -58,8 +64,8 @@ neobans:
     kickwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gekickt. Grund: &e%reason%&6."
     ban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt."
     banwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt. Grund: &e%reason%&6."
-    tempban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%time%&6 gebannt."
-    tempbanwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%time%&6 gebannt. Grund: &e%reason%&6."
+    tempban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt."
+    tempbanwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt. Grund: &e%reason%&6."
     unban: "&f[&c!&f] &e%player%&6 wurde entbannt."
     info:
       name: "&cName: &e%player%"
