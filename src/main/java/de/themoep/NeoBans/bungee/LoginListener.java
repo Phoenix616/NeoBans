@@ -41,8 +41,8 @@ public class LoginListener implements Listener {
                     } else if (entry.getType() == EntryType.TEMPBAN && entry instanceof TempbanEntry) {
                         TempbanEntry tbe = (TempbanEntry) entry;
                         String msg = (entry.getReason().isEmpty())
-                                ? plugin.getLanguageConfig().getTranslation("neobans.join.tempbanned", ImmutableMap.of("player", event.getConnection().getName(), "time", tbe.getFormattedDuration(plugin.getLanguageConfig(), false)))
-                                : plugin.getLanguageConfig().getTranslation("neobans.join.tempbannedwithreason", ImmutableMap.of("player", event.getConnection().getName(), "reason", entry.getReason(), "time", tbe.getFormattedDuration(plugin.getLanguageConfig(), false)));
+                                ? plugin.getLanguageConfig().getTranslation("neobans.join.tempbanned", ImmutableMap.of("player", event.getConnection().getName(), "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))))
+                                : plugin.getLanguageConfig().getTranslation("neobans.join.tempbannedwithreason", ImmutableMap.of("player", event.getConnection().getName(), "reason", entry.getReason(), "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))));
 
                         event.setCancelled(true);
                         event.setCancelReason(msg);
