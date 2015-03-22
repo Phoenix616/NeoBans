@@ -9,54 +9,54 @@ neobans:
     kick: "&cDu wurdest von &e%sender%&c gekickt!"
     kickwithreason: |
       &cDu wurdest von &e%sender%&c gekickt!
-      &cGrund: &6%reason%&r
+      &cGrund: &e%reason%&r
     ban: |
       &cDu wurdest von &e%sender%&c gebannt!
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     banwithreason: |
       &cDu wurdest von &e%sender%&c gebannt! 
-      &cGrund: &6%reason%&r
+      &cGrund: &e%reason%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempban: |
       &cDu wurdest von &e%sender%&c zweitweise gebannt!
       
-      &cAblauf des Bans: &6%endtime%&r
-      &fRestdauer: &c%duration%&r
+      &cAblauf des Bans: &e%endtime%&r
+      &cRestdauer: &e%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanwithreason: |
       &cDu wurdest von &e%sender%&c zweitweise gebannt!
       &cGrund: &e%reason%&r
       
-      &cAblauf des Bans: &6%endtime%&r
-      &fRestdauer: &c%duration%&r
+      &cAblauf des Bans: &e%endtime%&r
+      &cRestdauer: &e%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   join:
     banned: |
-      &c&lDu (%player%) bist gebannt.&r
+      &c&lDu (%player%) bist gebannt!&r
       
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     bannedwithreason: |
-      &c&lDu (%player%) bist gebannt.&r
-      &cGrund: &6%reason%&r
+      &c&lDu (%player%) bist gebannt!&r
+      &cGrund: &e%reason%&r
       
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanned: |
-      &c&lDu (%player%) bist gebannt.&r
+      &c&lDu (%player%) bist gebannt!&r
       
-      &fAblauf des Bans: &c%endtime%&r
-      &fRestdauer: &c%duration%&r
+      &cAblauf des Bans: &e%endtime%&r
+      &cRestdauer: &e%duration%&r
       
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbannedwithreason: |
-      &c&lDu (%player%) bist gebannt.&r
-      &cGrund: &6%reason%&r
+      &c&lDu (%player%) bist gebannt!&r
+      &cGrund: &e%reason%&r
       
-      &cAblauf des Bans: &6%endtime%&r
-      &cRestdauer: &6%duration%&r
+      &cAblauf des Bans: &e%endtime%&r
+      &cRestdauer: &e%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   message:
