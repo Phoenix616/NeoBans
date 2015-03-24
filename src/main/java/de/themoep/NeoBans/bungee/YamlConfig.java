@@ -32,11 +32,11 @@ public abstract class YamlConfig implements NeoConfig {
                 configFile.getParentFile().mkdirs();
             }
             configFile.createNewFile();
-            cfg = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( configFile );
+            cfg = ymlCfg.load(configFile);
 
             createDefaultConfig();
         } else {
-            cfg = ConfigurationProvider.getProvider( YamlConfiguration.class ).load( configFile );
+            cfg = ymlCfg.load(configFile);
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class YamlConfig implements NeoConfig {
         try {
             ymlCfg.save(cfg, configFile);
         } catch (IOException e) {
-            NeoBans.getInstance().getLogger().severe("Unable to save configuration at "+configFile.getAbsolutePath());
+            NeoBans.getInstance().getLogger().severe("Unable to save configuration at " + configFile.getAbsolutePath());
             e.printStackTrace();
         }
     }
