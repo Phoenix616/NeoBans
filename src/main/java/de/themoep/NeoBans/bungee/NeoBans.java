@@ -55,7 +55,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
     public void onEnable() {
         
-        if(this.getProxy().getPluginManager().getPlugin("UUIDDB") != null)
+        if(getProxy().getPluginManager().getPlugin("UUIDDB") != null)
             uuiddb = true;
         
         try {
@@ -76,17 +76,17 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             return;
         }
 
-        bm = new BanManager(this);
+        bm = new BanManager(NeoBans.getInstance());
         
-        cm = new CommandMap(this);
+        cm = new CommandMap(NeoBans.getInstance());
 
-        if(this.getConfig().getString("backend").equalsIgnoreCase("mysql"))
-            dbm = new MysqlManager(this);
+        if(getConfig().getString("backend").equalsIgnoreCase("mysql"))
+            dbm = new MysqlManager(NeoBans.getInstance());
 
-        this.setupCommands(config.getLatebind());
+        setupCommands(config.getLatebind());
         
         getLogger().info("Registering Listeners...");
-        getProxy().getPluginManager().registerListener(this, new LoginListener());
+        getProxy().getPluginManager().registerListener(NeoBans.getInstance(), new LoginListener());
 
     }
 
@@ -159,13 +159,19 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     
     @Override
     public UUID getPlayerId(String username) {
-        ProxiedPlayer p = this.getProxy().getPlayer(username);
-        if(p != null)
-            return p.getUniqueId();
-        if(uuiddb) {
-            String id = UUIDDB.getInstance().getStorage().getUUIDByName(username, false);
-            if (id != null)
-                return UUID.fromString(id);
+        try {
+            // Did someone input an uuid as a name?
+            return UUID.fromString(username);
+        } catch (IllegalArgumentException e) {
+            ProxiedPlayer p = this.getProxy().getPlayer(username);
+            if (p != null)
+                return p.getUniqueId();
+
+            if (uuiddb) {
+                String id = UUIDDB.getInstance().getStorage().getUUIDByName(username, false);
+                if (id != null)
+                    return UUID.fromString(id);
+            }
         }
         return null;
     }
@@ -185,11 +191,19 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
     @Override
     public int kickPlayer(NeoSender sender, String name, String reason) {
-        ProxiedPlayer p = this.getProxy().getPlayer(name);
-        if(p != null) {
-            if(p.hasPermission("neobans.command.kick.exempt") && !sender.hasPermission("neobans.command.kick.exempt"))
+        return kickPlayer(sender, getProxy().getPlayer(name), reason);
+    }
+
+    @Override
+    public int kickPlayer(NeoSender sender, UUID id, String reason) {
+        return kickPlayer(sender, getProxy().getPlayer(id), reason);
+    }
+
+    public int kickPlayer(NeoSender sender, ProxiedPlayer player, String reason) {
+        if(player != null) {
+            if(player.hasPermission("neobans.command.kick.exempt") && !sender.hasPermission("neobans.command.kick.exempt"))
                 return -1;
-            p.disconnect(TextComponent.fromLegacyText(reason));
+            player.disconnect(TextComponent.fromLegacyText(reason));
             return 1;
         }
         return 0;
@@ -220,12 +234,12 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
     @Override
     public void runSync(Runnable runnable) {
-        this.getProxy().getScheduler().schedule(this, runnable, 0, TimeUnit.SECONDS);
+        getProxy().getScheduler().schedule(this, runnable, 0, TimeUnit.SECONDS);
     }
 
     @Override
     public void runAsync(Runnable runnable) {
-        this.getProxy().getScheduler().runAsync(this, runnable);
+        getProxy().getScheduler().runAsync(this, runnable);
     }
 
     /**

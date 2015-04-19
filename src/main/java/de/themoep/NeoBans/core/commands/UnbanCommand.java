@@ -28,7 +28,7 @@ public class UnbanCommand extends AbstractCommand {
                     boolean silent = (args.length > 1 && args[1].equalsIgnoreCase("-silent"));
                     plugin.broadcast(sender,
                             (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
-                            plugin.getLanguageConfig().getTranslation("neobans.message.unban", ImmutableMap.of("player", args[0], "sender", sender.getName()))
+                            plugin.getLanguageConfig().getTranslation("neobans.message.unban", ImmutableMap.of("player", plugin.getPlayerName(((BanEntry) entry).getBanned()), "sender", sender.getName()))
                     );
                 } else {
                     sender.sendMessage(entry.getReason(), ImmutableMap.of("player", args[0]));

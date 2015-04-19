@@ -48,8 +48,9 @@ public interface NeoBansPlugin {
     public List<String> getOnlinePlayers();
     
     /**
-     * Get the UUID of a player from his usernmae 
-     * @param username
+     * Get the UUID of a player from his username <br />
+     * If you input a string of an UUID it will return the UUID object!
+     * @param username The name of the player to get the uuid of
      * @return The UUID of the player. Null if not found.
      */
     public UUID getPlayerId(String username);
@@ -68,6 +69,14 @@ public interface NeoBansPlugin {
      * @return 1 if the player was online, 0 if not, -1 if the sender is not allowed to kick this player
      */
     int kickPlayer(NeoSender sender, String name, String reason);
+
+    /**
+     * Kick a player with a reason
+     * @param id The uuid of the player to kick
+     * @param reason The reason to display in chat and to the player
+     * @return 1 if the player was online, 0 if not, -1 if the sender is not allowed to kick this player
+     */
+    int kickPlayer(NeoSender sender, UUID id, String reason);
 
     /**
      * Broadcast a message to certain players

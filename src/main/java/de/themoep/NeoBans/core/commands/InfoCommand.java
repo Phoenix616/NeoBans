@@ -30,16 +30,6 @@ public class InfoCommand extends AbstractCommand {
             public void run() {
                 Entry entry = plugin.getBanManager().getBan(args[0]);
 
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.name",
-                                ImmutableMap.of(
-                                        "player",
-                                        args[0]
-                                )
-                        )
-                );
-
                 int bancurrent = 0;
                 int tempbancurrent = 0;
 
@@ -50,6 +40,16 @@ public class InfoCommand extends AbstractCommand {
                         BanEntry be = (BanEntry) entry;
                         bancurrent = 1;
 
+                        sender.sendMessage(
+                                plugin.getLanguageConfig().getTranslation(
+                                        "neobans.message.info.name",
+                                        ImmutableMap.of(
+                                                "player",
+                                                plugin.getPlayerName(be.getBanned())
+                                        )
+                                )
+                        );
+                        
                         sender.sendMessage(
                                 plugin.getLanguageConfig().getTranslation(
                                         "neobans.message.info.currentban.reason",
@@ -102,6 +102,15 @@ public class InfoCommand extends AbstractCommand {
                         }
                     }
                 } else {
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.name",
+                                    ImmutableMap.of(
+                                            "player",
+                                            args[0]
+                                    )
+                            )
+                    );
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
                                     "neobans.message.info.currentban.reason",
