@@ -85,13 +85,18 @@ public class BanManager {
      * Get the ban of a player with the given username
      * <br /><br />
      * <strong>Note:</strong> This method might execute a database query and should not be run on the main thread!
-     * @param username The username of the player to get the ban of
+     * @param user The username or uuid of the player to get the ban of
      * @return The banentry of the player, null if he doesn't have one
      */
-    public Entry getBan(String username){
-        UUID playerid = plugin.getPlayerId(username);
+    public Entry getBan(String user){
+        UUID playerid;
+        try {
+            playerid = UUID.fromString(user);
+        } catch (IllegalArgumentException e) {
+            playerid = plugin.getPlayerId(user);
+        }
         return (playerid == null) 
-                ? new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",username)))
+                ? new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",user)))
                 : getBan(playerid);
     };
 
