@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
@@ -28,27 +29,30 @@ public class InfoCommand extends AbstractCommand {
         plugin.runSync(new Runnable() {
             @Override
             public void run() {
-                Entry entry = plugin.getBanManager().getBan(args[0]);
+                
+                UUID playerid = plugin.getPlayerId(args[0]);
+                
+                Entry entry = plugin.getBanManager().getBan(playerid);
 
                 int bancurrent = 0;
                 int tempbancurrent = 0;
 
+                sender.sendMessage(
+                        plugin.getLanguageConfig().getTranslation(
+                                "neobans.message.info.name",
+                                ImmutableMap.of(
+                                        "player",
+                                        plugin.getPlayerName(playerid)
+                                )
+                        )
+                );
+                
                 if (entry != null) {
                     if (entry.getType() == EntryType.FAILURE) {
                         sender.sendMessage(entry.getReason());
                     } else if (entry instanceof BanEntry) {
                         BanEntry be = (BanEntry) entry;
                         bancurrent = 1;
-
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.name",
-                                        ImmutableMap.of(
-                                                "player",
-                                                plugin.getPlayerName(be.getBanned())
-                                        )
-                                )
-                        );
                         
                         sender.sendMessage(
                                 plugin.getLanguageConfig().getTranslation(
@@ -104,15 +108,6 @@ public class InfoCommand extends AbstractCommand {
                 } else {
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.info.name",
-                                    ImmutableMap.of(
-                                            "player",
-                                            args[0]
-                                    )
-                            )
-                    );
-                    sender.sendMessage(
-                            plugin.getLanguageConfig().getTranslation(
                                     "neobans.message.info.currentban.reason",
                                     ImmutableMap.of("reason", "None")
                             )
@@ -124,7 +119,7 @@ public class InfoCommand extends AbstractCommand {
                                 "neobans.message.info.previous.bans",
                                 ImmutableMap.of(
                                         "count",
-                                        Integer.toString(plugin.getBanManager().getCount(EntryType.BAN, args[0]) - bancurrent)
+                                        Integer.toString(plugin.getBanManager().getCount(EntryType.BAN, playerid) - bancurrent)
                                 )
                         )
                 );
@@ -133,7 +128,7 @@ public class InfoCommand extends AbstractCommand {
                                 "neobans.message.info.previous.tempbans",
                                 ImmutableMap.of(
                                         "count",
-                                        Integer.toString(plugin.getBanManager().getCount(EntryType.TEMPBAN, args[0]) - tempbancurrent)
+                                        Integer.toString(plugin.getBanManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
                                 )
                         )
                 );
@@ -142,7 +137,7 @@ public class InfoCommand extends AbstractCommand {
                                 "neobans.message.info.previous.kicks",
                                 ImmutableMap.of(
                                         "count",
-                                        Integer.toString(plugin.getBanManager().getCount(EntryType.KICK, args[0]))
+                                        Integer.toString(plugin.getBanManager().getCount(EntryType.KICK, playerid))
                                 )
                         )
                 );
