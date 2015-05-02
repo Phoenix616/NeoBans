@@ -79,7 +79,7 @@ public class TempbanEntry extends BanEntry {
             else if(unit.equals("y"))
                 duration = (long) (duration + 365.2425 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i])));
             else
-                throw new NumberFormatException("You inputed a time unit which is not avaliable!");
+                throw new NumberFormatException("You inputted a time unit which is not available!");
         }
 
         return duration;
