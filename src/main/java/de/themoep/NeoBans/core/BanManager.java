@@ -32,6 +32,10 @@ public class BanManager {
      * @return The entry of the player, null if he doesn't have one, entry with type FAILURE if an error occurs (SQLException, etc.)
      */
     public Entry getBan(UUID id){
+        if(id == null) {
+            return null;
+        }
+        
         if(banMap.containsKey(id)) {
             return checkExpiration(banMap.get(id));
         }
