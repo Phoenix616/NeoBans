@@ -6,7 +6,7 @@
 
     <groupId>de.themoep</groupId>
     <artifactId>NeoBans</artifactId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <repositories>
         <repository>
             <id>bungee-repo</id>
