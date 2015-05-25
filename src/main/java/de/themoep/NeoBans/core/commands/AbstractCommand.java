@@ -40,7 +40,7 @@ public abstract class AbstractCommand implements NeoCommand {
         this.plugin = plugin;
         this.sender = sender;
         this.args = args;
-        this.completions = new HashMap<>(completions);
+        this.completions = new HashMap<String, ArrayList<String>>(completions);
         this.completions.put("", new ArrayList<String>());
     }
     
@@ -68,7 +68,7 @@ public abstract class AbstractCommand implements NeoCommand {
         if(completionList.size() == 0)
             return completionList;
         
-        List<String> completionListOnline = new ArrayList<>();
+        List<String> completionListOnline = new ArrayList<String>();
         for(String s : completionList)
             if(s.equals("%online%"))
                 completionListOnline.addAll(plugin.getOnlinePlayers());
@@ -76,7 +76,7 @@ public abstract class AbstractCommand implements NeoCommand {
                 completionListOnline.add(s);
 
         if(!space && args.length > 0) {
-            List<String> completionListInput = new ArrayList<>();
+            List<String> completionListInput = new ArrayList<String>();
             for(String s : completionListOnline)
                 if(s.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))
                     completionListInput.add(s);

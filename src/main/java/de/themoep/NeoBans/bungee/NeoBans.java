@@ -151,7 +151,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     
     @Override
     public List<String> getOnlinePlayers() {
-        List<String> names = new ArrayList<>();
+        List<String> names = new ArrayList<String>();
         for(ProxiedPlayer p : getProxy().getPlayers())
             names.add(p.getName());
         return names;

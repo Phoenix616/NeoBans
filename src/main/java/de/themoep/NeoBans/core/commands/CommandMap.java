@@ -28,15 +28,15 @@ public class CommandMap {
      */
     public NeoCommand get(String command, Sender sender, String[] args) {
         if (command.equals("neoban")) {
-            return new BanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("%online%"))));
+            return new BanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
         } else if (command.equals("neounban")) {
-            return new UnbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("%online%"))));
+            return new UnbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
         } else if (command.equals("neotempban")) {
-            return new TempbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("%online%"))));
+            return new TempbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
         } else if (command.equals("neokick")) {
-            return new KickCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("%online%"))));
+            return new KickCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
         } else if (command.equals("neoinfo")) {
-            return new InfoCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("%online%"))));
+            return new InfoCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
         } else {
             return new HelpCommand(plugin, sender, args);
         }

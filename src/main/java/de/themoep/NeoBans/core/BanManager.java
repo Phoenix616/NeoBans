@@ -17,11 +17,11 @@ public class BanManager {
     
     private NeoBansPlugin plugin;
 
-    protected ConcurrentHashMap<UUID,BanEntry> banMap;
+    protected ConcurrentHashMap<UUID, BanEntry> banMap;
     
     public BanManager(NeoBansPlugin plugin) {
         this.plugin = plugin;
-        banMap = new ConcurrentHashMap<>();
+        banMap = new ConcurrentHashMap<UUID, BanEntry>();
     }
 
     /**
