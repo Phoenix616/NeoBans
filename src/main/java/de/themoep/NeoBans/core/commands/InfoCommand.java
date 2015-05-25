@@ -32,115 +32,127 @@ public class InfoCommand extends AbstractCommand {
                 
                 UUID playerid = plugin.getPlayerId(args[0]);
                 
-                Entry entry = plugin.getBanManager().getBan(playerid);
+                if(playerid != null) {
+                    Entry entry = plugin.getBanManager().getBan(playerid);
 
-                int bancurrent = 0;
-                int tempbancurrent = 0;
+                    int bancurrent = 0;
+                    int tempbancurrent = 0;
 
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.name",
-                                ImmutableMap.of(
-                                        "player",
-                                        plugin.getPlayerName(playerid)
-                                )
-                        )
-                );
-                
-                if (entry != null) {
-                    if (entry.getType() == EntryType.FAILURE) {
-                        sender.sendMessage(entry.getReason());
-                    } else if (entry instanceof BanEntry) {
-                        BanEntry be = (BanEntry) entry;
-                        bancurrent = 1;
-                        
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentban.reason",
-                                        ImmutableMap.of(
-                                                "reason",
-                                                be.getReason()
-                                        )
-                                )
-                        );
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentban.issuer",
-                                        ImmutableMap.of(
-                                                "issuer",
-                                                plugin.getPlayerName(be.getIssuer())
-                                        )
-                                )
-                        );
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.name",
+                                    ImmutableMap.of(
+                                            "player",
+                                            plugin.getPlayerName(playerid)
+                                    )
+                            )
+                    );
 
-                        Date date = new Date(be.getTime() * 1000L);
-                        SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
-                        sdf.setTimeZone(Calendar.getInstance().getTimeZone());
+                    if (entry != null) {
+                        if (entry.getType() == EntryType.FAILURE) {
+                            sender.sendMessage(entry.getReason());
+                        } else if (entry instanceof BanEntry) {
+                            BanEntry be = (BanEntry) entry;
+                            bancurrent = 1;
 
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentban.time",
-                                        ImmutableMap.of(
-                                                "time",
-                                                sdf.format(date)
-                                        )
-                                )
-                        );
-
-                        String endtime = "";
-                        if (entry instanceof TempbanEntry) {
-                            bancurrent = 0;
-                            tempbancurrent = 1;
-                            Date enddate = new Date(((TempbanEntry) be).getEndtime() * 1000L);
                             sender.sendMessage(
                                     plugin.getLanguageConfig().getTranslation(
-                                            "neobans.message.info.currentban.temporary",
+                                            "neobans.message.info.currentban.reason",
                                             ImmutableMap.of(
-                                                    "endtime",
-                                                    sdf.format(enddate),
-                                                    "duration",
-                                                    ((TempbanEntry) be).getFormattedDuration(plugin.getLanguageConfig(), true)
+                                                    "reason",
+                                                    be.getReason()
                                             )
                                     )
                             );
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentban.issuer",
+                                            ImmutableMap.of(
+                                                    "issuer",
+                                                    plugin.getPlayerName(be.getIssuer())
+                                            )
+                                    )
+                            );
+
+                            Date date = new Date(be.getTime() * 1000L);
+                            SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
+                            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
+
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentban.time",
+                                            ImmutableMap.of(
+                                                    "time",
+                                                    sdf.format(date)
+                                            )
+                                    )
+                            );
+
+                            String endtime = "";
+                            if (entry instanceof TempbanEntry) {
+                                bancurrent = 0;
+                                tempbancurrent = 1;
+                                Date enddate = new Date(((TempbanEntry) be).getEndtime() * 1000L);
+                                sender.sendMessage(
+                                        plugin.getLanguageConfig().getTranslation(
+                                                "neobans.message.info.currentban.temporary",
+                                                ImmutableMap.of(
+                                                        "endtime",
+                                                        sdf.format(enddate),
+                                                        "duration",
+                                                        ((TempbanEntry) be).getFormattedDuration(plugin.getLanguageConfig(), true)
+                                                )
+                                        )
+                                );
+                            }
                         }
+                    } else {
+                        sender.sendMessage(
+                                plugin.getLanguageConfig().getTranslation(
+                                        "neobans.message.info.currentban.reason",
+                                        ImmutableMap.of("reason", "None")
+                                )
+                        );
                     }
+
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.previous.bans",
+                                    ImmutableMap.of(
+                                            "count",
+                                            Integer.toString(plugin.getBanManager().getCount(EntryType.BAN, playerid) - bancurrent)
+                                    )
+                            )
+                    );
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.previous.tempbans",
+                                    ImmutableMap.of(
+                                            "count",
+                                            Integer.toString(plugin.getBanManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
+                                    )
+                            )
+                    );
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.previous.kicks",
+                                    ImmutableMap.of(
+                                            "count",
+                                            Integer.toString(plugin.getBanManager().getCount(EntryType.KICK, playerid))
+                                    )
+                            )
+                    );
                 } else {
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.info.currentban.reason",
-                                    ImmutableMap.of("reason", "None")
+                                    "neobans.error.uuidnotfound",
+                                    ImmutableMap.of(
+                                            "player",
+                                            args[0]
+                                    )
                             )
                     );
                 }
-
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.bans",
-                                ImmutableMap.of(
-                                        "count",
-                                        Integer.toString(plugin.getBanManager().getCount(EntryType.BAN, playerid) - bancurrent)
-                                )
-                        )
-                );
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.tempbans",
-                                ImmutableMap.of(
-                                        "count",
-                                        Integer.toString(plugin.getBanManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
-                                )
-                        )
-                );
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.kicks",
-                                ImmutableMap.of(
-                                        "count",
-                                        Integer.toString(plugin.getBanManager().getCount(EntryType.KICK, playerid))
-                                )
-                        )
-                );
             }
         });
     }
