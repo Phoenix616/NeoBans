@@ -19,7 +19,7 @@ public class LanguageConfig extends YamlConfig implements NeoLanguageConfig {
     public void createDefaultConfig() {
         // default is english
         cfg = ymlCfg.load(
-                new InputStreamReader(NeoBans.getInstance().getResourceAsStream("lang.en.yml"))
+                new InputStreamReader(NeoBans.getInstance().getResourceAsStream(configFile.getName()))
         );
 
         save();
