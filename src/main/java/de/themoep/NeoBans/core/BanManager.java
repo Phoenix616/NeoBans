@@ -208,12 +208,19 @@ public class BanManager {
             dbColumn = "endtime";
             if(value.equalsIgnoreCase("permanent") || value.equalsIgnoreCase("perm")) {
                 changedEntry = new BanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
-            } else if(value.startsWith("~")) {
-                changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), value.substring(1));
+                dbValue = "0";
             } else {
-                changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
+                try {
+                    if(value.startsWith("~")) {
+                        changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), value.substring(1));
+                    } else {
+                        changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
+                    }
+                    dbValue = Long.toString(((TempbanEntry) changedEntry).getEndtime());
+                } catch(NumberFormatException e) {
+                    changedEntry = null;
+                }
             }
-            dbValue = Long.toString(((TempbanEntry) changedEntry).getEndtime());
         }
 
         if(dbColumn == null) {
