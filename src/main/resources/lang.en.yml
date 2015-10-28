@@ -5,6 +5,7 @@ neobans:
     tempbancommand: "&cCommand arguments: &e<username> <duration> [<reason>]"
     unbancommand: "&cCommand arguments: &e<username>"
     infocommand: "&cCommand arguments: &e<username>"
+    editbancommand: "&cCommand arguments: &e<username> [duration|reason] <value>"
   disconnect:
     kick: "&cYou have been &ekicked&c by &e%sender%&c!"
     kickwithreason: "&cYou have been &ekicked&c by &e%sender% &cbecause of &e%reason%&c!"
