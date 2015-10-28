@@ -13,6 +13,7 @@ commandaliases:
   neotempban: [ntempban, tempban]
   neokick: [nkick, kick]
   neoinfo: [ninfo, baninfo]
+  neoeditban: [neditban, editban]
 broadcast:
   kick: GLOBAL
   ban: GLOBAL

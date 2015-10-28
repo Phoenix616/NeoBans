@@ -47,6 +47,8 @@ neobans:
     null: "&4Error:&c Something is null. Please contact an administrator as soon as possible!"
     uuidnotfound: "&cCould not find an UUID for player &e%player%&c!"
     kicknotallowed: "&cYou are not allowed to kick the player &e%player%c!"
+    wrongoption: "&cThe option &e%option%&c is not allowed!"
+    wrongvalue: "&cThe value &e%value&c is not valid for the option &e%option%&c!"
 time:
   format: "dd/MM/yyyy HH:mm:ss z"
   year: "year"

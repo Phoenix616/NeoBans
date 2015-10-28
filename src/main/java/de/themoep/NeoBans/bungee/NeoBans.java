@@ -105,7 +105,6 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         if(latebind) {
             getLogger().info("Scheduling the Registering of the Commands...");
             getProxy().getScheduler().schedule(this, new Runnable() {
-                @Override
                 public void run() {
                     NeoBans.getInstance().getLogger().info("Late-binding Commands...");
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoban"));
@@ -113,6 +112,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neotempban"));
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neokick"));
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoinfo"));
+                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoeditban"));
                 }
             }, 1, TimeUnit.SECONDS);
         } else {
@@ -122,6 +122,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neotempban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neokick"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoinfo"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoeditban"));
         }
 
     }
@@ -134,22 +135,18 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return lang;
     }
 
-    @Override
     public BanManager getBanManager() {
         return bm;
     }
 
-    @Override
     public CommandMap getCommandMap() {
         return cm;
     }
 
-    @Override
     public DatabaseManager getDatabaseManager() {
         return dbm;
     }
     
-    @Override
     public List<String> getOnlinePlayers() {
         List<String> names = new ArrayList<String>();
         for(ProxiedPlayer p : getProxy().getPlayers())
@@ -157,7 +154,6 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return names;
     }
     
-    @Override
     public UUID getPlayerId(String username) {
         try {
             // Did someone input an uuid as a name?
@@ -176,7 +172,6 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return null;
     }
     
-    @Override
     public String getPlayerName(UUID playerid){
         ProxiedPlayer p = this.getProxy().getPlayer(playerid);
         if(p != null)
@@ -189,12 +184,10 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return "ID:" + playerid.toString();
     };
 
-    @Override
     public int kickPlayer(NeoSender sender, String name, String reason) {
         return kickPlayer(sender, getProxy().getPlayer(name), reason);
     }
 
-    @Override
     public int kickPlayer(NeoSender sender, UUID id, String reason) {
         return kickPlayer(sender, getProxy().getPlayer(id), reason);
     }
@@ -209,7 +202,6 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return 0;
     }
     
-    @Override
     public void broadcast(NeoSender sender, BroadcastDestination destination, String message) {
         message = ChatColor.translateAlternateColorCodes('&', message);
         BaseComponent[] msg = TextComponent.fromLegacyText(message);
@@ -232,12 +224,10 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         this.getLogger().info(message);
     }
 
-    @Override
     public void runSync(Runnable runnable) {
         getProxy().getScheduler().schedule(this, runnable, 0, TimeUnit.SECONDS);
     }
 
-    @Override
     public void runAsync(Runnable runnable) {
         getProxy().getScheduler().runAsync(this, runnable);
     }

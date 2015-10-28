@@ -18,12 +18,41 @@ public class TempbanEntry extends BanEntry {
      * @param banned The uuid of the banned player
      * @param issuer The uuid of the issuer of the ban
      * @param reason The reason this ban occurred for
-     * @param durationstring The time this ban will last for
+     * @param durationstring The duration this ban will last for
      */
     public TempbanEntry(UUID banned, UUID issuer, String reason, String durationstring) throws NumberFormatException {
         super(banned, issuer, reason);
         type = EntryType.TEMPBAN;
         endtime = System.currentTimeMillis()/1000 + getDurationFromString(durationstring);
+    }
+
+    /**
+     * An entry for a temporary ban
+     * @param banned The uuid of the banned player
+     * @param issuer The uuid of the issuer of the ban
+     * @param reason The reason this ban occurred for
+     * @param time The time as a unix timestamp when this ban was executed at
+     * @param durationstring The duration this ban will last for
+     */
+    public TempbanEntry(UUID banned, UUID issuer, String reason, long time, String durationstring) {
+        super(banned, issuer, reason, "", time);
+        type = EntryType.TEMPBAN;
+        this.endtime = time + getDurationFromString(durationstring);;
+    }
+
+    /**
+     * An entry for a temporary ban
+     * @param banned The uuid of the banned player
+     * @param issuer The uuid of the issuer of the ban
+     * @param reason The reason this ban occurred for
+     * @param comment A comment to the ban
+     * @param time The time as a unix timestamp when this ban was executed at
+     * @param durationstring The duration this ban will last for
+     */
+    public TempbanEntry(UUID banned, UUID issuer, String reason, String comment, long time, String durationstring) {
+        super(banned, issuer, reason, comment, time);
+        type = EntryType.TEMPBAN;
+        this.endtime = time + getDurationFromString(durationstring);;
     }
 
     /**

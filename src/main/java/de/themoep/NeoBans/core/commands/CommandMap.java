@@ -37,6 +37,8 @@ public class CommandMap {
             return new KickCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
         } else if (command.equals("neoinfo")) {
             return new InfoCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
+        } else if (command.equals("neoeditban")) {
+            return new EditBanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("duration", "reason"))));
         } else {
             return new HelpCommand(plugin, sender, args);
         }

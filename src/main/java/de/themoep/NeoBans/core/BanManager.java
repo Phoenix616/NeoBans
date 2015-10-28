@@ -151,7 +151,7 @@ public class BanManager {
                 
                 if(rs.next()) {
                     entry.setDbId(rs.getInt(1));
-                    String msg = (entry.getReason().isEmpty()) ? "" : "Reason: " + entry.getReason();
+                    String msg = entry.getReason().isEmpty() ? "" : "Reason: " + entry.getReason();
                     if (entry instanceof TempbanEntry) {
                         msg = "Duration: " + ((TempbanEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true) + " " + msg;
                     }
@@ -170,25 +170,142 @@ public class BanManager {
     }
 
     /**
+     * Update a value of a banentry
+     * <br /><br />
+     * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
+     *
+     * @param entry The BanEntry to update
+     * @param invokeId The UUID of the player who updates the ban
+     * @param option The option of the ban to change
+     * @param value The value to change to
+     * @return The changed BanEntry, an Entry with the EntryType FAILURE on failure with the reason as the reason
+     */
+    public Entry updateBan(BanEntry entry, UUID invokeId, String option, String value) {
+
+        String dbColumn = null;
+        String dbValue = null;
+        BanEntry changedEntry = null;
+        if(option.equalsIgnoreCase("reason")) {
+            dbColumn = "reason";
+            dbValue = value;
+            if(entry instanceof TempbanEntry) {
+                changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), value, entry.getComment(), entry.getTime(), ((TempbanEntry) entry).getEndtime());
+            } else {
+                changedEntry = new BanEntry(entry.getBanned(), entry.getIssuer(), value, entry.getComment(), entry.getTime());
+            }
+        } else if(option.equalsIgnoreCase("endtime") || option.equalsIgnoreCase("end")) {
+            dbColumn = "endtime";
+            dbValue = "0";
+            if(value.equalsIgnoreCase("never") || value.equalsIgnoreCase("0")) {
+                changedEntry = new BanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
+            } else {
+                try {
+                    long endTime = Long.parseLong(value);
+                    changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime(), endTime);
+                } catch (NumberFormatException ignored) {}
+            }
+        } else if(option.equalsIgnoreCase("duration") || value.equalsIgnoreCase("dur")) {
+            dbColumn = "endtime";
+            if(value.startsWith("~")) {
+                changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), value.substring(1));
+            } else {
+                changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
+            }
+            dbValue = Long.toString(((TempbanEntry) changedEntry).getEndtime());
+        }
+
+        if(dbColumn == null) {
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongoption", ImmutableMap.of("option",option.toLowerCase())));
+        } else if(dbValue == null || changedEntry == null) {
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongvalue", ImmutableMap.of("option",option.toLowerCase(),"value",value.toLowerCase())));
+        }
+        changedEntry.setDbId(entry.getDbId());
+
+        if(plugin.getDatabaseManager() instanceof MysqlManager) {
+            MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
+
+            String query = "UPDATE " + mysql.getTablePrefix() + "bans SET " + dbColumn + "=? WHERE id=?";
+
+            try {
+                PreparedStatement sta = mysql.getConn().prepareStatement(query);
+                sta.setString(1, dbValue);
+                sta.setInt(2, changedEntry.getDbId());
+                sta.executeUpdate();
+                sta.close();
+                String msg = "Updated '" + option.toLowerCase() + "' to '" + value.toLowerCase() + "'";
+                if(!mysql.log(entry.getType(), entry.getBanned(), entry.getIssuer(), msg))
+                    plugin.getLogger().warning("Error while trying to log update of ban " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Encountered SQLException while trying to update ban for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
+                e.printStackTrace();
+                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+            }
+        }
+        banMap.put(entry.getBanned(), changedEntry);
+        return changedEntry;
+    }
+
+    /**
+     * Update a value of a banentry
+     * <br /><br />
+     * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
+     *
+     * @param playerId The UUID to update
+     * @param invokeId The UUID of the player who updates the ban
+     * @param option The option of the ban to change
+     * @param value The value to change to
+     * @return The changed BanEntry, <tt>null</tt> if player wasn't banned, an Entry with the EntryType FAILURE on failure with the reason as the reason
+     */
+    public Entry updateBan(UUID playerId, UUID invokeId, String option, String value) {
+        Entry entry = getBan(playerId);
+        if(entry == null)
+            return null;
+        if(entry instanceof BanEntry)
+            return updateBan((BanEntry) entry, invokeId, option, value);
+        return new Entry(EntryType.FAILURE, "Error: Found entry but it isn't a ban entry? " + entry.getType() + "/" + entry.getClass().getName());
+    }
+
+    /**
+     * Update a value of a banentry
+     * <br /><br />
+     * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
+     *
+     * @param username The name of the player to update
+     * @param invokeId The UUID of the player who updates the ban
+     * @param option The option of the ban to change
+     * @param value The value to change to
+     * @return The changed BanEntry, an Entry with the EntryType FAILURE on failure with the reason as the reason
+     */
+    public Entry updateBan(String username, UUID invokeId, String option, String value) {
+        UUID playerId = plugin.getPlayerId(username);
+        if(playerId == null)
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",username)));
+        Entry entry = updateBan(playerId, invokeId, option, value);
+        if(entry == null)
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", ImmutableMap.of("player",username)));
+        return entry;
+    }
+
+    /**
      * Remove a banentry from the banmap and database
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
      * @param banentry The banentry to remove
-     * @param invokeid The id of the player who invoked the removal of this ban.
+     * @param invokeId The id of the player who invoked the removal of this ban.
      * @param log If we should log this change to the log table or not
      * @return The previous BanEntry , null if the player wasn't banned before
      */
-    public Entry removeBan(BanEntry banentry, UUID invokeid, boolean log) {
+    public Entry removeBan(BanEntry banentry, UUID invokeId, boolean log) {
         banMap.remove(banentry.getBanned());
 
         if(plugin.getDatabaseManager() instanceof MysqlManager) {
             MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
 
-            String msg = (invokeid.compareTo(UUID.fromString("00000000-0000-0000-0000-000000000000")) == 0) ? "Automatic removal. " : "";
+            String msg = (invokeId.compareTo(UUID.fromString("00000000-0000-0000-0000-000000000000")) == 0) ? "Automatic removal. " : "";
             if(banentry instanceof TempbanEntry) {
                 msg += "Orig. endtime: " + ((TempbanEntry) banentry).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
             }
-            if (log && !mysql.log(EntryType.UNBAN, banentry.getBanned(), invokeid, msg))
+            if (log && !mysql.log(EntryType.UNBAN, banentry.getBanned(), invokeId, msg))
                 plugin.getLogger().warning("Error while trying to log deletion of ban of player " + plugin.getPlayerName(banentry.getBanned()) + "!");
 
             try {
@@ -210,37 +327,37 @@ public class BanManager {
      * Remove a banentry from the banmap and database
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
-     * @param banentry The banentry to remove
+     * @param banEntry The banentry to remove
      * @return The previous BanEntry , null if the player wasn't banned before
      */
-    public Entry removeBan(BanEntry banentry, UUID invokeid) {
-        return removeBan(banentry, invokeid, true);
+    public Entry removeBan(BanEntry banEntry, UUID invokeId) {
+        return removeBan(banEntry, invokeId, true);
     }
     
     /**
      * Remove a banentry from the banmap and database
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
-     * @param banentry The banentry to remove
+     * @param banEntry The banentry to remove
      * @return The previous BanEntry , null if the player wasn't banned before
      */
-    public Entry removeBan(BanEntry banentry) {
-        return removeBan(banentry, UUID.fromString("00000000-0000-0000-0000-000000000000"), true);
+    public Entry removeBan(BanEntry banEntry) {
+        return removeBan(banEntry, UUID.fromString("00000000-0000-0000-0000-000000000000"), true);
     }
 
     /**
      * Remove a banentry from the banmap and database
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
-     * @param playerid The UUID of the player to unban
-     * @param invokeid The id of the player who invoked the removal of this ban.
+     * @param playerId The UUID of the player to unban
+     * @param invokeId The id of the player who invoked the removal of this ban.
      * @return The previous BanEntry , null if the player wasn't banned before
      */
-    public Entry removeBan(UUID playerid, UUID invokeid) {
-        Entry entry = getBan(playerid);
-        
+    public Entry removeBan(UUID playerId, UUID invokeId) {
+        Entry entry = getBan(playerId);
+
         if(entry instanceof BanEntry)
-            return removeBan((BanEntry) entry, invokeid);
+            return removeBan((BanEntry) entry, invokeId);
         return entry;
     }
 
@@ -249,14 +366,14 @@ public class BanManager {
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
      * @param username The name of the player to unban
-     * @param invokeid The id of the player who invoked the removal of this ban.
+     * @param invokeId The id of the player who invoked the removal of this ban.
      * @return The previous BanEntry or aa Entry with Type FAILURE and the fail as reason
      */
-    public Entry removeBan(String username, UUID invokeid) {
+    public Entry removeBan(String username, UUID invokeId) {
         UUID playerid = plugin.getPlayerId(username);
         if(playerid == null)
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",username)));
-        Entry entry = removeBan(playerid, invokeid);
+        Entry entry = removeBan(playerid, invokeId);
         if(entry == null)
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", ImmutableMap.of("player",username)));
         return entry;
@@ -265,18 +382,18 @@ public class BanManager {
     /**
      * Get the number of entries in the log table of a type
      * @param type The EntryType
-     * @param playerid The UUID of the player
+     * @param playerId The UUID of the player
      * @return The count of entries in the log table
      */
-    public int getCount(EntryType type, UUID playerid) {
-        if(playerid != null && plugin.getDatabaseManager() instanceof MysqlManager) {
+    public int getCount(EntryType type, UUID playerId) {
+        if(playerId != null && plugin.getDatabaseManager() instanceof MysqlManager) {
             MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
 
             try {
                 String query = "SELECT count(id) as count FROM " + mysql.getTablePrefix() + "log WHERE type=? AND playerid=?";
                 PreparedStatement sta = mysql.getConn().prepareStatement(query);
                 sta.setString(1, type.toString());
-                sta.setString(2, playerid.toString());
+                sta.setString(2, playerId.toString());
 
                 ResultSet rs = sta.executeQuery();
                 if(rs.next()) {
@@ -284,7 +401,7 @@ public class BanManager {
                 }
                 sta.close();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Encountered SQLException while trying to to get the count of " + type.toString().toLowerCase() + " entries for player " + plugin.getPlayerName(playerid) + " from the log table!");
+                plugin.getLogger().severe("Encountered SQLException while trying to to get the count of " + type.toString().toLowerCase() + " entries for player " + plugin.getPlayerName(playerId) + " from the log table!");
                 e.printStackTrace();
             }
         }
