@@ -206,7 +206,9 @@ public class BanManager {
             }
         } else if(option.equalsIgnoreCase("duration") || value.equalsIgnoreCase("dur")) {
             dbColumn = "endtime";
-            if(value.startsWith("~")) {
+            if(value.equalsIgnoreCase("permanent") || value.equalsIgnoreCase("perm")) {
+                changedEntry = new BanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
+            } else if(value.startsWith("~")) {
                 changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), value.substring(1));
             } else {
                 changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
