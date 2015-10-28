@@ -67,6 +67,7 @@ neobans:
     banwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt. Grund: &e%reason%&6."
     tempban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt."
     tempbanwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt. Grund: &e%reason%&6."
+    banedited: "&cEdited ban of &e%player%&c. Set &e%option%&c to &e%value%"
     unban: "&f[&c!&f] &e%player%&6 wurde entbannt."
     info:
       name: "&cName: &e%player%"

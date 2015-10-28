@@ -25,6 +25,7 @@ neobans:
     banwithreason: "&e%player%&6 was banned by &e%sender%&6. Reason: &e%reason%&6."
     tempban: "&e%player%&6 was temporary banned by &e%sender%&6 for &e%duration%&6."
     tempbanwithreason: "&e%player%&6 was temporary banned by &e%sender%&6 for &e%duration%&6. Reason: &e%reason%&6."
+    banedited: "&cEdited ban of &e%player%&c. Set &e%option%&c to &e%value%"
     unban: "&e%player%&6 was unbanned by &e%sender%&6."
     info:
       name: "&cName: &e%player%"
