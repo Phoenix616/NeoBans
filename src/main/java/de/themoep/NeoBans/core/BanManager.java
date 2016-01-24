@@ -184,10 +184,12 @@ public class BanManager {
 
         String dbColumn = null;
         String dbValue = null;
+        String oldValue = "-";
         BanEntry changedEntry = null;
         if(option.equalsIgnoreCase("reason")) {
             dbColumn = "reason";
             dbValue = value;
+            oldValue = entry.getReason();
             if(entry instanceof TempbanEntry) {
                 changedEntry = new TempbanEntry(entry.getBanned(), entry.getIssuer(), value, entry.getComment(), entry.getTime(), ((TempbanEntry) entry).getEndtime());
             } else {
@@ -196,6 +198,9 @@ public class BanManager {
         } else if(option.equalsIgnoreCase("endtime") || option.equalsIgnoreCase("end")) {
             dbColumn = "endtime";
             dbValue = "0";
+            if(entry instanceof TempbanEntry) {
+                oldValue = Long.toString(((TempbanEntry) entry).getEndtime());
+            }
             if(value.equalsIgnoreCase("never") || value.equalsIgnoreCase("0")) {
                 changedEntry = new BanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
             } else {
@@ -206,6 +211,9 @@ public class BanManager {
             }
         } else if(option.equalsIgnoreCase("duration") || value.equalsIgnoreCase("dur")) {
             dbColumn = "endtime";
+            if(entry instanceof TempbanEntry) {
+                oldValue = ((TempbanEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true);
+            }
             if(value.equalsIgnoreCase("permanent") || value.equalsIgnoreCase("perm")) {
                 changedEntry = new BanEntry(entry.getBanned(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
                 dbValue = "0";
@@ -233,16 +241,17 @@ public class BanManager {
         if(plugin.getDatabaseManager() instanceof MysqlManager) {
             MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
 
-            String query = "UPDATE " + mysql.getTablePrefix() + "bans SET " + dbColumn + "=? WHERE id=?";
+            String query = "UPDATE " + mysql.getTablePrefix() + "bans SET " + dbColumn + "=?, type=? WHERE id=?";
 
             try {
                 PreparedStatement sta = mysql.getConn().prepareStatement(query);
                 sta.setString(1, dbValue);
-                sta.setInt(2, changedEntry.getDbId());
+                sta.setString(2, changedEntry.getType().toString());
+                sta.setInt(3, changedEntry.getDbId());
                 sta.executeUpdate();
                 sta.close();
-                String msg = "Updated '" + option.toLowerCase() + "' to '" + value.toLowerCase() + "'";
-                if(!mysql.log(entry.getType(), entry.getBanned(), entry.getIssuer(), msg))
+                String msg = "Updated '" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
+                if(!mysql.log(EntryType.EDITBAN, entry.getBanned(), entry.getIssuer(), msg))
                     plugin.getLogger().warning("Error while trying to log update of ban " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
             } catch (SQLException e) {
                 plugin.getLogger().severe("Encountered SQLException while trying to update ban for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
