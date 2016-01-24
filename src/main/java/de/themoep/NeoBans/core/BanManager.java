@@ -319,7 +319,7 @@ public class BanManager {
         if(plugin.getDatabaseManager() instanceof MysqlManager) {
             MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
 
-            String msg = (invokeId.compareTo(UUID.fromString("00000000-0000-0000-0000-000000000000")) == 0) ? "Automatic removal. " : "";
+            String msg = (invokeId.compareTo(UUID.fromString("00000000-0000-0000-0000-000000000000")) == 0) ? "Automatic removal. " : "Orig. reason: " + banentry.getReason();
             if(banentry instanceof TempbanEntry) {
                 msg += "Orig. endtime: " + ((TempbanEntry) banentry).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
             }
