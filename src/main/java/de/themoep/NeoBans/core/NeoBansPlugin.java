@@ -6,7 +6,9 @@ import de.themoep.NeoBans.core.config.NeoLanguageConfig;
 import de.themoep.NeoBans.core.config.NeoPluginConfig;
 import de.themoep.NeoBans.core.mysql.DatabaseManager;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -46,6 +48,14 @@ public interface NeoBansPlugin {
      * @return A list of playernames
      */
     public List<String> getOnlinePlayers();
+
+    /**
+     * Get a list of the names of all players online on a specific server (or world if Minecraft plugin)
+     * @param serverName The name of the server (or world depending on implementation)
+     * @return A list of playernames
+     * @throws NoSuchElementException When there is no server/world with that name
+     */
+    public List<String> getOnlinePlayers(String serverName) throws NoSuchElementException;
     
     /**
      * Get the UUID of a player from his username <br />
@@ -84,6 +94,13 @@ public interface NeoBansPlugin {
      * @param message The message to broadcast
      */
     public void broadcast(NeoSender sender, BroadcastDestination destination, String message);
+
+    /**
+     * Broadcast a message to certain players
+     * @param serverName The name of the server (or world on Minecraft) where this message should be sent to
+     * @param message The message to broadcast
+     */
+    public void broadcast(NeoSender sender, String serverName, String message);
 
     /**
      * Run a synchronous task

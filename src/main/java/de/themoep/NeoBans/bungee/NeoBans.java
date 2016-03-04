@@ -1,5 +1,6 @@
 package de.themoep.NeoBans.bungee;
 
+import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 import de.themoep.NeoBans.core.BanManager;
@@ -12,6 +13,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -111,6 +114,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neounban"));
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neotempban"));
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neokick"));
+                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neokickall"));
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoinfo"));
                     getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoeditban"));
                 }
@@ -121,6 +125,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neounban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neotempban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neokick"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neokickall"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoinfo"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoeditban"));
         }
@@ -146,7 +151,18 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     public DatabaseManager getDatabaseManager() {
         return dbm;
     }
-    
+
+    public List<String> getOnlinePlayers(String serverName) {
+        List<String> names = new ArrayList<String>();
+        ServerInfo server = getProxy().getServerInfo(serverName);
+        if(server == null) {
+            throw new NoSuchElementException("There is no server with the name " + serverName);
+        }
+        for(ProxiedPlayer p : server.getPlayers())
+            names.add(p.getName());
+        return names;
+    }
+
     public List<String> getOnlinePlayers() {
         List<String> names = new ArrayList<String>();
         for(ProxiedPlayer p : getProxy().getPlayers())
@@ -212,8 +228,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                 break;
             case SERVER:
                 if(sender.isPlayer()) {
-                    for(ProxiedPlayer p : getProxy().getPlayer(sender.getUniqueID()).getServer().getInfo().getPlayers())
-                        p.sendMessage(msg);                            
+                    broadcast(sender, getProxy().getPlayer(sender.getUniqueID()).getServer().getInfo().getName(), message);
                 } else
                     sender.sendMessage(message);
                 break;
@@ -222,6 +237,17 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                 break;
         }
         this.getLogger().info(message);
+    }
+
+    public void broadcast(NeoSender sender, String serverName, String message) {
+        ServerInfo server = getProxy().getServerInfo(serverName);
+        if(server != null) {
+            BaseComponent[] msg = TextComponent.fromLegacyText(message);
+            for(ProxiedPlayer p : server.getPlayers())
+                p.sendMessage(msg);
+        } else {
+            sender.sendMessage(getLanguageConfig().getTranslation("neobans.error.notfound", ImmutableMap.of("value", serverName)));
+        }
     }
 
     public void runSync(Runnable runnable) {

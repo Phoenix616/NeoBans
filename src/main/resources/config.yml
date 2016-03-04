@@ -12,10 +12,13 @@ commandaliases:
   neounban: [nunban, unban]
   neotempban: [ntempban, tempban]
   neokick: [nkick, kick]
+  neokickall: [nkickall, kickall]
   neoinfo: [ninfo, baninfo]
   neoeditban: [neditban, editban]
 broadcast:
   kick: GLOBAL
+  kickall: GLOBAL
+  kickallserver: SERVER
   ban: GLOBAL
   tempban: GLOBAL
   unban: GLOBAL

@@ -63,6 +63,9 @@ neobans:
   message:
     kick: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gekick."
     kickwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gekickt. Grund: &e%reason%&6."
+    kickall: "&f[&c!&f] &e%sender%&6 hat alle Spieler gekickt."
+    kickallserver: "&f[&c!&f] &e%sender%&6 hat alle Spieler von &e%server%&6 gekickt."
+    kickallreason: " &6Grund: &e%reason%&6."
     ban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt."
     banwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt. Grund: &e%reason%&6."
     tempban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt."
@@ -84,6 +87,7 @@ neobans:
         kicks: "&cPrevious kicks: &e%count%"
   error:
     notonline: "&e%player%&c was not found online!"
+    notfound: "&e%value%&c was not found!"
     alreadybanned: "&e%player%&c is already banned!"
     notbanned: "&e%player%&c is not banned!"
     reasontoolong: "&cYour reason is too long! Only &e140&c characters allowed!"
