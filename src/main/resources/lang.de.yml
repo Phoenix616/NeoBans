@@ -1,6 +1,7 @@
 neobans:
   usage:
     kickcommand: "&cCommand arguments: &e<username> [<reason>]"
+    kickallcommand: "&cCommand arguments: &e[server:<name>] [<reason>]"
     bancommand: "&cCommand arguments: &e<username> [<reason>]"
     tempbancommand: "&cCommand arguments: &e<username> <duration> [<reason>]"
     unbancommand: "&cCommand arguments: &e<username>"
