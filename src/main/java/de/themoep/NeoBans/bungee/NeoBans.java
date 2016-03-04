@@ -243,8 +243,13 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         ServerInfo server = getProxy().getServerInfo(serverName);
         if(server != null) {
             BaseComponent[] msg = TextComponent.fromLegacyText(message);
-            for(ProxiedPlayer p : server.getPlayers())
+            for(ProxiedPlayer p : server.getPlayers()) {
                 p.sendMessage(msg);
+            }
+
+            if(sender.isPlayer() && !getProxy().getPlayer(sender.getUniqueID()).getServer().getInfo().equals(server)) {
+                sender.sendMessage("[Sent to " + serverName + "] " + message);
+            }
         } else {
             sender.sendMessage(getLanguageConfig().getTranslation("neobans.error.notfound", ImmutableMap.of("value", serverName)));
         }
