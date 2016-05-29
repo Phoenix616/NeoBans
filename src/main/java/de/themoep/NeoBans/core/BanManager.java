@@ -241,13 +241,12 @@ public class BanManager {
         if(plugin.getDatabaseManager() instanceof MysqlManager) {
             MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
 
-            String query = "UPDATE " + mysql.getTablePrefix() + "bans SET " + dbColumn + "=?, type=? WHERE id=?";
+            String query = "UPDATE " + mysql.getTablePrefix() + "bans SET " + dbColumn + "=? WHERE id=?";
 
             try {
                 PreparedStatement sta = mysql.getConn().prepareStatement(query);
                 sta.setString(1, dbValue);
-                sta.setString(2, changedEntry.getType().toString());
-                sta.setInt(3, changedEntry.getDbId());
+                sta.setInt(2, changedEntry.getDbId());
                 sta.executeUpdate();
                 sta.close();
                 String msg = "Updated '" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
