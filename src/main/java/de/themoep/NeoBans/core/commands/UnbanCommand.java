@@ -19,7 +19,7 @@ public class UnbanCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        plugin.runSync(new Runnable() {
+        plugin.runAsync(new Runnable() {
             @Override
             public void run() {
                 Entry entry = plugin.getBanManager().removeBan(args[0], sender.getUniqueID());

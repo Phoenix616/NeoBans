@@ -17,7 +17,7 @@ public class EditBanCommand extends AbstractCommand {
     }
 
     public void execute() {
-        plugin.runSync(new Runnable() {
+        plugin.runAsync(new Runnable() {
             public void run() {
                 String playerName = args[0];
                 String option = args[1];

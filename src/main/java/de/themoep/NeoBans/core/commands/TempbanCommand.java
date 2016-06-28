@@ -19,7 +19,7 @@ public class TempbanCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        plugin.runSync(new Runnable() {
+        plugin.runAsync(new Runnable() {
             @Override
             public void run() {
                 String toBan = args[0];

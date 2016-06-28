@@ -40,7 +40,7 @@ public abstract class AbstractCommand implements NeoCommand {
         this.plugin = plugin;
         this.sender = sender;
         this.args = args;
-        this.completions = new HashMap<String, ArrayList<String>>(completions);
+        this.completions = new HashMap<>(completions);
         this.completions.put("", new ArrayList<String>());
     }
     
