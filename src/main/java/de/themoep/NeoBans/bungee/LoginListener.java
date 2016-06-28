@@ -14,8 +14,8 @@ public class LoginListener implements Listener {
 
     NeoBans plugin;
 
-    public LoginListener() {
-        this.plugin = NeoBans.getInstance();
+    public LoginListener(NeoBans plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler

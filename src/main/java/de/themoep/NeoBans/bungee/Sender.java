@@ -18,36 +18,13 @@ public class Sender implements NeoSender {
      * Command sender
      */
     protected CommandSender sender;
-    
-    /**
-     * Command sender's id
-     */
-    private UUID id;
 
     /**
-     * Command sender's name
-     */
-    protected String name;
-    
-    /**
-     * Type of the sender 
-     */
-    protected SenderType type;
-    
-    /**
      * Constructor for the sender
-     * @param id The UUID of the sender, if null it gets a 0-UUID (v3 UUID based on CustomSender:[name] is planed)
-     * @param name The name of this sender
+     * @param sender The CommandSender
      */
-    public Sender(UUID id, String name) {
-        if(id == null)
-            id = UUID.fromString("00000000-0000-0000-0000-000000000000");
-            //id = UUID.nameUUIDFromBytes(("CustomSender:" + name).getBytes(Charsets.UTF_8));
-        
-        this.id = id;
-        this.sender = NeoBans.getInstance().getProxy().getPlayer(id) != null ? NeoBans.getInstance().getProxy().getPlayer(id) : NeoBans.getInstance().getProxy().getConsole();
-        this.name = name;
-        this.type = isPlayer() ? SenderType.PLAYER : SenderType.CONSOLE;
+    public Sender(CommandSender sender) {
+        this.sender = sender;
     }
 
     @Override
@@ -62,12 +39,14 @@ public class Sender implements NeoSender {
 
     @Override
     public SenderType getType() {
-        return type;
+        return isPlayer() ? SenderType.PLAYER : SenderType.CONSOLE;
     }
 
     @Override
     public UUID getUniqueID() {
-        return id;
+        return isPlayer() ?
+                ((ProxiedPlayer) sender).getUniqueId() :
+                UUID.fromString("00000000-0000-0000-0000-000000000000");
     }
 
     @Override
@@ -75,12 +54,6 @@ public class Sender implements NeoSender {
         return sender.hasPermission(perm);
     }
 
-    @Override
-    public void notify(String key) {
-        String string = NeoBans.getInstance().getLanguageConfig().getTranslation(key);
-        sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', string)));
-    }
-    
     @Override
     public void sendMessage(String message) {
         sender.sendMessage(TextComponent.fromLegacyText(message));

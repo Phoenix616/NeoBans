@@ -7,6 +7,7 @@ import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Created by Phoenix616 on 16.03.2015.
@@ -27,20 +28,22 @@ public class CommandMap {
      * @return A command object you can execute or tabcomplete
      */
     public NeoCommand get(String command, Sender sender, String[] args) {
-        if (command.equals("neoban")) {
-            return new BanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
-        } else if (command.equals("neounban")) {
-            return new UnbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
-        } else if (command.equals("neotempban")) {
-            return new TempbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
-        } else if (command.equals("neokick")) {
-            return new KickCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
-        } else if (command.equals("neokickall")) {
+        if ("neoban".equals(command)) {
+            return new BanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neounban".equals(command)) {
+            return new UnbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neotempban".equals(command)) {
+            return new TempbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neokick".equals(command)) {
+            return new KickCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neokickall".equals(command)) {
             return new KickAllCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>()));
-        } else if (command.equals("neoinfo")) {
-            return new InfoCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("%online%"))));
-        } else if (command.equals("neoeditban")) {
-            return new EditBanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>(Arrays.asList("duration", "reason"))));
+        } else if ("neoinfo".equals(command)) {
+            return new InfoCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neoeditban".equals(command)) {
+            return new EditBanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("duration", "reason"))));
+        } else if ("neolog".equals(command)) {
+            return new LogCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
         } else {
             return new HelpCommand(plugin, sender, args);
         }

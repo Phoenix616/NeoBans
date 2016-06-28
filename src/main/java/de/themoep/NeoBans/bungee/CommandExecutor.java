@@ -18,53 +18,61 @@ import java.util.Arrays;
  */
 public class CommandExecutor extends Command implements Listener {
 
-    public CommandExecutor(String name) {
-        super(name.toLowerCase(), "neobans.command." + name.toLowerCase().replace("neo", ""), NeoBans.getInstance().getConfig().getCommandAliases(name));
-        NeoBans.getInstance().getProxy().getPluginManager().registerListener(NeoBans.getInstance(), this);
+    private final NeoBans plugin;
+
+    public CommandExecutor(NeoBans plugin, String name) {
+        super(name.toLowerCase(), "neobans.command." + name.toLowerCase().replace("neo", ""), plugin.getConfig().getCommandAliases(name));
+        this.plugin = plugin;
+        plugin.getProxy().getPluginManager().registerListener(plugin, this);
     }
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
         NeoCommand cmd;
-        
-        Sender sender = new Sender(commandSender instanceof ProxiedPlayer ? ((ProxiedPlayer) commandSender).getUniqueId() : null, commandSender.getName());
 
-        cmd = NeoBans.getInstance().getCommandMap().get(this.getName(), sender, args);
+        Sender sender = new Sender(commandSender);
+
+        cmd = plugin.getCommandMap().get(this.getName(), sender, args);
 
         // execute command
         if (sender.hasPermission(this.getPermission())) {
             if (cmd.validateInput()) {
                 cmd.execute();
             } else {
-                sender.notify("neobans.usage." + cmd.getClass().getSimpleName().toLowerCase());
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation(
+                        "neobans.usage." + cmd.getClass().getSimpleName().toLowerCase()
+                ));
             }
         } else {
-            sender.sendMessage(NeoBans.getInstance().getLanguageConfig().getTranslation("neobans.permission.insufficient-permission", "permission", this.getPermission()));
+            sender.sendMessage(plugin.getLanguageConfig().getTranslation(
+                    "neobans.permission.insufficient-permission",
+                    "permission", this.getPermission()
+            ));
         }
     }
 
     @EventHandler
     public void onTabComplete(TabCompleteEvent event) {
         String cmd = event.getCursor().replaceFirst("/", "").split(" ")[0].toLowerCase();
-        
+
         String[] args = new String[]{};
         int index = event.getCursor().indexOf(" ");
-        if(index >= 0)
+        if (index >= 0)
             args = event.getCursor().substring(index).trim().split(" ");
         // For whatever reason the array still has an argument even if it is empty?
-        if(args.length == 1 && args[0].isEmpty())
+        if (args.length == 1 && args[0].isEmpty())
             args = new String[]{};
-        
-        if(cmd.equals(this.getName()) || Arrays.asList(getAliases()).contains(cmd)) {
-            Sender sender = new Sender(event.getSender() instanceof ProxiedPlayer ? ((ProxiedPlayer) event.getSender()).getUniqueId() : null, event.getSender() instanceof ProxiedPlayer ? ((ProxiedPlayer) event.getSender()).getName() : "Console");
+
+        if (cmd.equals(this.getName()) || Arrays.asList(getAliases()).contains(cmd)) {
+            Sender sender = new Sender((CommandSender) event.getSender());
             event.getSuggestions().clear();
-            event.getSuggestions().addAll(NeoBans.getInstance().getCommandMap().get(this.getName(), sender, args).getTabSuggestions(event.getCursor()));
-        } else if(args.length == 0)
-            if(this.getName().startsWith(cmd))
+            event.getSuggestions().addAll(plugin.getCommandMap().get(this.getName(), sender, args).getTabSuggestions(event.getCursor()));
+        } else if (args.length == 0)
+            if (this.getName().startsWith(cmd))
                 event.getSuggestions().add("/" + this.getName());
             else
-                for(String a : getAliases())
-                    if(a.startsWith(cmd))
+                for (String a : getAliases())
+                    if (a.startsWith(cmd))
                         event.getSuggestions().add("/" + a);
     }
 }

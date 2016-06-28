@@ -9,14 +9,14 @@ public interface NeoLanguageConfig {
     /**
      * Create the default language config file. Default language is english!
      */
-    public void createDefaultConfig();
+    void createDefaultConfig();
 
     /**
      * Get translation from language config
      * @param key The language key to get from the config
      * @return The translated string
      */
-    public String getTranslation(String key);
+    String getTranslation(String key);
 
     /**
      * Get translation from language config and insert replacements
@@ -24,5 +24,5 @@ public interface NeoLanguageConfig {
      * @param replacements The replacements, 2n = key, 2n + 1 = value
      * @return The translated and replaced string
      */
-    public String getTranslation(String key, String... replacements);
+    String getTranslation(String key, String... replacements);
 }

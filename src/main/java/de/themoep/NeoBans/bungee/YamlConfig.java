@@ -9,11 +9,13 @@ import java.io.File;
 import java.io.IOException;
 
 import de.themoep.NeoBans.core.config.NeoConfig;
+import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
 public abstract class YamlConfig implements NeoConfig {
+    protected final Plugin plugin;
     protected Configuration cfg;
     protected final static ConfigurationProvider ymlCfg = ConfigurationProvider.getProvider( YamlConfiguration.class );
 
@@ -24,7 +26,8 @@ public abstract class YamlConfig implements NeoConfig {
      * @param configFilePath
      * @throws IOException
      */
-    public YamlConfig(String configFilePath) throws IOException {
+    public YamlConfig(Plugin plugin, String configFilePath) throws IOException {
+        this.plugin = plugin;
         configFile = new File(configFilePath);
 
         if (!configFile.exists()) {
@@ -47,7 +50,7 @@ public abstract class YamlConfig implements NeoConfig {
         try {
             ymlCfg.save(cfg, configFile);
         } catch (IOException e) {
-            NeoBans.getInstance().getLogger().severe("Unable to save configuration at " + configFile.getAbsolutePath());
+            plugin.getLogger().severe("Unable to save configuration at " + configFile.getAbsolutePath());
             e.printStackTrace();
         }
     }

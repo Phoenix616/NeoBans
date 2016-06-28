@@ -2,24 +2,25 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.config.NeoLanguageConfig;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 /**
  * By zaiyers
  * https://github.com/zaiyers/Channels/blob/master/src/main/java/net/zaiyers/Channels/config/LanguageConfig.java
  */
 public class LanguageConfig extends YamlConfig implements NeoLanguageConfig {
-    public LanguageConfig(String configFilePath) throws IOException {
-        super(configFilePath);
+
+    public LanguageConfig(Plugin plugin, String configFilePath) throws IOException {
+        super(plugin, configFilePath);
     }
 
     public void createDefaultConfig() {
         // default is english
         cfg = ymlCfg.load(
-                new InputStreamReader(NeoBans.getInstance().getResourceAsStream(configFile.getName()))
+                new InputStreamReader(plugin.getResourceAsStream(configFile.getName()))
         );
 
         save();

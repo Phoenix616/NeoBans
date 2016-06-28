@@ -9,17 +9,17 @@ public interface NeoConfig {
     /**
      * creates a default configuration
      */
-    public void createDefaultConfig();
+    void createDefaultConfig();
 
     /**
      * save configuration
      */
-    public void save();
+    void save();
 
     /**
      * remove configuration
      */
-    public void removeConfig();
+    void removeConfig();
 
     /**
      * Get a string from the config

@@ -1,6 +1,5 @@
 package de.themoep.NeoBans.bungee;
 
-import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 import de.themoep.NeoBans.core.BanManager;
@@ -10,13 +9,13 @@ import de.themoep.NeoBans.core.mysql.DatabaseManager;
 import de.themoep.NeoBans.core.mysql.MysqlManager;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
+
 import net.zaiyers.UUIDDB.bungee.UUIDDB;
 
 import java.io.File;
@@ -35,21 +34,21 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     /**
      * NeoBans config 
      */
-    private static PluginConfig config;
+    private PluginConfig config;
 
     /**
      * Language config
      */
-    private static LanguageConfig lang;
+    private LanguageConfig lang;
 
     /**
      * BanManager 
      */
-    private static BanManager bm;
+    private BanManager bm;
     
-    private static DatabaseManager dbm;
+    private DatabaseManager dbm;
 
-    private static CommandMap cm;
+    private CommandMap cm;
     
     /**
      * If the server runs uuiddb or not
@@ -62,7 +61,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             uuiddb = true;
         
         try {
-            config = new PluginConfig(getDataFolder() + File.separator + "config.yml");
+            config = new PluginConfig(this, getDataFolder() + File.separator + "config.yml");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration! NeoBans will not be enabled.");
             e.printStackTrace();
@@ -71,7 +70,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
         // load language
         try {
-            lang = new LanguageConfig(getDataFolder()+ File.separator + "lang." + config.getLanguage() + ".yml");
+            lang = new LanguageConfig(this, getDataFolder()+ File.separator + "lang." + config.getLanguage() + ".yml");
         } catch (IOException e) {
             getLogger().severe("Unable to load language! NeoBans will not be enabled.");
             e.printStackTrace();
@@ -79,17 +78,17 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             return;
         }
 
-        bm = new BanManager(NeoBans.getInstance());
+        bm = new BanManager(this);
         
-        cm = new CommandMap(NeoBans.getInstance());
+        cm = new CommandMap(this);
 
         if(getConfig().getString("backend").equalsIgnoreCase("mysql"))
-            dbm = new MysqlManager(NeoBans.getInstance());
+            dbm = new MysqlManager(this);
 
         setupCommands(config.getLatebind());
         
         getLogger().info("Registering Listeners...");
-        getProxy().getPluginManager().registerListener(NeoBans.getInstance(), new LoginListener());
+        getProxy().getPluginManager().registerListener(this, new LoginListener(this));
 
     }
 
@@ -107,27 +106,28 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
         if(latebind) {
             getLogger().info("Scheduling the Registering of the Commands...");
+            final NeoBans plugin = this;
             getProxy().getScheduler().schedule(this, new Runnable() {
                 public void run() {
-                    NeoBans.getInstance().getLogger().info("Late-binding Commands...");
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoban"));
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neounban"));
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neotempban"));
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neokick"));
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neokickall"));
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoinfo"));
-                    getProxy().getPluginManager().registerCommand(NeoBans.getInstance(), new CommandExecutor("neoeditban"));
+                    plugin.getLogger().info("Late-binding Commands...");
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoban"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neounban"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neotempban"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokick"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokickall"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoinfo"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoeditban"));
                 }
             }, 1, TimeUnit.SECONDS);
         } else {
             getLogger().info("Registering Commands...");
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoban"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neounban"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neotempban"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neokick"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neokickall"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoinfo"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor("neoeditban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neounban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neotempban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neokick"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neokickall"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoinfo"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoeditban"));
         }
 
     }
@@ -263,10 +263,4 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         getProxy().getScheduler().runAsync(this, runnable);
     }
 
-    /**
-     * Return the plugin's instance
-     */
-    public static NeoBans getInstance() {
-        return (NeoBans) ProxyServer.getInstance().getPluginManager().getPlugin("NeoBans");
-    }
 }

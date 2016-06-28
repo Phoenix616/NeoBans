@@ -12,6 +12,7 @@ import java.util.List;
  * Created by Phoenix616 on 09.02.2015.
  */
 public class PluginConfig extends YamlConfig implements NeoPluginConfig {
+    private final NeoBans plugin;
     private HashMap<String, List<String>>[] commandMap;
 
     /**
@@ -19,13 +20,14 @@ public class PluginConfig extends YamlConfig implements NeoPluginConfig {
      * @param path Path the the configuration file
      * @throws IOException
      */
-    public PluginConfig(String path) throws IOException {
-        super(path);
+    public PluginConfig(NeoBans plugin, String path) throws IOException {
+        super(plugin, path);
+        this.plugin = plugin;
     }
 
     @Override
     public void createDefaultConfig() {
-        cfg = ymlCfg.load(new InputStreamReader(NeoBans.getInstance().getResourceAsStream("config.yml")));
+        cfg = ymlCfg.load(new InputStreamReader(plugin.getResourceAsStream("config.yml")));
 
         save();
     }
@@ -40,7 +42,8 @@ public class PluginConfig extends YamlConfig implements NeoPluginConfig {
     }
 
     public String[] getCommandAliases(String cmdname) {
-        return cfg.getStringList("commandaliases." + cmdname.toLowerCase()).toArray(new String[0]);
+        List<String> stringList = cfg.getStringList("commandaliases." + cmdname.toLowerCase());
+        return stringList.toArray(new String[stringList.size()]);
     }
 
     public BroadcastDestination getBroadcastDestination(String type) {
