@@ -15,6 +15,7 @@ commandaliases:
   neokickall: [nkickall, kickall]
   neoinfo: [ninfo, baninfo]
   neoeditban: [neditban, editban]
+  neolog: [banlog]
 broadcast:
   kick: GLOBAL
   kickall: GLOBAL

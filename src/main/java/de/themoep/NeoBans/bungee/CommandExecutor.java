@@ -28,11 +28,9 @@ public class CommandExecutor extends Command implements Listener {
 
     @Override
     public void execute(CommandSender commandSender, String[] args) {
-        NeoCommand cmd;
-
         Sender sender = new Sender(commandSender);
 
-        cmd = plugin.getCommandMap().get(this.getName(), sender, args);
+        NeoCommand cmd = plugin.getCommandMap().get(this.getName(), sender, args);
 
         // execute command
         if (sender.hasPermission(this.getPermission())) {

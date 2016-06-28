@@ -7,6 +7,7 @@ neobans:
     unbancommand: "&cCommand arguments: &e<username>"
     infocommand: "&cCommand arguments: &e<username>"
     editbancommand: "&cCommand arguments: &e<username> [duration|reason] <value>"
+    logcommand: "&cCommand arguments: &e<username> [<page>]"
   disconnect:
     kick: "&cYou have been &ekicked&c by &e%sender%&c!"
     kickwithreason: "&cYou have been &ekicked&c by &e%sender% &cbecause of &e%reason%&c!"
@@ -44,9 +45,17 @@ neobans:
         bans: "&cPrevious bans: &e%count%"
         tempbans: "&cPrevious tempbans: &e%count%"
         kicks: "&cPrevious kicks: &e%count%"
+    log:
+      head: "&eLog Entries for &6%player%&e: &7Page %page%"
+      noentries: "&cNo Entries found"
+      entry:  |
+        &f%time%: %type%-Entry by %issuer% for %player%
+        &7%reason%
   error:
     notonline: "&e%player%&c was not found online!"
     notfound: "&e%value%&c was not found!"
+    notanumber: "&e%value%&c is not a valid number!"
+    numbertoosmall: "&e%value%&c is too small! Use one above zero!"
     alreadybanned: "&e%player%&c is already banned!"
     notbanned: "&e%player%&c is not banned!"
     reasontoolong: "&cYour reason is too long! Only &e140&c characters allowed!"
@@ -56,6 +65,7 @@ neobans:
     kicknotallowed: "&cYou are not allowed to kick the player &e%player%c!"
     wrongoption: "&cThe option &e%option%&c is not allowed!"
     wrongvalue: "&cThe value &e%value&c is not valid for the option &e%option%&c!"
+    unknownentrytype: "&cUnknown entry type &e%type%&c!"
 time:
   format: "dd/MM/yyyy HH:mm:ss z"
   year: "year"

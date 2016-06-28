@@ -1,10 +1,15 @@
 package de.themoep.NeoBans.core.mysql;
 
+import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
+import de.themoep.NeoBans.core.LogEntry;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 08.03.2015.
@@ -75,12 +80,12 @@ public class MysqlManager implements DatabaseManager {
     }
 
     @Override
-    public boolean log(EntryType type, UUID playerid, UUID issuerid, String message) {
+    public boolean log(EntryType type, UUID playerId, UUID issuerid, String message) {
         try {
             String query = "INSERT INTO " + getTablePrefix() + "log (type, playerid, issuerid, msg) values (?, ?, ?, ?)";
             PreparedStatement sta = getConn().prepareStatement(query);
             sta.setString(1, type.toString());
-            sta.setString(2, playerid.toString());
+            sta.setString(2, playerId.toString());
             sta.setString(3, issuerid.toString());
             sta.setString(4, message);
             sta.execute();
@@ -91,6 +96,47 @@ public class MysqlManager implements DatabaseManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public List<Entry> getLogEntries(UUID playerId, int page) {
+        int pageSize = 10;
+        int start = page * pageSize;
+        List<Entry> logList = new ArrayList<>();
+        try {
+            String query = "SELECT * FROM " + getTablePrefix() + "log WHERE playerid = ? OR issuerid = ? ORDER BY time DESC LIMIT ?,?";
+            PreparedStatement sta = getConn().prepareStatement(query);
+            sta.setString(1, playerId.toString());
+            sta.setString(2, playerId.toString());
+            sta.setInt(3, start);
+            sta.setInt(4, pageSize);
+            ResultSet rs = sta.executeQuery();
+
+            while (rs.next()) {
+                String typeStr = rs.getString("type");
+                try {
+                    EntryType type = EntryType.valueOf(typeStr);
+                    UUID issuerId = UUID.fromString(rs.getString("issuerid"));
+                    String message = rs.getString("msg");
+                    Timestamp timestamp = rs.getTimestamp("time");
+                    logList.add(new LogEntry(type, playerId, issuerId, message, timestamp.getTime() / 1000));
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().log(Level.SEVERE, "Unknown entry type " + rs.getString("type") + " while loading log entry!");
+                    logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
+                            "neobans.error.unknownentrytype",
+                            "type", typeStr
+                    )));
+                }
+            }
+
+            rs.close();
+            sta.close();
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Error while trying to get the log entries on page " + page + " for player " + playerId + "!", e);
+            logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
+                    "neobans.error.database"
+            )));
+        }
+        return logList;
     }
 
     @Override

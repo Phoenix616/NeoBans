@@ -117,6 +117,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                     getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokickall"));
                     getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoinfo"));
                     getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoeditban"));
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neolog"));
                 }
             }, 1, TimeUnit.SECONDS);
         } else {
@@ -128,6 +129,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neokickall"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoinfo"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoeditban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neolog"));
         }
 
     }

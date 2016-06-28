@@ -1,7 +1,10 @@
 package de.themoep.NeoBans.core.mysql;
 
+import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
+import de.themoep.NeoBans.core.LogEntry;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -12,17 +15,24 @@ public interface DatabaseManager {
     /**
      * Initialize the tables needed for this plugin.
      */
-    public void initializeTables();
+    void initializeTables();
 
     /**
      * Log something to the database
      * @param type The type of this log entry
-     * @param playerid The id of the player this entry is for
-     * @param issuerid The id of the player because of which this got logged
+     * @param playerId The id of the player this entry is for
+     * @param issuerId The id of the player because of which this got logged
      * @param message The message to log
      * @return
      */
-    public boolean log(EntryType type, UUID playerid, UUID issuerid, String message);
+    boolean log(EntryType type, UUID playerId, UUID issuerId, String message);
+    /**
+     * Get log entries by a player
+     * @param playerId The UUID of the player to get the entries for
+     * @param page The page to get, starts at 0
+     * @return A List of Entries
+     */
+    List<Entry> getLogEntries(UUID playerId, int page);
 
     /**
      * Disable the database manager. This closes all connections.
