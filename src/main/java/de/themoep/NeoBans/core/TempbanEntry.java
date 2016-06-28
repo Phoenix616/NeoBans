@@ -125,7 +125,7 @@ public class TempbanEntry extends BanEntry {
     /**
      * Get a formatted string of when this temporary ban ends
      * @param format The format to use to format the date with. (SimpleDateFormat)
-     * @return The timestamp when this ban ends as a long in <strong>seconds</strong>
+     * @return The timestamp when this ban ends as a formatted string
      */
     public String getEndtime(String format) {
         Date date = new Date(getEndtime() * 1000L);
