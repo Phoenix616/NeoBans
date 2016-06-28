@@ -2,12 +2,10 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.NeoBans.core.commands.SenderType;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -44,9 +42,7 @@ public class Sender implements NeoSender {
 
     @Override
     public UUID getUniqueID() {
-        return isPlayer() ?
-                ((ProxiedPlayer) sender).getUniqueId() :
-                UUID.fromString("00000000-0000-0000-0000-000000000000");
+        return isPlayer() ? ((ProxiedPlayer) sender).getUniqueId() : new UUID(0, 0);
     }
 
     @Override

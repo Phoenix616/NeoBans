@@ -1,6 +1,5 @@
 package de.themoep.NeoBans.core;
 
-import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.mysql.MysqlManager;
 
 import java.sql.PreparedStatement;
@@ -21,7 +20,7 @@ public class BanManager {
     
     public BanManager(NeoBansPlugin plugin) {
         this.plugin = plugin;
-        banMap = new ConcurrentHashMap<UUID, BanEntry>();
+        banMap = new ConcurrentHashMap<>();
     }
 
     /**
@@ -318,7 +317,7 @@ public class BanManager {
         if(plugin.getDatabaseManager() instanceof MysqlManager) {
             MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
 
-            String msg = (invokeId.compareTo(UUID.fromString("00000000-0000-0000-0000-000000000000")) == 0) ? "Automatic removal. " : "Orig. reason: " + banentry.getReason();
+            String msg = invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "Orig. reason: " + banentry.getReason();
             if(banentry instanceof TempbanEntry) {
                 msg += "Orig. endtime: " + ((TempbanEntry) banentry).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
             }
@@ -359,7 +358,7 @@ public class BanManager {
      * @return The previous BanEntry , null if the player wasn't banned before
      */
     public Entry removeBan(BanEntry banEntry) {
-        return removeBan(banEntry, UUID.fromString("00000000-0000-0000-0000-000000000000"), true);
+        return removeBan(banEntry, new UUID(0, 0), true);
     }
 
     /**
