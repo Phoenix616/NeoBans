@@ -2,7 +2,6 @@ package de.themoep.NeoBans.core.commands;
 
 import com.google.common.collect.ImmutableMap;
 
-import de.themoep.NeoBans.bungee.Sender;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class CommandMap {
      * @param args The arguments of the command
      * @return A command object you can execute or tabcomplete
      */
-    public NeoCommand get(String command, Sender sender, String[] args) {
+    public NeoCommand get(String command, NeoSender sender, String[] args) {
         if ("neoban".equals(command)) {
             return new BanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
         } else if ("neounban".equals(command)) {

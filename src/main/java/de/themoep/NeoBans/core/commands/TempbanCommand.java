@@ -2,8 +2,6 @@ package de.themoep.NeoBans.core.commands;
 
 import de.themoep.NeoBans.core.*;
 
-import net.md_5.bungee.api.ChatColor;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -88,7 +86,7 @@ public class TempbanCommand extends AbstractCommand {
                             sender.sendMessage(entry.getReason());
                         }
                     } catch (NumberFormatException e) {
-                        sender.sendMessage(ChatColor.RED + e.getMessage());
+                        sender.sendMessage("&c" + e.getMessage());
                     }
                 } else {
                     sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", "player", toBan, "reason", reason));
