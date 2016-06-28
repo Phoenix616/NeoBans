@@ -95,7 +95,7 @@ public class BanManager {
     public Entry getBan(String username){
         UUID playerid = plugin.getPlayerId(username);
         return (playerid == null) 
-                ? new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",username)))
+                ? new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player",username))
                 : getBan(playerid);
     };
 
@@ -125,7 +125,7 @@ public class BanManager {
         if(existingentry != null) {
             if(existingentry.getType() == EntryType.FAILURE)
                 return existingentry;
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadybanned", ImmutableMap.of("player", plugin.getPlayerName(entry.getBanned()))));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadybanned", "player", plugin.getPlayerName(entry.getBanned())));
         }
         
         banMap.put(entry.getBanned(), entry);
@@ -232,9 +232,9 @@ public class BanManager {
         }
 
         if(dbColumn == null) {
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongoption", ImmutableMap.of("option",option.toLowerCase())));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongoption", "option",option.toLowerCase()));
         } else if(dbValue == null || changedEntry == null) {
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongvalue", ImmutableMap.of("option",option.toLowerCase(),"value",value.toLowerCase())));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongvalue", "option",option.toLowerCase(),"value",value.toLowerCase()));
         }
         changedEntry.setDbId(entry.getDbId());
 
@@ -296,10 +296,10 @@ public class BanManager {
     public Entry updateBan(String username, UUID invokeId, String option, String value) {
         UUID playerId = plugin.getPlayerId(username);
         if(playerId == null)
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",username)));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player",username));
         Entry entry = updateBan(playerId, invokeId, option, value);
         if(entry == null)
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", ImmutableMap.of("player",username)));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player",username));
         return entry;
     }
 
@@ -389,10 +389,10 @@ public class BanManager {
     public Entry removeBan(String username, UUID invokeId) {
         UUID playerid = plugin.getPlayerId(username);
         if(playerid == null)
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player",username)));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player",username));
         Entry entry = removeBan(playerid, invokeId);
         if(entry == null)
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", ImmutableMap.of("player",username)));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player",username));
         return entry;
     }
 

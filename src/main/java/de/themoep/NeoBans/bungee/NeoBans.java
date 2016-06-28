@@ -251,7 +251,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                 sender.sendMessage("[Sent to " + serverName + "] " + message);
             }
         } else {
-            sender.sendMessage(getLanguageConfig().getTranslation("neobans.error.notfound", ImmutableMap.of("value", serverName)));
+            sender.sendMessage(getLanguageConfig().getTranslation("neobans.error.notfound", "value", serverName));
         }
     }
 

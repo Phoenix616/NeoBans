@@ -33,13 +33,13 @@ public class LanguageConfig extends YamlConfig implements NeoLanguageConfig {
         }
     }
     
-    public String getTranslation(String key, Map<String, String> replacements) {
+    public String getTranslation(String key, String... replacements) {
         String string = getTranslation(key);
 
         // insert replacements
         if (replacements != null)
-            for (Map.Entry<String, String> entry: replacements.entrySet())
-                string = string.replace("%" + entry.getKey() + "%", entry.getValue());
+            for (int i = 0; i + 1 < replacements.length; i += 2)
+                string = string.replace("%" + replacements[i] + "%", replacements[i + 1]);
         return string;
     }
 

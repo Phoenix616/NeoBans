@@ -1,12 +1,11 @@
 package de.themoep.NeoBans.core.commands;
 
-import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.BroadcastDestination;
-import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -14,7 +13,7 @@ import java.util.NoSuchElementException;
  */
 public class KickAllCommand extends AbstractCommand {
 
-    public KickAllCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, ImmutableMap<String, ArrayList<String>> completions) {
+    public KickAllCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, Map<String, ArrayList<String>> completions) {
         super(plugin, sender, args, completions);
     }
 
@@ -28,7 +27,7 @@ public class KickAllCommand extends AbstractCommand {
             try {
                 players.addAll(plugin.getOnlinePlayers(serverName));
             } catch(NoSuchElementException e) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notfound", ImmutableMap.of("value", serverName)));
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notfound", "value", serverName));
                 return;
             }
             reasonStart = 1;
@@ -50,18 +49,18 @@ public class KickAllCommand extends AbstractCommand {
 
         for(String toKick : players) {
             String kickmsg = reason.isEmpty()
-                    ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", ImmutableMap.of("player", toKick, "sender", sender.getName()))
-                    : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", ImmutableMap.of("player", toKick, "reason", reason, "sender", sender.getName()));
+                    ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", "player", toKick, "sender", sender.getName())
+                    : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
             if(plugin.kickPlayer(sender, toKick, kickmsg) == -1) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", ImmutableMap.of("player", toKick)));
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", "player", toKick));
             }
         }
         String kickbc = serverName.isEmpty()
-                ? plugin.getLanguageConfig().getTranslation("neobans.message.kickall", ImmutableMap.of("sender", sender.getName()))
-                : plugin.getLanguageConfig().getTranslation("neobans.message.kickallserver", ImmutableMap.of("server", serverName, "sender", sender.getName()));
+                ? plugin.getLanguageConfig().getTranslation("neobans.message.kickall", "sender", sender.getName())
+                : plugin.getLanguageConfig().getTranslation("neobans.message.kickallserver", "server", serverName, "sender", sender.getName());
 
         if(!reason.isEmpty()) {
-            kickbc += plugin.getLanguageConfig().getTranslation("neobans.message.kickallreason", ImmutableMap.of("reason", reason));
+            kickbc += plugin.getLanguageConfig().getTranslation("neobans.message.kickallreason", "reason", reason);
         }
 
         BroadcastDestination bd = serverName.isEmpty()

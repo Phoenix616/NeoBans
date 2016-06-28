@@ -1,18 +1,18 @@
 package de.themoep.NeoBans.core.commands;
 
-import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
  */
 public class EditBanCommand extends AbstractCommand {
 
-    public EditBanCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, ImmutableMap<String, ArrayList<String>> completions) {
+    public EditBanCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, Map<String, ArrayList<String>> completions) {
         super(plugin, sender, args, completions);
     }
 
@@ -30,12 +30,12 @@ public class EditBanCommand extends AbstractCommand {
                 if(value.length() < 140) {
                     Entry entry = plugin.getBanManager().updateBan(playerName, sender.getUniqueID(), option.toLowerCase(), value);
                     if(entry.getType() != EntryType.FAILURE) {
-                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.message.banedited", ImmutableMap.of("player", playerName, "option", option.toLowerCase(), "value", value)));
+                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.message.banedited", "player", playerName, "option", option.toLowerCase(), "value", value));
                     } else {
                         sender.sendMessage(entry.getReason());
                     }
                 } else {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", ImmutableMap.of("player", playerName, "reason", value)));
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", "player", playerName, "reason", value));
                 }
             }
         });

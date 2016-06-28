@@ -87,11 +87,11 @@ public class Sender implements NeoSender {
     }
 
     @Override
-    public void sendMessage(String message, Map<String, String> replacements) {
+    public void sendMessage(String message, String... replacements) {
         // insert replacements
         if (replacements != null)
-            for (String variable: replacements.keySet())
-                message = message.replaceAll("%"+variable+"%", replacements.get(variable));
+            for (int i = 0; i + 1 < replacements.length; i += 2)
+                message = message.replaceAll("%" + replacements[i] + "%", replacements[i + 2]);
         
         sender.sendMessage(TextComponent.fromLegacyText(message));
     }

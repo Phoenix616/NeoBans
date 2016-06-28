@@ -56,6 +56,6 @@ public interface NeoSender {
      * @param message The message string to send
      * @param replacements The replacements in a map from placeholder to replacement
      */
-    void sendMessage(String message, Map<String, String> replacements);
+    void sendMessage(String message, String... replacements);
 }
 

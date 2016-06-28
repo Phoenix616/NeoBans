@@ -1,6 +1,5 @@
 package de.themoep.NeoBans.bungee;
 
-import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.TempbanEntry;
@@ -33,16 +32,16 @@ public class LoginListener implements Listener {
                         event.setCancelReason(entry.getReason());
                     } else if (entry.getType() == EntryType.BAN) {
                         String msg = (entry.getReason().isEmpty())
-                                ? plugin.getLanguageConfig().getTranslation("neobans.join.banned", ImmutableMap.of("player", event.getConnection().getName()))
-                                : plugin.getLanguageConfig().getTranslation("neobans.join.bannedwithreason", ImmutableMap.of("player", event.getConnection().getName(), "reason", entry.getReason()));
+                                ? plugin.getLanguageConfig().getTranslation("neobans.join.banned", "player", event.getConnection().getName())
+                                : plugin.getLanguageConfig().getTranslation("neobans.join.bannedwithreason", "player", event.getConnection().getName(), "reason", entry.getReason());
 
                         event.setCancelled(true);
                         event.setCancelReason(msg);
                     } else if (entry.getType() == EntryType.TEMPBAN && entry instanceof TempbanEntry) {
                         TempbanEntry tbe = (TempbanEntry) entry;
                         String msg = (entry.getReason().isEmpty())
-                                ? plugin.getLanguageConfig().getTranslation("neobans.join.tempbanned", ImmutableMap.of("player", event.getConnection().getName(), "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))))
-                                : plugin.getLanguageConfig().getTranslation("neobans.join.tempbannedwithreason", ImmutableMap.of("player", event.getConnection().getName(), "reason", entry.getReason(), "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))));
+                                ? plugin.getLanguageConfig().getTranslation("neobans.join.tempbanned", "player", event.getConnection().getName(), "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")))
+                                : plugin.getLanguageConfig().getTranslation("neobans.join.tempbannedwithreason", "player", event.getConnection().getName(), "reason", entry.getReason(), "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
 
                         event.setCancelled(true);
                         event.setCancelReason(msg);

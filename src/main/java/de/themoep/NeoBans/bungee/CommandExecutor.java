@@ -1,7 +1,5 @@
 package de.themoep.NeoBans.bungee;
 
-import com.google.common.collect.ImmutableMap;
-
 import de.themoep.NeoBans.core.commands.NeoCommand;
 
 import net.md_5.bungee.api.CommandSender;
@@ -41,7 +39,7 @@ public class CommandExecutor extends Command implements Listener {
                 sender.notify("neobans.usage." + cmd.getClass().getSimpleName().toLowerCase());
             }
         } else {
-            sender.sendMessage(NeoBans.getInstance().getLanguageConfig().getTranslation("neobans.permission.insufficient-permission", ImmutableMap.of("permission", this.getPermission())));
+            sender.sendMessage(NeoBans.getInstance().getLanguageConfig().getTranslation("neobans.permission.insufficient-permission", "permission", this.getPermission()));
         }
     }
 

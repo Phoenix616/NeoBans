@@ -1,12 +1,12 @@
 package de.themoep.NeoBans.core.commands;
 
-import com.google.common.collect.ImmutableMap;
 
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 public class KickCommand extends AbstractCommand {
     
-    public KickCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, ImmutableMap<String, ArrayList<String>> completions) {
+    public KickCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, Map<String, ArrayList<String>> completions) {
         super(plugin, sender, args, completions);
     }
 
@@ -35,11 +35,11 @@ public class KickCommand extends AbstractCommand {
         reason = reason.trim();
         
         String kickmsg = (reason.isEmpty()) 
-                ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", ImmutableMap.of("player", toKick, "sender", sender.getName())) 
-                : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", ImmutableMap.of("player", toKick, "reason", reason, "sender", sender.getName()));
+                ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", "player", toKick, "sender", sender.getName())
+                : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
         String kickbc = (reason.isEmpty()) 
-                ? plugin.getLanguageConfig().getTranslation("neobans.message.kick", ImmutableMap.of("player", toKick, "sender", sender.getName()))
-                : plugin.getLanguageConfig().getTranslation("neobans.message.kickwithreason", ImmutableMap.of("player", toKick, "reason", reason, "sender", sender.getName()));
+                ? plugin.getLanguageConfig().getTranslation("neobans.message.kick", "player", toKick, "sender", sender.getName())
+                : plugin.getLanguageConfig().getTranslation("neobans.message.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
 
         final UUID playerid = plugin.getPlayerId(toKick);
         
@@ -55,9 +55,9 @@ public class KickCommand extends AbstractCommand {
                 }
             });
         } else if(success == -1)
-            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", ImmutableMap.of("player", toKick)));
+            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", "player", toKick));
         else
-            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notonline", ImmutableMap.of("player", toKick)));
+            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notonline", "player", toKick));
         
     }
 

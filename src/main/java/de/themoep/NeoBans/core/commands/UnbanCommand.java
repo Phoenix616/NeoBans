@@ -1,6 +1,5 @@
 package de.themoep.NeoBans.core.commands;
 
-import com.google.common.collect.ImmutableMap;
 import de.themoep.NeoBans.core.BanEntry;
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.Entry;
@@ -28,10 +27,14 @@ public class UnbanCommand extends AbstractCommand {
                     boolean silent = (args.length > 1 && args[1].equalsIgnoreCase("-silent"));
                     plugin.broadcast(sender,
                             (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
-                            plugin.getLanguageConfig().getTranslation("neobans.message.unban", ImmutableMap.of("player", plugin.getPlayerName(((BanEntry) entry).getBanned()), "sender", sender.getName()))
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.unban",
+                                    "player", plugin.getPlayerName(((BanEntry) entry).getBanned()),
+                                    "sender", sender.getName()
+                            )
                     );
                 } else {
-                    sender.sendMessage(entry.getReason(), ImmutableMap.of("player", args[0]));
+                    sender.sendMessage(entry.getReason(), "player", args[0]);
                 }
             }
         });

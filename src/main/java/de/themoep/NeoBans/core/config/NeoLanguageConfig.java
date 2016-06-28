@@ -21,8 +21,8 @@ public interface NeoLanguageConfig {
     /**
      * Get translation from language config and insert replacements
      * @param key The language key to get from the config
-     * @param replacements The replacements in a map from placeholder to replacement
+     * @param replacements The replacements, 2n = key, 2n + 1 = value
      * @return The translated and replaced string
      */
-    public String getTranslation(String key, Map<String, String> replacements);
+    public String getTranslation(String key, String... replacements);
 }

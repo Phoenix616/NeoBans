@@ -1,10 +1,9 @@
 package de.themoep.NeoBans.core.commands;
 
-import com.google.common.collect.ImmutableMap;
-
 import de.themoep.NeoBans.core.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -12,7 +11,7 @@ import java.util.UUID;
  */
 public class BanCommand extends AbstractCommand {
     
-    public BanCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, ImmutableMap<String, ArrayList<String>> completions) {
+    public BanCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, Map<String, ArrayList<String>> completions) {
         super(plugin, sender, args, completions);
     }
 
@@ -38,17 +37,17 @@ public class BanCommand extends AbstractCommand {
                 if(reason.length() < 140) {
                     UUID playerid = plugin.getPlayerId(toBan);
                     if(playerid == null) {
-                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", ImmutableMap.of("player", toBan)));
+                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", toBan));
                         return;
                     }
                     BanEntry be = new BanEntry(playerid, sender.getUniqueID(), reason);
 
                     String banmsg = (reason.isEmpty())
-                            ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.ban", ImmutableMap.of("player", plugin.getPlayerName(playerid), "sender", sender.getName()))
-                            : plugin.getLanguageConfig().getTranslation("neobans.disconnect.banwithreason", ImmutableMap.of("player", plugin.getPlayerName(playerid), "reason", reason, "sender", sender.getName()));
+                            ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.ban", "player", plugin.getPlayerName(playerid), "sender", sender.getName())
+                            : plugin.getLanguageConfig().getTranslation("neobans.disconnect.banwithreason", "player", plugin.getPlayerName(playerid), "reason", reason, "sender", sender.getName());
                     String banbc = (reason.isEmpty())
-                            ? plugin.getLanguageConfig().getTranslation("neobans.message.ban", ImmutableMap.of("player", plugin.getPlayerName(playerid), "sender", sender.getName()))
-                            : plugin.getLanguageConfig().getTranslation("neobans.message.banwithreason", ImmutableMap.of("player", plugin.getPlayerName(playerid), "reason", reason, "sender", sender.getName()));
+                            ? plugin.getLanguageConfig().getTranslation("neobans.message.ban", "player", plugin.getPlayerName(playerid), "sender", sender.getName())
+                            : plugin.getLanguageConfig().getTranslation("neobans.message.banwithreason", "player", plugin.getPlayerName(playerid), "reason", reason, "sender", sender.getName());
 
                     Entry entry = plugin.getBanManager().addBan(be);
                     if (entry.getType() != EntryType.FAILURE) {
@@ -59,7 +58,7 @@ public class BanCommand extends AbstractCommand {
                         sender.sendMessage(entry.getReason());
                     }
                 } else {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", ImmutableMap.of("player", toBan, "reason", reason)));
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", "player", toBan, "reason", reason));
                 }
             }
         });
