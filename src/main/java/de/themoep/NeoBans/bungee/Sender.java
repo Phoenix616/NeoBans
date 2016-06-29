@@ -60,7 +60,7 @@ public class Sender implements NeoSender {
         // insert replacements
         if (replacements != null)
             for (int i = 0; i + 1 < replacements.length; i += 2)
-                message = message.replaceAll("%" + replacements[i] + "%", replacements[i + 2]);
+                message = message.replaceAll("%" + replacements[i] + "%", replacements[i + 1]);
         
         sender.sendMessage(TextComponent.fromLegacyText(message));
     }
