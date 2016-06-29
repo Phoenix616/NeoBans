@@ -30,9 +30,10 @@ public interface DatabaseManager {
      * Get log entries by a player
      * @param playerId The UUID of the player to get the entries for
      * @param page The page to get, starts at 0
+     * @param amount Amount of entries to get
      * @return A List of Entries
      */
-    List<Entry> getLogEntries(UUID playerId, int page);
+    List<Entry> getLogEntries(UUID playerId, int page, int amount);
 
     /**
      * Disable the database manager. This closes all connections.

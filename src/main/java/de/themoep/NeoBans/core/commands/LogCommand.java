@@ -53,7 +53,7 @@ public class LogCommand extends AbstractCommand {
                         );
                     }
 
-                    List<Entry> entries = plugin.getDatabaseManager().getLogEntries(playerId, page - 1);
+                    List<Entry> entries = plugin.getDatabaseManager().getLogEntries(playerId, page - 1, 5);
 
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(

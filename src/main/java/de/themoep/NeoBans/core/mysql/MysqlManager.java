@@ -98,9 +98,8 @@ public class MysqlManager implements DatabaseManager {
         }
     }
 
-    public List<Entry> getLogEntries(UUID playerId, int page) {
-        int pageSize = 10;
-        int start = page * pageSize;
+    public List<Entry> getLogEntries(UUID playerId, int page, int amount) {
+        int start = page * amount;
         List<Entry> logList = new ArrayList<>();
         try {
             String query = "SELECT * FROM " + getTablePrefix() + "log WHERE playerid = ? OR issuerid = ? ORDER BY time DESC LIMIT ?,?";
@@ -108,7 +107,7 @@ public class MysqlManager implements DatabaseManager {
             sta.setString(1, playerId.toString());
             sta.setString(2, playerId.toString());
             sta.setInt(3, start);
-            sta.setInt(4, pageSize);
+            sta.setInt(4, amount);
             ResultSet rs = sta.executeQuery();
 
             while (rs.next()) {
