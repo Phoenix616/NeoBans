@@ -46,11 +46,11 @@ neobans:
         tempbans: "&cPrevious tempbans: &e%count%"
         kicks: "&cPrevious kicks: &e%count%"
     log:
-      head: "&eLog Entries for &6%player%&e: &7Page %page%"
+      head: "&6Log Entries for &e%player%&6 (Page %page%):"
       noentries: "&cNo Entries found"
-      entry:  |
-        &f%time%: %type%-Entry by %issuer% for %player%
-        &7%reason%
+      entry: |
+        &c%type% &eissued by &b%issuer%&e on &c%player%&e:
+        &7%time%&7 - &f%reason%
   error:
     notonline: "&e%player%&c was not found online!"
     notfound: "&e%value%&c was not found!"
