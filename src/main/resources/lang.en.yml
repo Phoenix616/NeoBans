@@ -1,13 +1,14 @@
 neobans:
   usage:
-    kickcommand: "&cCommand arguments: &e<username> [<reason>]"
-    kickallcommand: "&cCommand arguments: &e[server:<name>] [<reason>]"
-    bancommand: "&cCommand arguments: &e<username> [<reason>]"
-    tempbancommand: "&cCommand arguments: &e<username> <duration> [<reason>]"
-    unbancommand: "&cCommand arguments: &e<username>"
-    infocommand: "&cCommand arguments: &e<username>"
-    editbancommand: "&cCommand arguments: &e<username> [duration|reason] <value>"
-    logcommand: "&cCommand arguments: &e<username> [<page>]"
+    plugincommand: "&cUsage: &e/%name% [reload]"
+    kickcommand: "&cUsage: &e/%name% <username> [<reason>]"
+    kickallcommand: "&cUsage: &e/%name% [server:<name>] [<reason>]"
+    bancommand: "&cUsage: &e/%name% <username> [<reason>]"
+    tempbancommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
+    unbancommand: "&cUsage: &e/%name% <username>"
+    infocommand: "&cUsage: &e/%name% <username>"
+    editbancommand: "&cUsage: &e/%name% <username> [duration|reason] <value>"
+    logcommand: "&cUsage: &e/%name% <username> [<page>]"
   disconnect:
     kick: "&cYou have been &ekicked&c by &e%sender%&c!"
     kickwithreason: "&cYou have been &ekicked&c by &e%sender% &cbecause of &e%reason%&c!"

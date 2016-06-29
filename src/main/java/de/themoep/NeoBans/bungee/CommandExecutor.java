@@ -39,7 +39,7 @@ public class CommandExecutor extends Command implements Listener {
             } else {
                 sender.sendMessage(plugin.getLanguageConfig().getTranslation(
                         "neobans.usage." + cmd.getClass().getSimpleName().toLowerCase()
-                ));
+                ), "name", getName());
             }
         } else {
             sender.sendMessage(plugin.getLanguageConfig().getTranslation(

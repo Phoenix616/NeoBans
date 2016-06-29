@@ -1,13 +1,13 @@
 neobans:
   usage:
-    kickcommand: "&cCommand arguments: &e<username> [<reason>]"
-    kickallcommand: "&cCommand arguments: &e[server:<name>] [<reason>]"
-    bancommand: "&cCommand arguments: &e<username> [<reason>]"
-    tempbancommand: "&cCommand arguments: &e<username> <duration> [<reason>]"
-    unbancommand: "&cCommand arguments: &e<username>"
-    infocommand: "&cCommand arguments: &e<username>"
-    editbancommand: "&cCommand arguments: &e<username> [duration|reason] <value>"
-    logcommand: "&cCommand arguments: &e<username> [<page>]"
+    kickcommand: "&cUsage: &e/%name% <username> [<reason>]"
+    kickallcommand: "&cUsage: &e/%name% [server:<name>] [<reason>]"
+    bancommand: "&cUsage: &e/%name% <username> [<reason>]"
+    tempbancommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
+    unbancommand: "&cUsage: &e/%name% <username>"
+    infocommand: "&cUsage: &e/%name% <username>"
+    editbancommand: "&cUsage: &e/%name% <username> [duration|reason] <value>"
+    logcommand: "&cUsage: &e/%name% <username> [<page>]"
   disconnect:
     kick: "&cDu wurdest von &e%sender%&c gekickt!"
     kickwithreason: |
