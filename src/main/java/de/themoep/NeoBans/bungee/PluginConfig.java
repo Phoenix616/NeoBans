@@ -13,7 +13,6 @@ import java.util.List;
  */
 public class PluginConfig extends YamlConfig implements NeoPluginConfig {
     private final NeoBans plugin;
-    private HashMap<String, List<String>>[] commandMap;
 
     /**
      * Load configuration from disk

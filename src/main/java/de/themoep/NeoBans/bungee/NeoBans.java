@@ -59,7 +59,31 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         
         if(getProxy().getPluginManager().getPlugin("UUIDDB") != null)
             uuiddb = true;
+
+        loadConfig();
+
+        bm = new BanManager(this);
         
+        cm = new CommandMap(this);
+        
+        getLogger().info("Registering Listeners...");
+        getProxy().getPluginManager().registerListener(this, new LoginListener(this));
+
+    }
+
+    public void onDisable() {
+        if (getDatabaseManager() != null) {
+            getDatabaseManager().disable();
+        }
+        getLogger().info("Plugin disabled!");
+    }
+
+    public void loadConfig() {
+        if (getDatabaseManager() != null) {
+           getDatabaseManager().disable();
+        }
+        getProxy().getPluginManager().unregisterCommands(this);
+
         try {
             config = new PluginConfig(this, getDataFolder() + File.separator + "config.yml");
         } catch (IOException e) {
@@ -78,30 +102,17 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             return;
         }
 
-        bm = new BanManager(this);
-        
-        cm = new CommandMap(this);
-
         if(getConfig().getString("backend").equalsIgnoreCase("mysql"))
             dbm = new MysqlManager(this);
 
         setupCommands(config.getLatebind());
-        
-        getLogger().info("Registering Listeners...");
-        getProxy().getPluginManager().registerListener(this, new LoginListener(this));
-
-    }
-
-    public void onDisable() {
-        getDatabaseManager().disable();
-        getLogger().info("Plugin disabled!");
     }
 
     /**
      * Initialize and register all commands
      * @param latebind If we should wait a second or not after initialization to registering commands, useful to overwrite bungee's or other plugins commands
      */
-    private void setupCommands(Boolean latebind) {
+    private void setupCommands(boolean latebind) {
         getLogger().info("Initializing Commands...");
 
         if(latebind) {
@@ -110,6 +121,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             getProxy().getScheduler().schedule(this, new Runnable() {
                 public void run() {
                     plugin.getLogger().info("Late-binding Commands...");
+                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, plugin.getName().toLowerCase()));
                     getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoban"));
                     getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neounban"));
                     getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neotempban"));
@@ -122,6 +134,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             }, 1, TimeUnit.SECONDS);
         } else {
             getLogger().info("Registering Commands...");
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, getName().toLowerCase()));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neounban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neotempban"));
@@ -263,6 +276,11 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
     public void runAsync(Runnable runnable) {
         getProxy().getScheduler().runAsync(this, runnable);
+    }
+
+    @Override
+    public String getName() {
+        return getDescription().getName();
     }
 
 }

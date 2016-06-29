@@ -43,6 +43,8 @@ public class CommandMap {
             return new EditBanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("duration", "reason"))));
         } else if ("neolog".equals(command)) {
             return new LogCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if (plugin.getName().equalsIgnoreCase(command)) {
+            return new PluginCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("reload"))));
         } else {
             return new HelpCommand(plugin, sender, args);
         }

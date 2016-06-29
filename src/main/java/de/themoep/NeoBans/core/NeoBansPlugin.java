@@ -6,6 +6,7 @@ import de.themoep.NeoBans.core.config.NeoLanguageConfig;
 import de.themoep.NeoBans.core.config.NeoPluginConfig;
 import de.themoep.NeoBans.core.mysql.DatabaseManager;
 
+import java.awt.font.GlyphVector;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -120,4 +121,14 @@ public interface NeoBansPlugin {
      */
     public Logger getLogger();
 
+    /**
+     * Get the name of the plugin
+     * @return The name as a string
+     */
+    String getName();
+
+    /**
+     * Load the plugin's config from file
+     */
+    void loadConfig();
 }
