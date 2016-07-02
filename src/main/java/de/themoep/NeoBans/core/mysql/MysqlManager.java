@@ -114,10 +114,11 @@ public class MysqlManager implements DatabaseManager {
                 String typeStr = rs.getString("type");
                 try {
                     EntryType type = EntryType.valueOf(typeStr);
+                    UUID entryPlayerId = UUID.fromString(rs.getString("playerid"));
                     UUID issuerId = UUID.fromString(rs.getString("issuerid"));
                     String message = rs.getString("msg");
                     Timestamp timestamp = rs.getTimestamp("time");
-                    logList.add(new LogEntry(type, playerId, issuerId, message, timestamp.getTime() / 1000));
+                    logList.add(new LogEntry(type, entryPlayerId, issuerId, message, timestamp.getTime() / 1000));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().log(Level.SEVERE, "Unknown entry type " + rs.getString("type") + " while loading log entry!");
                     logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
