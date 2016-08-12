@@ -40,7 +40,10 @@ public class MysqlManager implements DatabaseManager {
     }
 
     @Override
-    public void initializeTables(){
+    public void initializeTables() {
+        Connection conn = null;
+        Statement staBans = null;
+        Statement staLog = null;
         try {
             String sqlBans = "CREATE TABLE IF NOT EXISTS " + getTablePrefix() + "bans ("
                     + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
@@ -52,10 +55,9 @@ public class MysqlManager implements DatabaseManager {
                     + "endtime BIGINT(11)"
                     + ")  DEFAULT CHARACTER SET=utf8 AUTO_INCREMENT=1;";
 
-            Connection conn = getConn();
-            Statement staBans = conn.createStatement();
+            conn = getConn();
+            staBans = conn.createStatement();
             staBans.execute(sqlBans);
-            staBans.close();
 
             /*String sqlPlayers = "CREATE TABLE IF NOT EXISTS `" + getTablePrefix() + "players` ("
                     + "playerid VARCHAR(36) NOT NULL UNIQUE PRIMARY KEY,"
@@ -78,44 +80,51 @@ public class MysqlManager implements DatabaseManager {
                     + "INDEX (type, playerid)"
                     + ")  DEFAULT CHARACTER SET=utf8 AUTO_INCREMENT=1;";
 
-            Statement staLog = getConn().createStatement();
+            staLog = conn.createStatement();
             staLog.execute(sqlLog);
-            staLog.close();
-            conn.close();
         } catch (SQLException e) {
             plugin.getLogger().severe("Error while initializing the database tables!");
             e.printStackTrace();
+        } finally {
+            close(staBans);
+            close(staLog);
+            close(conn);
         }
     }
 
     @Override
     public boolean log(EntryType type, UUID playerId, UUID issuerid, String message) {
+        PreparedStatement sta = null;
+        Connection conn = null;
         try {
             String query = "INSERT INTO " + getTablePrefix() + "log (type, playerid, issuerid, msg) values (?, ?, ?, ?)";
-            Connection conn = getConn();
-            PreparedStatement sta = conn.prepareStatement(query);
+            conn = getConn();
+            sta = conn.prepareStatement(query);
             sta.setString(1, type.toString());
             sta.setString(2, playerId.toString());
             sta.setString(3, issuerid.toString());
             sta.setString(4, message);
             sta.execute();
-            sta.close();
-            conn.close();
             return true;
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to insert into the log table!");
             e.printStackTrace();
             return false;
+        } finally {
+            close(sta);
+            close(conn);
         }
     }
 
     public List<Entry> getLogEntries(UUID playerId, int page, int amount) {
         int start = page * amount;
         List<Entry> logList = new ArrayList<>();
+        PreparedStatement sta = null;
+        Connection conn = null;
         try {
             String query = "SELECT * FROM " + getTablePrefix() + "log WHERE playerid = ? OR issuerid = ? ORDER BY time DESC LIMIT ?,?";
-            Connection conn = getConn();
-            PreparedStatement sta = conn.prepareStatement(query);
+            conn = getConn();
+            sta = conn.prepareStatement(query);
             sta.setString(1, playerId.toString());
             sta.setString(2, playerId.toString());
             sta.setInt(3, start);
@@ -139,14 +148,14 @@ public class MysqlManager implements DatabaseManager {
                     )));
                 }
             }
-
-            sta.close();
-            conn.close();
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error while trying to get the log entries on page " + page + " for player " + playerId + "!", e);
             logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
                     "neobans.error.database"
             )));
+        } finally {
+            close(sta);
+            close(conn);
         }
         return logList;
     }
@@ -166,5 +175,19 @@ public class MysqlManager implements DatabaseManager {
     
     public String getTablePrefix() { 
         return tablePrefix;
+    }
+
+    private static void close(Object o) {
+        if (o != null) {
+            try {
+                if (o instanceof Connection) {
+                    ((Connection) o).close();
+                } else if (o instanceof Statement) {
+                    ((Statement) o).close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
