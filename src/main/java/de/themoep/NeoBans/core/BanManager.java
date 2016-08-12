@@ -44,11 +44,6 @@ public class BanManager {
             
             String sql = "SELECT id, issuerid, reason, comment, time, endtime FROM " + mysql.getTablePrefix() + "bans WHERE bannedid=? ORDER BY time DESC";
 
-            if(!mysql.isConnected()) {
-                plugin.getLogger().severe("Could not establish a database connection when we should have one!");
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
-            }
-            
             try {
                 PreparedStatement sta = mysql.getConn().prepareStatement(sql);
                 sta.setString(1, id.toString());
