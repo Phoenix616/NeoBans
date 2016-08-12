@@ -52,7 +52,8 @@ public class MysqlManager implements DatabaseManager {
                     + "endtime BIGINT(11)"
                     + ")  DEFAULT CHARACTER SET=utf8 AUTO_INCREMENT=1;";
 
-            Statement staBans = getConn().createStatement();
+            Connection conn = getConn();
+            Statement staBans = conn.createStatement();
             staBans.execute(sqlBans);
             staBans.close();
 
@@ -80,6 +81,7 @@ public class MysqlManager implements DatabaseManager {
             Statement staLog = getConn().createStatement();
             staLog.execute(sqlLog);
             staLog.close();
+            conn.close();
         } catch (SQLException e) {
             plugin.getLogger().severe("Error while initializing the database tables!");
             e.printStackTrace();
@@ -90,13 +92,15 @@ public class MysqlManager implements DatabaseManager {
     public boolean log(EntryType type, UUID playerId, UUID issuerid, String message) {
         try {
             String query = "INSERT INTO " + getTablePrefix() + "log (type, playerid, issuerid, msg) values (?, ?, ?, ?)";
-            PreparedStatement sta = getConn().prepareStatement(query);
+            Connection conn = getConn();
+            PreparedStatement sta = conn.prepareStatement(query);
             sta.setString(1, type.toString());
             sta.setString(2, playerId.toString());
             sta.setString(3, issuerid.toString());
             sta.setString(4, message);
             sta.execute();
             sta.close();
+            conn.close();
             return true;
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to insert into the log table!");
@@ -110,7 +114,8 @@ public class MysqlManager implements DatabaseManager {
         List<Entry> logList = new ArrayList<>();
         try {
             String query = "SELECT * FROM " + getTablePrefix() + "log WHERE playerid = ? OR issuerid = ? ORDER BY time DESC LIMIT ?,?";
-            PreparedStatement sta = getConn().prepareStatement(query);
+            Connection conn = getConn();
+            PreparedStatement sta = conn.prepareStatement(query);
             sta.setString(1, playerId.toString());
             sta.setString(2, playerId.toString());
             sta.setInt(3, start);
@@ -135,8 +140,8 @@ public class MysqlManager implements DatabaseManager {
                 }
             }
 
-            rs.close();
             sta.close();
+            conn.close();
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error while trying to get the log entries on page " + page + " for player " + playerId + "!", e);
             logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
