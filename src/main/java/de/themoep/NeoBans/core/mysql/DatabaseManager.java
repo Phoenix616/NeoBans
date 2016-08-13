@@ -1,8 +1,8 @@
 package de.themoep.NeoBans.core.mysql;
 
+import de.themoep.NeoBans.core.BanEntry;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
-import de.themoep.NeoBans.core.LogEntry;
 
 import java.util.List;
 import java.util.UUID;
@@ -39,4 +39,14 @@ public interface DatabaseManager {
      * Disable the database manager. This closes all connections.
      */
     void disable();
+
+    boolean update(int userId, String column, String value);
+
+    Entry add(BanEntry entry);
+
+    Entry remove(BanEntry banentry, UUID invokeId, boolean log);
+
+    int getCount(EntryType type, UUID playerId);
+
+    Entry get(UUID id);
 }

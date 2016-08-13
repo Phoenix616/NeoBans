@@ -1,11 +1,5 @@
 package de.themoep.NeoBans.core;
 
-import de.themoep.NeoBans.core.mysql.MysqlManager;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,47 +28,22 @@ public class BanManager {
         if(id == null) {
             return null;
         }
-        
-        if(banMap.containsKey(id)) {
-            return checkExpiration(banMap.get(id));
+
+        Entry entry = banMap.get(id);
+        if(entry == null) {
+            entry = plugin.getDatabaseManager().get(id);
         }
-            
-        if(plugin.getDatabaseManager() instanceof MysqlManager) {
-            MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
-            
-            String sql = "SELECT id, issuerid, reason, comment, time, endtime FROM " + mysql.getTablePrefix() + "bans WHERE bannedid=? ORDER BY time DESC";
 
-            try {
-                PreparedStatement sta = mysql.getConn().prepareStatement(sql);
-                sta.setString(1, id.toString());
-                
-                ResultSet rs = sta.executeQuery();
-                
-                if(rs.next()) {
-                    String issuerid = rs.getString("issuerid");
-                    String reason = rs.getString("reason");
-                    String comment = rs.getString("comment");
-                    long time = rs.getLong("time");
-                    long endtime = rs.getLong("endtime");
-                    sta.close();
-
-                    if (endtime > 0) {
-                        TempbanEntry tbe = new TempbanEntry(id, UUID.fromString(issuerid), reason, comment, time, endtime);
-                        if(checkExpiration(tbe) != null) {
-                            banMap.put(id, tbe);
-                            return tbe;
-                        }
-                    } else {
-                        BanEntry be = new BanEntry(id, UUID.fromString(issuerid), reason, comment, time);
-                        banMap.put(id, be);
-                        return be;
-                    }
-                }
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Encountered SQLException while trying to get ban of player " + plugin.getPlayerName(id) + " from the ban table!");
-                e.printStackTrace();
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+        if (entry instanceof TempbanEntry) {
+            if(checkExpiration((BanEntry) entry) != null) {
+                banMap.put(id, (BanEntry) entry);
+                return entry;
             }
+        } else if (entry instanceof BanEntry){
+            banMap.put(id, (BanEntry) entry);
+            return entry;
+        } else {
+            return entry;
         }
         return null;
     }
@@ -103,7 +72,9 @@ public class BanManager {
             removeBan(entry);
             plugin.getLogger().info("Temporary ban of " + plugin.getPlayerName(entry.getBanned()) + " expired.");
             return null;
-        }            
+        } else if (!banMap.containsKey(entry.getBanned())){
+            banMap.put(entry.getBanned(), entry);
+        }
         return entry;
     }
 
@@ -124,43 +95,7 @@ public class BanManager {
         
         banMap.put(entry.getBanned(), entry);
 
-        if(plugin.getDatabaseManager() instanceof MysqlManager) {
-            MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
-
-            String query = "INSERT INTO " + mysql.getTablePrefix() + "bans (bannedid, issuerid, reason, comment, time, endtime) values (?, ?, ?, ?, ?, ?)";
-
-            try {
-                PreparedStatement sta = mysql.getConn().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                sta.setString(1, entry.getBanned().toString());
-                sta.setString(2, entry.getIssuer().toString());
-                sta.setString(3, entry.getReason());
-                sta.setString(4, entry.getComment());
-                sta.setString(5, Long.toString(entry.getTime()));
-                if(entry instanceof TempbanEntry)
-                    sta.setLong(6, ((TempbanEntry) entry).getEndtime());
-                else
-                    sta.setLong(6, 0);
-                sta.executeUpdate();
-                ResultSet rs = sta.getGeneratedKeys();
-                
-                if(rs.next()) {
-                    entry.setDbId(rs.getInt(1));
-                    String msg = entry.getReason().isEmpty() ? "" : "Reason: " + entry.getReason();
-                    if (entry instanceof TempbanEntry) {
-                        msg = "Duration: " + ((TempbanEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true) + " " + msg;
-                    }
-                    if (!mysql.log(entry.getType(), entry.getBanned(), entry.getIssuer(), msg))
-                        plugin.getLogger().warning("Error while trying to log addition of ban " + rs.getInt(1) + " for player " + plugin.getPlayerName(entry.getBanned()) + "!");
-                    return entry;
-                }
-                sta.close();
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Encountered SQLException while trying to add ban for player " + plugin.getPlayerName(entry.getBanned()) + " to the ban table!");
-                e.printStackTrace();
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
-            }
-        }
-        return entry;
+        return plugin.getDatabaseManager().add(entry);
     }
 
     /**
@@ -232,25 +167,14 @@ public class BanManager {
         }
         changedEntry.setDbId(entry.getDbId());
 
-        if(plugin.getDatabaseManager() instanceof MysqlManager) {
-            MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
-
-            String query = "UPDATE " + mysql.getTablePrefix() + "bans SET " + dbColumn + "=? WHERE id=?";
-
-            try {
-                PreparedStatement sta = mysql.getConn().prepareStatement(query);
-                sta.setString(1, dbValue);
-                sta.setInt(2, changedEntry.getDbId());
-                sta.executeUpdate();
-                sta.close();
-                String msg = "Updated '" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
-                if(!mysql.log(EntryType.EDITBAN, entry.getBanned(), entry.getIssuer(), msg))
-                    plugin.getLogger().warning("Error while trying to log update of ban " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Encountered SQLException while trying to update ban for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
-                e.printStackTrace();
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+        if(plugin.getDatabaseManager().update(changedEntry.getDbId(), dbColumn, dbValue)) {
+            String msg = "Updated '" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
+            if (!plugin.getDatabaseManager().log(EntryType.EDITBAN, entry.getBanned(), entry.getIssuer(), msg)) {
+                plugin.getLogger().warning("Error while trying to log update of ban " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
             }
+        } else {
+            plugin.getLogger().severe("Encountered SQLException while trying to update ban for player " + plugin.getPlayerName(entry.getBanned()) + "! (" + option + ": " + value + ")");
+            new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
         }
         banMap.put(entry.getBanned(), changedEntry);
         return changedEntry;
@@ -309,29 +233,7 @@ public class BanManager {
     public Entry removeBan(BanEntry banentry, UUID invokeId, boolean log) {
         banMap.remove(banentry.getBanned());
 
-        if(plugin.getDatabaseManager() instanceof MysqlManager) {
-            MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
-
-            String msg = invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "Orig. reason: " + banentry.getReason();
-            if(banentry instanceof TempbanEntry) {
-                msg += "Orig. endtime: " + ((TempbanEntry) banentry).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
-            }
-            if (log && !mysql.log(EntryType.UNBAN, banentry.getBanned(), invokeId, msg))
-                plugin.getLogger().warning("Error while trying to log deletion of ban of player " + plugin.getPlayerName(banentry.getBanned()) + "!");
-
-            try {
-                String query = "DELETE FROM " + mysql.getTablePrefix() + "bans WHERE " + ((banentry.getDbId() > 0) ? "id=?" : "bannedid=? ORDER BY time DESC LIMIT 1");
-                PreparedStatement sta = mysql.getConn().prepareStatement(query);
-                sta.setString(1, (banentry.getDbId() > 0) ? Integer.toString(banentry.getDbId()) : banentry.getBanned().toString());
-                sta.executeUpdate();
-                sta.close();
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Encountered SQLException while trying to delete ban of player " + plugin.getPlayerName(banentry.getBanned()) + " (BanID: " + banentry.getDbId() + ") from the ban table!");
-                e.printStackTrace();
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
-            }
-        }
-        return banentry;
+        return plugin.getDatabaseManager().remove(banentry, invokeId, log);
     }
 
     /**
@@ -397,24 +299,8 @@ public class BanManager {
      * @return The count of entries in the log table
      */
     public int getCount(EntryType type, UUID playerId) {
-        if(playerId != null && plugin.getDatabaseManager() instanceof MysqlManager) {
-            MysqlManager mysql = ((MysqlManager) plugin.getDatabaseManager());
-
-            try {
-                String query = "SELECT count(id) as count FROM " + mysql.getTablePrefix() + "log WHERE type=? AND playerid=?";
-                PreparedStatement sta = mysql.getConn().prepareStatement(query);
-                sta.setString(1, type.toString());
-                sta.setString(2, playerId.toString());
-
-                ResultSet rs = sta.executeQuery();
-                if(rs.next()) {
-                    return rs.getInt("count");
-                }
-                sta.close();
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Encountered SQLException while trying to to get the count of " + type.toString().toLowerCase() + " entries for player " + plugin.getPlayerName(playerId) + " from the log table!");
-                e.printStackTrace();
-            }
+        if(playerId != null) {
+            return plugin.getDatabaseManager().getCount(type, playerId);
         }
         return 0;
     }
