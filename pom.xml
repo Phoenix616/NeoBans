@@ -90,7 +90,8 @@
                 <configuration>
                     <artifactSet>
                         <includes>
-                            <include>com.zaxxer:HikariCP</include>
+                            <include>org.slf4j:*</include>
+                            <include>com.zaxxer:*</include>
                         </includes>
                     </artifactSet>
                 </configuration>
