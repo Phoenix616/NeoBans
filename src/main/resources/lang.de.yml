@@ -103,7 +103,7 @@ neobans:
     notbanned: "&e%player%&c is not banned!"
     reasontoolong: "&cYour reason is too long! Only &e140&c characters allowed!"
     database: "&cEncountered a database error. Please contact an administrator as soon as possible!"
-    null: "&4Error:&c Something is null. Please contact an administrator as soon as possible!"
+    "null": "&4Error:&c Something is null. Please contact an administrator as soon as possible!"
     uuidnotfound: "&cCould not find an UUID for player &e%player%&c!"
     kicknotallowed: "&cYou are not allowed to kick the player &e%player%c!"
     wrongoption: "&cThe option &e%option%&c is not allowed!"
