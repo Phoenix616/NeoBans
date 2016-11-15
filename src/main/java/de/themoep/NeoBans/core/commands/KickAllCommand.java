@@ -38,7 +38,7 @@ public class KickAllCommand extends AbstractCommand {
         boolean silent = false;
         if(args.length > reasonStart) {
             for (int i = reasonStart; i < args.length; i++) {
-                if(i == reasonStart && args[i].equalsIgnoreCase("-silent")) {
+                if(i == reasonStart && ("-silent".equalsIgnoreCase(args[i]) || "-s".equalsIgnoreCase(args[i]))) {
                     silent = true;
                 } else {
                     reason += args[i] + " ";
