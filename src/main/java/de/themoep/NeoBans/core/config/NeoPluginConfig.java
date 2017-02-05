@@ -7,6 +7,8 @@ import de.themoep.NeoBans.core.BroadcastDestination;
  */
 public interface NeoPluginConfig {
 
+    String getString(String key, String def);
+
     /**
      * Get language name
      * @return The language string
