@@ -1,4 +1,4 @@
-name: ${project.artifactId}
+name: ${project.name}
 main: de.themoep.NeoBans.bungee.NeoBans
 version: '${minecraft.plugin.version}'
 author: Phoenix616

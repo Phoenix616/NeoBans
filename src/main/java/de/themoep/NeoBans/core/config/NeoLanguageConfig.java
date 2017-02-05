@@ -1,15 +1,9 @@
 package de.themoep.NeoBans.core.config;
 
-import java.util.Map;
-
 /**
  * Created by Phoenix616 on 11.02.2015.
  */
 public interface NeoLanguageConfig {
-    /**
-     * Create the default language config file. Default language is english!
-     */
-    void createDefaultConfig();
 
     /**
      * Get translation from language config

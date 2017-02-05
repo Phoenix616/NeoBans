@@ -5,9 +5,7 @@ import de.themoep.NeoBans.core.BroadcastDestination;
 /**
  * Created by Phoenix616 on 27.02.2015.
  */
-public interface NeoPluginConfig extends NeoConfig {
-    
-    void createDefaultConfig();
+public interface NeoPluginConfig {
 
     /**
      * Get language name
