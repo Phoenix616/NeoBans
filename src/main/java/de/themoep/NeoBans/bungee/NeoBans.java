@@ -85,7 +85,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         getProxy().getPluginManager().unregisterCommands(this);
 
         try {
-            config = new PluginConfig(this, getDataFolder() + File.separator + "config.yml");
+            config = new PluginConfig(this, "config.yml");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration! NeoBans will not be enabled.");
             e.printStackTrace();
