@@ -94,7 +94,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
         // load language
         try {
-            lang = new LanguageConfig(this, getDataFolder()+ File.separator + "lang." + config.getLanguage() + ".yml");
+            lang = new LanguageConfig(this, "lang." + config.getLanguage() + ".yml");
         } catch (IOException e) {
             getLogger().severe("Unable to load language! NeoBans will not be enabled.");
             e.printStackTrace();
