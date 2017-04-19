@@ -34,4 +34,22 @@ public interface NeoPluginConfig {
      * @return The BroadcastDesination
      */
     BroadcastDestination getBroadcastDestination(String type);
+
+    /**
+     * Get the Name of the jail server as configured,  if the name is empty the jail functionality is disabled
+     * @return The name of the jail server
+     */
+    String getJailTarget();
+
+    /**
+     * Get the Name of the server where player should be moved to when unjailed
+     * @return The name of the unjail server
+     */
+    String getUnjailTarget();
+
+    /**
+     * Get the name of the storage backend
+     * @return The name of the storage backend
+     */
+    String getBackend();
 }

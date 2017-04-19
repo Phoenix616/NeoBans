@@ -1,10 +1,10 @@
 package de.themoep.NeoBans.core.commands;
 
-import de.themoep.NeoBans.core.BanEntry;
+import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
-import de.themoep.NeoBans.core.TempbanEntry;
+import de.themoep.NeoBans.core.TimedPunishmentEntry;
 
 import java.text.SimpleDateFormat;
 
@@ -32,7 +32,7 @@ public class InfoCommand extends AbstractCommand {
                 UUID playerid = plugin.getPlayerId(args[0]);
                 
                 if(playerid != null) {
-                    Entry entry = plugin.getBanManager().getBan(playerid);
+                    Entry entry = plugin.getPunishmentManager().getPunishment(playerid);
 
                     int bancurrent = 0;
                     int tempbancurrent = 0;
@@ -47,8 +47,8 @@ public class InfoCommand extends AbstractCommand {
                     if (entry != null) {
                         if (entry.getType() == EntryType.FAILURE) {
                             sender.sendMessage(entry.getReason());
-                        } else if (entry instanceof BanEntry) {
-                            BanEntry be = (BanEntry) entry;
+                        } else if (entry instanceof PunishmentEntry) {
+                            PunishmentEntry be = (PunishmentEntry) entry;
                             bancurrent = 1;
 
                             sender.sendMessage(
@@ -76,15 +76,15 @@ public class InfoCommand extends AbstractCommand {
                             );
 
                             String endtime = "";
-                            if (entry instanceof TempbanEntry) {
+                            if (entry instanceof TimedPunishmentEntry) {
                                 bancurrent = 0;
                                 tempbancurrent = 1;
-                                Date enddate = new Date(((TempbanEntry) be).getEndtime() * 1000L);
+                                Date enddate = new Date(((TimedPunishmentEntry) be).getEndtime() * 1000L);
                                 sender.sendMessage(
                                         plugin.getLanguageConfig().getTranslation(
                                                 "neobans.message.info.currentban.temporary",
                                                 "endtime", sdf.format(enddate),
-                                                "duration",((TempbanEntry) be).getFormattedDuration(plugin.getLanguageConfig(), true)
+                                                "duration",((TimedPunishmentEntry) be).getFormattedDuration(plugin.getLanguageConfig(), true)
                                         )
                                 );
                             }
@@ -101,19 +101,19 @@ public class InfoCommand extends AbstractCommand {
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
                                     "neobans.message.info.previous.bans",
-                                    "count", Integer.toString(plugin.getBanManager().getCount(EntryType.BAN, playerid) - bancurrent)
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.BAN, playerid) - bancurrent)
                             )
                     );
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
                                     "neobans.message.info.previous.tempbans",
-                                    "count", Integer.toString(plugin.getBanManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
                             )
                     );
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
                                     "neobans.message.info.previous.kicks",
-                                    "count", Integer.toString(plugin.getBanManager().getCount(EntryType.KICK, playerid))
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.KICK, playerid))
                             )
                     );
                 } else {

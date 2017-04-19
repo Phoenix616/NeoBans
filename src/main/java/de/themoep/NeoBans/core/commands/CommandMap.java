@@ -33,14 +33,18 @@ public class CommandMap {
             return new UnbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
         } else if ("neotempban".equals(command)) {
             return new TempbanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neounjail".equals(command)) {
+            return new UnjailCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
+        } else if ("neojail".equals(command)) {
+            return new JailCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
         } else if ("neokick".equals(command)) {
             return new KickCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
         } else if ("neokickall".equals(command)) {
             return new KickAllCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<String>()));
         } else if ("neoinfo".equals(command)) {
             return new InfoCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
-        } else if ("neoeditban".equals(command)) {
-            return new EditBanCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("duration", "reason"))));
+        } else if ("neoeditentry".equals(command)) {
+            return new EditEntryCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Arrays.asList("duration", "reason"))));
         } else if ("neolog".equals(command)) {
             return new LogCommand(plugin, sender, args, ImmutableMap.of("%no-argument%", new ArrayList<>(Collections.singletonList("%online%"))));
         } else if (plugin.getName().equalsIgnoreCase(command)) {

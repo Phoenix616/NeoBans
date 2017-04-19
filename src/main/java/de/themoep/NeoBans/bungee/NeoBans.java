@@ -2,13 +2,15 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.NeoBansPlugin;
-import de.themoep.NeoBans.core.BanManager;
+import de.themoep.NeoBans.core.PunishmentManager;
 import de.themoep.NeoBans.core.commands.CommandMap;
 import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.NeoBans.core.mysql.DatabaseManager;
 import de.themoep.NeoBans.core.mysql.MysqlManager;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -18,13 +20,13 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 import net.zaiyers.UUIDDB.bungee.UUIDDB;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
@@ -42,9 +44,9 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     private LanguageConfig lang;
 
     /**
-     * BanManager 
+     * PunishmentManager
      */
-    private BanManager bm;
+    private PunishmentManager pm;
     
     private DatabaseManager dbm;
 
@@ -53,7 +55,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     /**
      * If the server runs uuiddb or not
      */
-    private static Boolean uuiddb = false;
+    private boolean uuiddb = false;
 
     public void onEnable() {
         
@@ -62,12 +64,13 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
         loadConfig();
 
-        bm = new BanManager(this);
+        pm = new PunishmentManager(this);
         
         cm = new CommandMap(this);
         
         getLogger().info("Registering Listeners...");
         getProxy().getPluginManager().registerListener(this, new LoginListener(this));
+        getProxy().getPluginManager().registerListener(this, new JailListener(this));
 
     }
 
@@ -87,9 +90,16 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         try {
             config = new PluginConfig(this, "config.yml");
         } catch (IOException e) {
-            getLogger().severe("Unable to load configuration! NeoBans will not be enabled.");
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Unable to load configuration! NeoBans will not be enabled.", e);
             return;
+        }
+
+        if (getConfig().getJailTarget().isEmpty()) {
+            getLogger().log(Level.WARNING, "No jail server defined!");
+        }
+
+        if (getProxy().getServerInfo(getConfig().getJailTarget()) == null) {
+            getLogger().log(Level.WARNING, "The server configured for the jail (" + getConfig().getJailTarget() + ") does not exist?");
         }
 
         // load language
@@ -102,7 +112,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             return;
         }
 
-        if(getConfig().getString("backend").equalsIgnoreCase("mysql"))
+        if(getConfig().getBackend().equalsIgnoreCase("mysql"))
             dbm = new MysqlManager(this);
 
         setupCommands(config.getLatebind());
@@ -118,19 +128,19 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         if(latebind) {
             getLogger().info("Scheduling the Registering of the Commands...");
             final NeoBans plugin = this;
-            getProxy().getScheduler().schedule(this, new Runnable() {
-                public void run() {
-                    plugin.getLogger().info("Late-binding Commands...");
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, plugin.getName().toLowerCase()));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoban"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neounban"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neotempban"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokick"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokickall"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoinfo"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoeditban"));
-                    getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neolog"));
-                }
+            getProxy().getScheduler().schedule(this, () -> {
+                plugin.getLogger().info("Late-binding Commands...");
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, plugin.getName().toLowerCase()));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoban"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neounban"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neotempban"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neojail"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neounjail"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokick"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neokickall"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoinfo"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neoeditentry"));
+                getProxy().getPluginManager().registerCommand(plugin, new CommandExecutor(plugin, "neolog"));
             }, 1, TimeUnit.SECONDS);
         } else {
             getLogger().info("Registering Commands...");
@@ -138,10 +148,12 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neounban"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neotempban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neojail"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neounjail"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neokick"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neokickall"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoinfo"));
-            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoeditban"));
+            getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neoeditentry"));
             getProxy().getPluginManager().registerCommand(this, new CommandExecutor(this, "neolog"));
         }
 
@@ -155,8 +167,8 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return lang;
     }
 
-    public BanManager getBanManager() {
-        return bm;
+    public PunishmentManager getPunishmentManager() {
+        return pm;
     }
 
     public CommandMap getCommandMap() {
@@ -270,12 +282,19 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         }
     }
 
+    @Override
     public void runSync(Runnable runnable) {
-        getProxy().getScheduler().schedule(this, runnable, 0, TimeUnit.SECONDS);
+        runnable.run(); // Theoretically everything is always async with bungee
     }
 
+    @Override
     public void runAsync(Runnable runnable) {
         getProxy().getScheduler().runAsync(this, runnable);
+    }
+
+    @Override
+    public void runLater(Runnable runnable, int delay) {
+        getProxy().getScheduler().schedule(this, runnable, delay * 50, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -283,4 +302,72 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return getDescription().getName();
     }
 
+    @Override
+    public int compareVersion(String version) {
+        return compareVersions(getDescription().getVersion(), version);
+    }
+
+    @Override
+    public boolean sendTitle(UUID playerId, String message) {
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if (player != null) {
+            String[] parts = message.split("\n");
+            Title title = getProxy().createTitle();
+            if (parts.length > 0) {
+                title.title(TextComponent.fromLegacyText(parts[0]));
+            }
+            if (parts.length > 1) {
+                title.subTitle(TextComponent.fromLegacyText(parts[1]));
+            }
+            title.send(player);
+            if (parts.length > 2) {
+                player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(parts[2]));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean movePlayer(UUID playerId, String target) {
+        ProxiedPlayer player = getProxy().getPlayer(playerId);
+        if (player != null) {
+            ServerInfo server = getProxy().getServerInfo(target);
+            if (server != null) {
+                player.connect(server);
+                return true;
+            } else {
+                getLogger().log(Level.WARNING, "Tried to move " + player.getName() + " to the server " + target + " but it does not exist?");
+            }
+        }
+        return false;
+    }
+
+    private int compareVersions(String versionA, String versionB) {
+        String[] partsA = versionA.split("[^.\\d]")[0].split("\\.");
+        String[] partsB = versionB.split("[^.\\d]")[0].split("\\.");
+        int len = Math.max(partsA.length, partsB.length);
+        for (int i = 0; i < len; i++) {
+            if (i >= partsA.length) {
+                if (!partsB[i].equals("0")) {
+                    return 1;
+                }
+            } else if (i >= partsB.length) {
+                if (!partsA[i].equals("0")) {
+                    return -1;
+                }
+            } else {
+                int compared = Integer.compare(partsB[i].length(), partsA[i].length());
+                if (compared == 0) {
+                    compared = partsB[i].compareTo(partsA[i]);
+                }
+                if (compared < 0 ) {
+                    return -1;
+                } else if (compared > 0) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
 }

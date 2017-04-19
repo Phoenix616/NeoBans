@@ -1,21 +1,21 @@
 package de.themoep.NeoBans.core.commands;
 
-import de.themoep.NeoBans.core.EntryType;
-import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.Entry;
+import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
+import de.themoep.NeoBans.core.PunishmentEntry;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Created by Phoenix616 on 09.02.2015.
+ * Created by Phoenix616 on 19.04.2017.
  */
-public class UnbanCommand extends AbstractCommand {
-    
-    public UnbanCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, Map<String, ArrayList<String>> completions) {
+public class UnjailCommand extends AbstractCommand {
+
+    public UnjailCommand(NeoBansPlugin plugin, NeoSender sender, String[] args, Map<String, ArrayList<String>> completions) {
         super(plugin, sender, args, completions);
     }
 
@@ -29,8 +29,8 @@ public class UnbanCommand extends AbstractCommand {
             }
 
             Entry entry = plugin.getPunishmentManager().getPunishment(playerId);
-            if (entry == null || entry.getType().getRemoveType() != EntryType.UNBAN) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", args[0]));
+            if (entry == null || entry.getType().getRemoveType() != EntryType.UNJAIL) {
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notjailed", "player", args[0]));
                 return;
             }
 
@@ -43,13 +43,19 @@ public class UnbanCommand extends AbstractCommand {
 
                 boolean silent = (args.length > 1 && args[1].equalsIgnoreCase("-silent"));
                 plugin.broadcast(sender,
-                        (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
+                        (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unjail"),
                         plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.unban",
+                                "neobans.message.unjail",
                                 "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
                                 "sender", sender.getName()
                         )
                 );
+                plugin.movePlayer(playerId, plugin.getConfig().getUnjailTarget());
+                plugin.runLater(() -> plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation(
+                        "neobans.title.unjail",
+                        "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
+                        "sender", sender.getName()
+                )), 100);
             } else {
                 sender.sendMessage(entry.getReason(), "player", args[0]);
             }

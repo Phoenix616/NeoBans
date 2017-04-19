@@ -9,78 +9,50 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Phoenix616 on 12.02.2015.
  */
-public class TempbanEntry extends BanEntry {
+public class TimedPunishmentEntry extends PunishmentEntry {
 
     protected long endtime;
 
     /**
-     * An entry for a temporary ban
-     * @param banned The uuid of the banned player
-     * @param issuer The uuid of the issuer of the ban
+     * An entry for a temporary punishment
+     * @param type The type of this entry
+     * @param punished The uuid of the punished player
+     * @param issuer The uuid of the issuer of the punishment
      * @param reason The reason this ban occurred for
-     * @param durationstring The duration this ban will last for
+     * @param durationString The duration this ban will last for
      */
-    public TempbanEntry(UUID banned, UUID issuer, String reason, String durationstring) throws NumberFormatException {
-        super(banned, issuer, reason);
-        type = EntryType.TEMPBAN;
-        endtime = System.currentTimeMillis()/1000 + getDurationFromString(durationstring);
+    public TimedPunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason, String durationString) throws NumberFormatException {
+        super(type, punished, issuer, reason);
+        endtime = System.currentTimeMillis()/1000 + getDurationFromString(durationString);
     }
 
     /**
-     * An entry for a temporary ban
-     * @param banned The uuid of the banned player
-     * @param issuer The uuid of the issuer of the ban
+     * An entry for a temporary punishment
+     * @param type The type of this entry
+     * @param punished The uuid of the punished player
+     * @param issuer The uuid of the issuer of the punishment
      * @param reason The reason this ban occurred for
      * @param time The time as a unix timestamp when this ban was executed at
-     * @param durationstring The duration this ban will last for
+     * @param durationString The duration this punishment will last for
      */
-    public TempbanEntry(UUID banned, UUID issuer, String reason, long time, String durationstring) {
-        super(banned, issuer, reason, "", time);
-        type = EntryType.TEMPBAN;
-        this.endtime = time + getDurationFromString(durationstring);;
+    public TimedPunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason, long time, String durationString) {
+        super(type, punished, issuer, reason, "", time);
+        this.endtime = time + getDurationFromString(durationString);
     }
 
     /**
-     * An entry for a temporary ban
-     * @param banned The uuid of the banned player
-     * @param issuer The uuid of the issuer of the ban
+     * An entry for a temporary punishment
+     * @param type The type of this entry
+     * @param punished The uuid of the punished player
+     * @param issuer The uuid of the issuer of the punishment
      * @param reason The reason this ban occurred for
-     * @param comment A comment to the ban
-     * @param time The time as a unix timestamp when this ban was executed at
-     * @param durationstring The duration this ban will last for
+     * @param comment A comment to the punishment
+     * @param time The time as a unix timestamp when this punishment was executed at
+     * @param endTime The time as a unix timestamp in seconds this punishment will end
      */
-    public TempbanEntry(UUID banned, UUID issuer, String reason, String comment, long time, String durationstring) {
-        super(banned, issuer, reason, comment, time);
-        type = EntryType.TEMPBAN;
-        this.endtime = time + getDurationFromString(durationstring);;
-    }
-
-    /**
-     * An entry for a temporary ban
-     * @param banned The uuid of the banned player
-     * @param issuer The uuid of the issuer of the ban
-     * @param reason The reason this ban occurred for
-     * @param endtime The time as a unix timestamp in seconds this ban will end
-     */
-    public TempbanEntry(UUID banned, UUID issuer, String reason, long endtime) {
-        super(banned, issuer, reason);
-        type = EntryType.TEMPBAN;
-        this.endtime = endtime;
-    }
-
-    /**
-     * An entry for a temporary ban
-     * @param banned The uuid of the banned player
-     * @param issuer The uuid of the issuer of the ban
-     * @param reason The reason this ban occurred for
-     * @param comment A comment to the ban
-     * @param time The time as a unix timestamp when this ban was executed at
-     * @param endtime The time as a unix timestamp in seconds this ban will end
-     */
-    public TempbanEntry(UUID banned, UUID issuer, String reason, String comment, long time, long endtime) {
-        super(banned, issuer, reason, comment, time);
-        type = EntryType.TEMPBAN;
-        this.endtime = endtime;
+    public TimedPunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason, String comment, long time, long endTime) {
+        super(type, punished, issuer, reason, comment, time);
+        this.endtime = endTime;
     }
 
     private long getDurationFromString(String s) throws NumberFormatException {

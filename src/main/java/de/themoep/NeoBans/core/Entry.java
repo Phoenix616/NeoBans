@@ -15,12 +15,23 @@ public class Entry {
 
     protected String reason;
 
+    /**
+     * An entry
+     * @param type The type of this entry
+     * @param reason The reason for this entry
+     */
     public Entry(EntryType type, String reason) {
         this.type = type;
         this.reason = reason;
         this.time = (int) (System.currentTimeMillis() / 1000);
     }
 
+    /**
+     * An entry
+     * @param type The type of this entry
+     * @param reason The reason for this entry
+     * @param time The time that this entry occured
+     */
     public Entry(EntryType type, String reason, long time) {
         this.type = type;
         this.reason = reason;

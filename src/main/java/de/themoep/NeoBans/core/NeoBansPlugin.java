@@ -6,8 +6,6 @@ import de.themoep.NeoBans.core.config.NeoLanguageConfig;
 import de.themoep.NeoBans.core.config.NeoPluginConfig;
 import de.themoep.NeoBans.core.mysql.DatabaseManager;
 
-import java.awt.font.GlyphVector;
-import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -31,7 +29,7 @@ public interface NeoBansPlugin {
     /**
      * Gets the plugin's ban manager
      */
-    public BanManager getBanManager();
+    public PunishmentManager getPunishmentManager();
     
     /**
      * Gets the plugin's command map
@@ -114,6 +112,13 @@ public interface NeoBansPlugin {
      * @param runnable The Runnable to run asynchronously
      */
     public void runAsync(Runnable runnable);
+
+    /**
+     * Run a synchronous task later
+     * @param runnable The Runnable to run later
+     * @param delay The amount of ticks (one tick = 50ms) to wait
+     */
+    void runLater(Runnable runnable, int delay);
     
     /**
      * Get the plugin's logger
@@ -131,4 +136,27 @@ public interface NeoBansPlugin {
      * Load the plugin's config from file
      */
     void loadConfig();
+
+    /**
+     * Check the plugin version
+     * @param version The version string to compare to
+     * @return -1 if the plugin version is below; 0 if the version is equal; 1 if the version is above
+     */
+    int compareVersion(String version);
+
+    /**
+     * Send a title to a player
+     * @param playerId The UUID of the player
+     * @param message The message to send (use a new line character to split the message)
+     * @return true if the player is online; false if the player is offline
+     */
+    boolean sendTitle(UUID playerId, String message);
+
+    /**
+     * Move the player either to another world or server
+     * @param playerId The UUID of the player
+     * @param target The name of the target world or server
+     * @return true if the player is online; false if the player is offline or the target doesn't exist
+     */
+    boolean movePlayer(UUID playerId, String target);
 }

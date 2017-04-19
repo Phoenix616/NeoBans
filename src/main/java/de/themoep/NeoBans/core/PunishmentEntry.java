@@ -5,9 +5,9 @@ import java.util.UUID;
 /**
  * Created by Phoenix616 on 11.02.2015.
  */
-public class BanEntry extends Entry {
+public class PunishmentEntry extends Entry {
 
-    protected UUID banned;
+    protected UUID punished;
 
     protected UUID issuer;
 
@@ -15,16 +15,30 @@ public class BanEntry extends Entry {
     
     protected int dbId = -1;
 
-    public BanEntry(UUID banned, UUID issuer, String reason) {
-        super(EntryType.BAN, reason);
-        this.banned = banned;
+    /**
+     * An entry for a punishment
+     * @param type The type of this entry
+     * @param punished The uuid of the punished player
+     * @param issuer The uuid of the issuer of the punishment
+     * @param reason The reason this punishment occurred for
+     */
+    public PunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason) {
+        super(type, reason);
+        this.punished = punished;
         this.issuer = issuer;
         this.comment = "";
     }
 
-    public BanEntry(UUID banned, UUID issuer, String reason, String comment, long time) {
-        super(EntryType.BAN, reason, time);
-        this.banned = banned;
+    /**
+     * An entry for a punishment
+     * @param type The type of this entry
+     * @param punished The uuid of the punished player
+     * @param issuer The uuid of the issuer of the punishment
+     * @param reason The reason this punishment occurred for
+     */
+    public PunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason, String comment, long time) {
+        super(type, reason, time);
+        this.punished = punished;
         this.issuer = issuer;
         this.reason = reason;
         this.comment = comment;
@@ -34,8 +48,8 @@ public class BanEntry extends Entry {
      * Get the UUID of the affected player
      * @return The UUID of the affected player
      */
-    public UUID getBanned() {
-        return banned;
+    public UUID getPunished() {
+        return punished;
     };
 
     /**

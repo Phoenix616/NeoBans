@@ -1,3 +1,6 @@
+target:
+  jail: ''
+  unjail: ''
 backend: none
 mysql:
   user: username
@@ -11,10 +14,12 @@ commandaliases:
   neoban: [nban, ban]
   neounban: [nunban, unban]
   neotempban: [ntempban, tempban]
+  neojail: [njail, jail]
+  neounjail: [nunjail, unjail]
   neokick: [nkick, kick]
   neokickall: [nkickall, kickall]
   neoinfo: [ninfo, baninfo]
-  neoeditban: [neditban, editban]
+  neoeditentry: [neditentry, editentry, editjail, editban]
   neolog: [banlog]
 broadcast:
   kick: GLOBAL
@@ -23,3 +28,4 @@ broadcast:
   ban: GLOBAL
   tempban: GLOBAL
   unban: GLOBAL
+  jail:

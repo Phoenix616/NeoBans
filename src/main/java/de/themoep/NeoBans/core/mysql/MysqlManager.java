@@ -1,14 +1,19 @@
 package de.themoep.NeoBans.core.mysql;
 
 import com.zaxxer.hikari.HikariDataSource;
-import de.themoep.NeoBans.core.BanEntry;
+import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.LogEntry;
 import de.themoep.NeoBans.core.NeoBansPlugin;
-import de.themoep.NeoBans.core.TempbanEntry;
+import de.themoep.NeoBans.core.TimedPunishmentEntry;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,26 +45,26 @@ public class MysqlManager implements DatabaseManager {
         ds.setConnectionTimeout(5000);
 
         initializeTables();
+        updateTables();
     }
 
     @Override
     public void initializeTables() {
-        Connection conn = null;
-        Statement staBans = null;
-        Statement staLog = null;
-        try {
+        try (Connection conn = getConn();
+             Statement staBans = conn.createStatement();
+             Statement staLog = conn.createStatement();
+        ) {
             String sqlBans = "CREATE TABLE IF NOT EXISTS " + getTablePrefix() + "bans ("
                     + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                    + "bannedid VARCHAR(36), INDEX (bannedid),"
-                    + "issuerid VARCHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000',"
+                    + "type VARCHAR(64),"
+                    + "bannedid CHAR(36), INDEX (bannedid),"
+                    + "issuerid CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000',"
                     + "reason TINYTEXT,"
                     + "comment TINYTEXT,"
                     + "time BIGINT(11) NOT NULL,"
                     + "endtime BIGINT(11)"
                     + ")  DEFAULT CHARACTER SET=utf8 AUTO_INCREMENT=1;";
 
-            conn = getConn();
-            staBans = conn.createStatement();
             staBans.execute(sqlBans);
 
             /*String sqlPlayers = "CREATE TABLE IF NOT EXISTS `" + getTablePrefix() + "players` ("
@@ -75,34 +80,67 @@ public class MysqlManager implements DatabaseManager {
 
             String sqlLog = "CREATE TABLE IF NOT EXISTS " + getTablePrefix() + "log ("
                     + "id INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                    + "type VARCHAR(20),"
-                    + "playerid VARCHAR(36),"
-                    + "issuerid VARCHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000',"
+                    + "type VARCHAR(64),"
+                    + "playerid CHAR(36),"
+                    + "issuerid CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000',"
                     + "msg TEXT,"
                     + "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
                     + "INDEX (type, playerid)"
                     + ")  DEFAULT CHARACTER SET=utf8 AUTO_INCREMENT=1;";
 
-            staLog = conn.createStatement();
             staLog.execute(sqlLog);
         } catch (SQLException e) {
-            plugin.getLogger().severe("Error while initializing the database tables!");
-            e.printStackTrace();
-        } finally {
-            close(staBans);
-            close(staLog);
-            close(conn);
+            plugin.getLogger().log(Level.SEVERE, "Error while initializing the database tables!", e);
+        }
+    }
+
+    @Override
+    public void updateTables() {
+        if (plugin.compareVersion("0.4") >= 0) {
+            try (Connection conn = getConn();
+                 Statement staTypeColumn = conn.createStatement();
+                 Statement staUpdateBans = conn.createStatement();
+                 Statement staUpdateLog = conn.createStatement();
+            ) {
+                try {
+                    staTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN IF NOT EXISTS type VARCHAR(64);");
+                } catch (SQLException e) {
+                    try {
+                        staTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64);");
+                        plugin.getLogger().log(Level.INFO, "Added type column to " + getTablePrefix() + "bans!");
+                    } catch (SQLException b) {
+                        if (b.getErrorCode() == 1060) {
+                            plugin.getLogger().log(Level.INFO, "type column already exists in " + getTablePrefix() + "bans!");
+                        } else {
+                            plugin.getLogger().log(Level.SEVERE, "Error while adding column type to " + getTablePrefix() + "bans!", b);
+                        }
+                    }
+                }
+
+                String sqlUpdateBans = "ALTER TABLE " + getTablePrefix() + "bans " +
+                        "MODIFY COLUMN bannedid CHAR(36)," +
+                        "MODIFY COLUMN issuerid CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000';";
+
+                staUpdateBans.execute(sqlUpdateBans);
+
+                String sqlUpdateLog = "ALTER TABLE " + getTablePrefix() + "log " +
+                        "MODIFY COLUMN type VARCHAR(64)," +
+                        "MODIFY COLUMN bannedid CHAR(36)," +
+                        "MODIFY COLUMN issuerid CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000';";
+
+                staUpdateLog.execute(sqlUpdateLog);
+            } catch (SQLException e) {
+                plugin.getLogger().log(Level.SEVERE, "Error while updating the database tables!", e);
+            }
         }
     }
 
     @Override
     public boolean log(EntryType type, UUID playerId, UUID issuerid, String message) {
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            String query = "INSERT INTO " + getTablePrefix() + "log (type, playerid, issuerid, msg) values (?, ?, ?, ?)";
-            conn = getConn();
-            sta = conn.prepareStatement(query);
+        String query = "INSERT INTO " + getTablePrefix() + "log (type, playerid, issuerid, msg) values (?, ?, ?, ?)";
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query);
+        ) {
             sta.setString(1, type.toString());
             sta.setString(2, playerId.toString());
             sta.setString(3, issuerid.toString());
@@ -113,21 +151,16 @@ public class MysqlManager implements DatabaseManager {
             plugin.getLogger().severe("Encountered SQLException while trying to insert into the log table!");
             e.printStackTrace();
             return false;
-        } finally {
-            close(sta);
-            close(conn);
         }
     }
 
     public List<Entry> getLogEntries(UUID playerId, int page, int amount) {
         int start = page * amount;
         List<Entry> logList = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            String query = "SELECT * FROM " + getTablePrefix() + "log WHERE playerid = ? OR issuerid = ? ORDER BY time DESC LIMIT ?,?";
-            conn = getConn();
-            sta = conn.prepareStatement(query);
+        String query = "SELECT * FROM " + getTablePrefix() + "log WHERE playerid = ? OR issuerid = ? ORDER BY time DESC LIMIT ?,?";
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query);
+        ) {
             sta.setString(1, playerId.toString());
             sta.setString(2, playerId.toString());
             sta.setInt(3, start);
@@ -156,9 +189,6 @@ public class MysqlManager implements DatabaseManager {
             logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
                     "neobans.error.database"
             )));
-        } finally {
-            close(sta);
-            close(conn);
         }
         return logList;
     }
@@ -177,103 +207,94 @@ public class MysqlManager implements DatabaseManager {
 
         String query = "UPDATE " + getTablePrefix() + "bans SET " + column + "=? WHERE id=?";
 
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            conn = getConn();
-            sta = conn.prepareStatement(query);
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query);
+        ) {
             sta.setString(1, value);
             sta.setInt(2, userId);
             sta.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
-        } finally {
-            close(sta);
-            close(conn);
         }
         return true;
     }
 
     @Override
-    public Entry add(BanEntry entry) {
-        String query = "INSERT INTO " + getTablePrefix() + "bans (bannedid, issuerid, reason, comment, time, endtime) values (?, ?, ?, ?, ?, ?)";
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            conn = getConn();
-            sta = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            sta.setString(1, entry.getBanned().toString());
-            sta.setString(2, entry.getIssuer().toString());
-            sta.setString(3, entry.getReason());
-            sta.setString(4, entry.getComment());
-            sta.setString(5, Long.toString(entry.getTime()));
-            if (entry instanceof TempbanEntry)
-                sta.setLong(6, ((TempbanEntry) entry).getEndtime());
+    public Entry add(PunishmentEntry entry) {
+        String query = "INSERT INTO " + getTablePrefix() + "bans (type, bannedid, issuerid, reason, comment, time, endtime) values (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        ) {
+            sta.setString(1, entry.getType().toString());
+            sta.setString(2, entry.getPunished().toString());
+            sta.setString(3, entry.getIssuer().toString());
+            sta.setString(4, entry.getReason());
+            sta.setString(5, entry.getComment());
+            sta.setString(6, Long.toString(entry.getTime()));
+            if (entry instanceof TimedPunishmentEntry)
+                sta.setLong(7, ((TimedPunishmentEntry) entry).getEndtime());
             else
-                sta.setLong(6, 0);
+                sta.setLong(7, 0);
             sta.executeUpdate();
             ResultSet rs = sta.getGeneratedKeys();
 
             if (rs.next()) {
                 entry.setDbId(rs.getInt(1));
                 String msg = entry.getReason().isEmpty() ? "" : "Reason: " + entry.getReason();
-                if (entry instanceof TempbanEntry) {
-                    msg = "Duration: " + ((TempbanEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true) + " " + msg;
+                if (entry instanceof TimedPunishmentEntry) {
+                    msg = "Duration: " + ((TimedPunishmentEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true) + " " + msg;
                 }
-                if (!log(entry.getType(), entry.getBanned(), entry.getIssuer(), msg)) {
-                    plugin.getLogger().warning("Error while trying to log addition of ban " + rs.getInt(1) + " for player " + plugin.getPlayerName(entry.getBanned()) + "!");
+                if (!log(entry.getType(), entry.getPunished(), entry.getIssuer(), msg)) {
+                    plugin.getLogger().warning("Error while trying to log addition of ban " + rs.getInt(1) + " for player " + plugin.getPlayerName(entry.getPunished()) + "!");
                 }
                 return entry;
             }
         } catch (SQLException e) {
-            plugin.getLogger().severe("Encountered SQLException while trying to add ban for player " + plugin.getPlayerName(entry.getBanned()) + " to the ban table!");
+            plugin.getLogger().severe("Encountered SQLException while trying to add ban for player " + plugin.getPlayerName(entry.getPunished()) + " to the ban table!");
             e.printStackTrace();
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
-        } finally {
-            close(sta);
-            close(conn);
         }
         return entry;
     }
 
     @Override
-    public Entry remove(BanEntry banentry, UUID invokeId, boolean log) {
+    public Entry remove(PunishmentEntry punishment, UUID invokeId, boolean log) {
 
-        String msg = invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "Orig. reason: " + banentry.getReason();
-        if (banentry instanceof TempbanEntry) {
-            msg += "Orig. endtime: " + ((TempbanEntry) banentry).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
+        String msg = (invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "") + "Orig. reason: " + punishment.getReason();
+        if (punishment instanceof TimedPunishmentEntry) {
+            msg += "Orig. endtime: " + ((TimedPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
         }
-        if (log && !log(EntryType.UNBAN, banentry.getBanned(), invokeId, msg))
-            plugin.getLogger().warning("Error while trying to log deletion of ban of player " + plugin.getPlayerName(banentry.getBanned()) + "!");
+        if (log) {
+            log(punishment.getType().getRemoveType(), punishment.getPunished(), invokeId, msg);
+        }
 
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            String query = "DELETE FROM " + getTablePrefix() + "bans WHERE " + ((banentry.getDbId() > 0) ? "id=?" : "bannedid=? ORDER BY time DESC LIMIT 1");
-            conn = getConn();
-            sta = conn.prepareStatement(query);
-            sta.setString(1, (banentry.getDbId() > 0) ? Integer.toString(banentry.getDbId()) : banentry.getBanned().toString());
+
+        String query = "DELETE FROM " + getTablePrefix() + "bans WHERE " + ((punishment.getDbId() > 0) ? "id=?" : "bannedid=? AND type=? ORDER BY time DESC LIMIT 1");
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query);
+        ) {
+            if (punishment.getDbId() > 0) {
+                sta.setInt(1, punishment.getDbId());
+            } else {
+                sta.setString(1, punishment.getPunished().toString());
+                sta.setString(2, punishment.getType().toString());
+            }
             sta.executeUpdate();
         } catch (SQLException e) {
-            plugin.getLogger().severe("Encountered SQLException while trying to delete ban of player " + plugin.getPlayerName(banentry.getBanned()) + " (BanID: " + banentry.getDbId() + ") from the ban table!");
+            plugin.getLogger().severe("Encountered SQLException while trying to delete ban of player " + plugin.getPlayerName(punishment.getPunished()) + " (BanID: " + punishment.getDbId() + ") from the ban table!");
             e.printStackTrace();
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
-        } finally {
-            close(sta);
-            close(conn);
         }
-        return banentry;
+        return punishment;
     }
 
     @Override
     public int getCount(EntryType type, UUID playerId) {
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            String query = "SELECT count(id) as count FROM " + getTablePrefix() + "log WHERE type=? AND playerid=?";
-            conn = getConn();
-            sta = conn.prepareStatement(query);
+        String query = "SELECT count(id) as count FROM " + getTablePrefix() + "log WHERE type=? AND playerid=?";
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query);
+        ) {
             sta.setString(1, type.toString());
             sta.setString(2, playerId.toString());
 
@@ -284,46 +305,44 @@ public class MysqlManager implements DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to to get the count of " + type.toString().toLowerCase() + " entries for player " + plugin.getPlayerName(playerId) + " from the log table!");
             e.printStackTrace();
-        } finally {
-            close(sta);
-            close(conn);
         }
         return 0;
     }
 
     @Override
     public Entry get(UUID id) {
-        String sql = "SELECT id, issuerid, reason, comment, time, endtime FROM " + getTablePrefix() + "bans WHERE bannedid=? ORDER BY time DESC";
+        String query = "SELECT id, type, issuerid, reason, comment, time, endtime FROM " + getTablePrefix() + "bans WHERE bannedid=? ORDER BY time DESC";
 
-        Connection conn = null;
-        PreparedStatement sta = null;
-        try {
-            conn = getConn();
-            sta = conn.prepareStatement(sql);
+        try (Connection conn = getConn();
+             PreparedStatement sta = conn.prepareStatement(query);
+        ) {
             sta.setString(1, id.toString());
 
             ResultSet rs = sta.executeQuery();
 
             if (rs.next()) {
-                String issuerid = rs.getString("issuerid");
+                UUID issuerId = UUID.fromString(rs.getString("issuerid"));
                 String reason = rs.getString("reason");
                 String comment = rs.getString("comment");
                 long time = rs.getLong("time");
                 long endtime = rs.getLong("endtime");
+                EntryType type;
+                try {
+                    type = EntryType.valueOf(rs.getString("type").toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    type = endtime > 0 ? EntryType.TEMPBAN : EntryType.BAN;
+                }
 
                 if (endtime > 0) {
-                    return new TempbanEntry(id, UUID.fromString(issuerid), reason, comment, time, endtime);
+                    return new TimedPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
                 } else {
-                    return new BanEntry(id, UUID.fromString(issuerid), reason, comment, time);
+                    return new PunishmentEntry(type, id, issuerId, reason, comment, time);
                 }
             }
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to get ban of player " + plugin.getPlayerName(id) + " from the ban table!");
             e.printStackTrace();
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
-        } finally {
-            close(sta);
-            close(conn);
         }
         return null;
     }
@@ -331,22 +350,9 @@ public class MysqlManager implements DatabaseManager {
     public Connection getConn() throws SQLException {
         return ds.getConnection();
     }
-    
-    public String getTablePrefix() { 
+
+    public String getTablePrefix() {
         return tablePrefix;
     }
 
-    private static void close(Object o) {
-        if (o != null) {
-            try {
-                if (o instanceof Connection) {
-                    ((Connection) o).close();
-                } else if (o instanceof Statement) {
-                    ((Statement) o).close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

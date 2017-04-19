@@ -1,6 +1,6 @@
 package de.themoep.NeoBans.core.mysql;
 
-import de.themoep.NeoBans.core.BanEntry;
+import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 
@@ -16,6 +16,11 @@ public interface DatabaseManager {
      * Initialize the tables needed for this plugin.
      */
     void initializeTables();
+
+    /**
+     * Update the tables from a previous version
+     */
+    void updateTables();
 
     /**
      * Log something to the database
@@ -42,9 +47,9 @@ public interface DatabaseManager {
 
     boolean update(int userId, String column, String value);
 
-    Entry add(BanEntry entry);
+    Entry add(PunishmentEntry entry);
 
-    Entry remove(BanEntry banentry, UUID invokeId, boolean log);
+    Entry remove(PunishmentEntry banentry, UUID invokeId, boolean log);
 
     int getCount(EntryType type, UUID playerId);
 

@@ -6,6 +6,8 @@ neobans:
     bancommand: "&cUsage: &e/%name% <username> [<reason>]"
     tempbancommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
     unbancommand: "&cUsage: &e/%name% <username>"
+    jailcommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
+    unjailcommand: "&cUsage: &e/%name% <username>"
     infocommand: "&cUsage: &e/%name% <username>"
     editbancommand: "&cUsage: &e/%name% <username> [duration|reason] <value>"
     logcommand: "&cUsage: &e/%name% <username> [<page>]"
@@ -38,6 +40,16 @@ neobans:
       &cRestdauer: &e%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+  title:
+    jailed: |
+      &cDu wurdest eingesperrt!&r
+      &cDauer: &e%duration%&r
+      &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+    jailedwithreason: |
+      &cDu wurdest eingesperrt!&r
+      &cGrund: &e%reason%&r &cDauer: &e%duration%&r
+      &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+    unjailed: '\n&cDu wurdest freigelassen!&r'
   join:
     banned: |
       &c&lDu (%player%) bist gebannt!&r
@@ -50,18 +62,26 @@ neobans:
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbanned: |
       &c&lDu (%player%) bist gebannt!&r
-      
+
       &cAblauf des Bans: &e%endtime%&r
       &cRestdauer: &e%duration%&r
-      
+
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
     tempbannedwithreason: |
       &c&lDu (%player%) bist gebannt!&r
       &cGrund: &e%reason%&r
-      
+
       &cAblauf des Bans: &e%endtime%&r
       &cRestdauer: &e%duration%&r
 
+      &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+    jailed: |
+      &cDu bist eingesperrt!&r
+      &cRestdauer: &e%duration%&r
+      &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+    jailedwithreason: |
+      &cDu bist eingesperrt!&r
+      &cGrund: &e%reason%&r &cRestdauer: &e%duration%&r
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   message:
     kick: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gekick."
@@ -73,10 +93,19 @@ neobans:
     banwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 gebannt. Grund: &e%reason%&6."
     tempban: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt."
     tempbanwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 gebannt. Grund: &e%reason%&6."
-    banedited: "&cEdited ban of &e%player%&c. Set &e%option%&c to &e%value%"
+    jail: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 eingesperrt."
+    jailwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 eingesperrt. Grund: &e%reason%&6."
+    entryedited: "&cEdited entry of &e%player%&c. Set &e%option%&c to &e%value%"
     unban: "&f[&c!&f] &e%player%&6 wurde entbannt."
     info:
       name: "&cName: &e%player%"
+      currentjail:
+        reason: "&cCurrent jail: &e%reason%"
+        issuer: "&cJailed by: &e%issuer%"
+        time: "&cJailed at: &e%time%"
+        comment: "&cComment: &e%comment%"
+        # temporary can have an %duration% value which will display something like 4d 2h 23m 12s
+        temporary: "&cJailed until: &e%endtime%"
       currentban:
         reason: "&cCurrent ban: &e%reason%"
         issuer: "&cBanned by: &e%issuer%"
@@ -87,6 +116,7 @@ neobans:
       previous:
         bans: "&cPrevious bans: &e%count%"
         tempbans: "&cPrevious tempbans: &e%count%"
+        jails: "&cPrevious jails: &e%count%"
         kicks: "&cPrevious kicks: &e%count%"
     log:
       head: "&6Log Entries for &e%player%&6 (Page %page%):"
@@ -101,6 +131,8 @@ neobans:
     numbertoosmall: "&e%value%&c is too small! Use one above zero!"
     alreadybanned: "&e%player%&c is already banned!"
     notbanned: "&e%player%&c is not banned!"
+    alreadyjailed: "&e%player%&c is already jailed!"
+    notjailed: "&e%player%&c is not jailed!"
     reasontoolong: "&cYour reason is too long! Only &e140&c characters allowed!"
     database: "&cEncountered a database error. Please contact an administrator as soon as possible!"
     "null": "&4Error:&c Something is null. Please contact an administrator as soon as possible!"

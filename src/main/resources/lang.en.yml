@@ -14,13 +14,21 @@ neobans:
     kickwithreason: "&cYou have been &ekicked&c by &e%sender% &cbecause of &e%reason%&c!"
     ban: "&cYou have been &ebanned&c by &e%sender%&c!"
     banwithreason: "&cYou have been &ebanned&c by &e%sender% &cbecause of &e%reason%&c!"
-    tempban: "&cYou have been &etemporary banned&c by &e%sender%&c for &e%time%&c!"
-    tempbanwithreason: "&cYou have been &etemporary banned&c by &e%sender%&c for &e%time%&c because of &e%reason%&c!"
+    tempban: "&cYou have been &etemporary banned&c by &e%sender%&c for &e%duration%&c!"
+    tempbanwithreason: "&cYou have been &etemporary banned&c by &e%sender%&c for &e%duration%&c because of &e%reason%&c!"
+    jailed: |
+      &cYou are &ejailed&c!
+      &cDuration: &e%duration%&c
+    jailedwithreason:  |
+      &cYou are &ejailed&c!
+      &cReason: &e%reason% &cDuration: &e%duration%&c
   join:
     banned: "&cYou are &ebanned&c!"
     bannedwithreason: "&cYou are &ebanned&c because of &e%reason%&c!"
     tempbanned: "&cYou are &etemporary banned&c for &e%duration%&c until &e%endtime%&c!"
     tempbannedwithreason: "&cYou are &etemporary banned&c for &e%duration%&c until &e%endtime%&c because of &e%reason%&c!"
+    jailed: "&cYou are &ejailed&c for &e%duration%&c until &e%endtime%&c!"
+    jailedwithreason: "&cYou are &ejailed&c for &e%duration%&c until &e%endtime%&c because of &e%reason%&c!"
   message:
     kick: "&e%player%&6 was kicked by &e%sender%&6."
     kickwithreason: "&e%player%&6 was kicked by &e%sender%&6. Reason: &e%reason%&6."
@@ -31,10 +39,19 @@ neobans:
     banwithreason: "&e%player%&6 was banned by &e%sender%&6. Reason: &e%reason%&6."
     tempban: "&e%player%&6 was temporary banned by &e%sender%&6 for &e%duration%&6."
     tempbanwithreason: "&e%player%&6 was temporary banned by &e%sender%&6 for &e%duration%&6. Reason: &e%reason%&6."
-    banedited: "&cEdited ban of &e%player%&c. Set &e%option%&c to &e%value%"
+    jail: "&e%player%&6 was jailed by &e%sender%&6 for &e%duration%&6."
+    jailwithreason: "&e%player%&6 was jailed by &e%sender%&6 for &e%duration%&6. Reason: &e%reason%&6."
+    entryedited: "&cEdited entry of &e%player%&c. Set &e%option%&c to &e%value%"
     unban: "&e%player%&6 was unbanned by &e%sender%&6."
     info:
       name: "&cName: &e%player%"
+      currentjail:
+        reason: "&cCurrent jail: &e%reason%"
+        issuer: "&cJailed by: &e%issuer%"
+        time: "&cJailed at: &e%time%"
+        comment: "&cComment: &e%comment%"
+        # temporary can have an %duration% value which will display something like 4d 2h 23m 12s
+        temporary: "&cJailed until: &e%endtime%"
       currentban:
         reason: "&cCurrent ban: &e%reason%"
         issuer: "&cBanned by: &e%issuer%"
@@ -45,6 +62,7 @@ neobans:
       previous:
         bans: "&cPrevious bans: &e%count%"
         tempbans: "&cPrevious tempbans: &e%count%"
+        jails: "&cPrevious jails: &e%count%"
         kicks: "&cPrevious kicks: &e%count%"
     log:
       head: "&6Log Entries for &e%player%&6 (Page %page%):"
@@ -59,6 +77,8 @@ neobans:
     numbertoosmall: "&e%value%&c is too small! Use one above zero!"
     alreadybanned: "&e%player%&c is already banned!"
     notbanned: "&e%player%&c is not banned!"
+    alreadyjailed: "&e%player%&c is already jailed!"
+    notjailed: "&e%player%&c is not jailed!"
     reasontoolong: "&cYour reason is too long! Only &e140&c characters allowed!"
     database: "&cEncountered a database error. Please contact an administrator as soon as possible!"
     "null": "&4Error:&c Something is null. Please contact an administrator as soon as possible!"
@@ -67,6 +87,7 @@ neobans:
     wrongoption: "&cThe option &e%option%&c is not allowed!"
     wrongvalue: "&cThe value &e%value&c is not valid for the option &e%option%&c!"
     unknownentrytype: "&cUnknown entry type &e%type%&c!"
+    nojaildefined: "&cThere is no jail defined in the config! Temporary ban the user instead."
 time:
   format: "dd/MM/yyyy HH:mm:ss z"
   year: "year"
