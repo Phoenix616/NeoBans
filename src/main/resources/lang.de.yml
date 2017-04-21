@@ -97,6 +97,7 @@ neobans:
     jailwithreason: "&f[&c!&f] &e%player%&6 wurde von &e%sender%&6 für &e%duration%&6 eingesperrt. Grund: &e%reason%&6."
     entryedited: "&cEdited entry of &e%player%&c. Set &e%option%&c to &e%value%"
     unban: "&f[&c!&f] &e%player%&6 wurde entbannt."
+    unjail: "&f[&c!&f] &e%player%&6 wurde freigelassen."
     info:
       name: "&cName: &e%player%"
       currentjail:

@@ -53,5 +53,11 @@ public interface DatabaseManager {
 
     int getCount(EntryType type, UUID playerId);
 
-    Entry get(UUID id);
+    /**
+     * Get the last added entry of the given type
+     * @param id The UUID of the player
+     * @param types An array of types to get; if empty it will get entries of all types
+     * @return The latest entry
+     */
+    Entry get(UUID id, EntryType... types);
 }

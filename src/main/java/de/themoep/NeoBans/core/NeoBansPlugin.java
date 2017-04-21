@@ -104,21 +104,33 @@ public interface NeoBansPlugin {
     /**
      * Run a synchronous task
      * @param runnable The Runnable to run synchronously
+     * @return The task id; -1 if no new task was created
      */
-    public void runSync(Runnable runnable);
+    public int runSync(Runnable runnable);
 
     /**
      * Run an asynchronous task
      * @param runnable The Runnable to run asynchronously
+     * @return The task id; -1 if no new task was created
      */
-    public void runAsync(Runnable runnable);
+    public int runAsync(Runnable runnable);
 
     /**
      * Run a synchronous task later
      * @param runnable The Runnable to run later
      * @param delay The amount of ticks (one tick = 50ms) to wait
+     * @return The task id; -1 if no new task was created
      */
-    void runLater(Runnable runnable, int delay);
+    int runLater(Runnable runnable, long delay);
+
+    /**
+     * Run a repeating synchronous task
+     * @param runnable The Runnable to run repeatingly
+     * @param delay The amount of ticks (one tick = 50ms) to wait
+     * @param period The amount of ticks (one tick = 50ms) between each run
+     * @return The task id; -1 if no new task was created
+     */
+    int runRepeating(Runnable runnable, long delay, long period);
     
     /**
      * Get the plugin's logger

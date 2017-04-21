@@ -104,7 +104,7 @@ public class MysqlManager implements DatabaseManager {
                  Statement staUpdateLog = conn.createStatement();
             ) {
                 try {
-                    staAddTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64) DEFAULT NULL, ADD INDEX query (type, bannedid) ;");
+                    staAddTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64) DEFAULT NULL, ADD INDEX (type, bannedid) ;");
                     staFillTypeColumn.execute("UPDATE TABLE " + getTablePrefix() + "bans SET type = IF(endtime == 0, 'BAN', 'TEMPBAN') WHERE type IS NULL;");
                     plugin.getLogger().log(Level.INFO, "Added type column to " + getTablePrefix() + "bans!");
                 } catch (SQLException b) {
@@ -308,13 +308,26 @@ public class MysqlManager implements DatabaseManager {
     }
 
     @Override
-    public Entry get(UUID id) {
-        String query = "SELECT id, type, issuerid, reason, comment, time, endtime FROM " + getTablePrefix() + "bans WHERE bannedid=? ORDER BY time DESC";
+    public Entry get(UUID id, EntryType... types) {
+        String query = "SELECT id, type, issuerid, reason, comment, time, endtime FROM " + getTablePrefix() + "bans WHERE bannedid=?";
+        if (types.length == 1) {
+            query += " AND type = ?";
+        } else if (types.length > 0) {
+            query += " AND type IN (" + types[0].toString();
+            for (int i = 1; i < types.length; i++) {
+                query += "," + types[i].toString();
+            }
+            query += ")";
+        }
+        query += " ORDER BY time DESC;";
 
         try (Connection conn = getConn();
              PreparedStatement sta = conn.prepareStatement(query);
         ) {
             sta.setString(1, id.toString());
+            if (types.length == 1) {
+                sta.setString(2, types[0].toString());
+            }
 
             ResultSet rs = sta.executeQuery();
 

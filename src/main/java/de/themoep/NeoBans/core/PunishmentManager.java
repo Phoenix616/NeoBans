@@ -1,7 +1,14 @@
 package de.themoep.NeoBans.core;
 
+import de.themoep.NeoBans.core.commands.NeoSender;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * Created by Phoenix616 on 11.02.2015.
@@ -10,11 +17,13 @@ public class PunishmentManager {
 
     private NeoBansPlugin plugin;
 
-    protected ConcurrentHashMap<UUID, PunishmentEntry> punishments;
+    private Map<EntryType, Map<UUID, PunishmentEntry>> punishments = new HashMap<>();
 
     public PunishmentManager(NeoBansPlugin plugin) {
         this.plugin = plugin;
-        punishments = new ConcurrentHashMap<>();
+        punishments.put(EntryType.BAN, new ConcurrentHashMap<>());
+        punishments.put(EntryType.TEMPBAN, new ConcurrentHashMap<>());
+        punishments.put(EntryType.JAIL, new ConcurrentHashMap<>());
     }
 
     /**
@@ -22,25 +31,37 @@ public class PunishmentManager {
      * <br /><br />
      * <strong>Note:</strong> This method might execute a database query and should not be run on the main thread!
      * @param id The id of the player to get the ban of
+     * @param types The types of the punishment to get
      * @return The entry of the player, null if he doesn't have one, entry with type FAILURE if an error occurs (SQLException, etc.)
      */
-    public Entry getPunishment(UUID id) {
+    public Entry getPunishment(UUID id, EntryType... types) {
         if (id == null) {
             return null;
         }
 
-        Entry entry = punishments.get(id);
-        if (entry == null) {
-            entry = plugin.getDatabaseManager().get(id);
+        List<Entry> entries = new ArrayList<>();
+        for (EntryType type : types) {
+            entries.add(punishments.get(type).get(id));
+        }
+        Entry entry;
+        if (!entries.isEmpty()) {
+            entry = entries.get(0);
+            for (int i = 1; i < entries.size(); i++) {
+                if (entries.get(i).getTime() > entry.getTime()) {
+                    entry = entries.get(i);
+                }
+            }
+        } else {
+            entry = plugin.getDatabaseManager().get(id, types);
         }
 
         if (entry instanceof TimedPunishmentEntry) {
             if (checkExpiration((PunishmentEntry) entry) != null) {
-                punishments.put(id, (PunishmentEntry) entry);
+                punishments.get(entry.getType()).put(id, (PunishmentEntry) entry);
                 return entry;
             }
         } else if (entry instanceof PunishmentEntry) {
-            punishments.put(id, (PunishmentEntry) entry);
+            punishments.get(entry.getType()).put(id, (PunishmentEntry) entry);
             return entry;
         } else {
             return entry;
@@ -53,13 +74,14 @@ public class PunishmentManager {
      * <br /><br />
      * <strong>Note:</strong> This method might execute a database query and should not be run on the main thread!
      * @param username The username of the player to get the ban of
+     * @param types The types of the punishment to get
      * @return The banentry of the player, null if he doesn't have one
      */
-    public Entry getPunishment(String username) {
+    public Entry getPunishment(String username, EntryType... types) {
         UUID playerid = plugin.getPlayerId(username);
         return (playerid == null)
                 ? new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", username))
-                : getPunishment(playerid);
+                : getPunishment(playerid, types);
     }
 
     ;
@@ -72,10 +94,10 @@ public class PunishmentManager {
     private Entry checkExpiration(PunishmentEntry entry) {
         if (entry instanceof TimedPunishmentEntry && ((TimedPunishmentEntry) entry).isExpired()) {
             removePunishment(entry);
-            plugin.getLogger().info("Temporary ban of " + plugin.getPlayerName(entry.getPunished()) + " expired.");
+            plugin.getLogger().info(entry.getType() + " of " + plugin.getPlayerName(entry.getPunished()) + " expired.");
             return null;
         } else if (!punishments.containsKey(entry.getPunished())) {
-            punishments.put(entry.getPunished(), entry);
+            punishments.get(entry.getType()).put(entry.getPunished(), entry);
         }
         return entry;
     }
@@ -88,14 +110,18 @@ public class PunishmentManager {
      * @return The added entry, an Entry with the EntryType FAILURE on failure with the reason as the reason
      */
     public Entry addPunishment(PunishmentEntry entry) {
-        Entry existingEntry = getPunishment(entry.getPunished());
+        Entry existingEntry = getPunishment(entry.getPunished(), entry.getType() == EntryType.JAIL ? new EntryType[] {EntryType.JAIL} : new EntryType[]{EntryType.BAN, EntryType.TEMPBAN});
         if (existingEntry != null) {
             if (existingEntry.getType() == EntryType.FAILURE)
                 return existingEntry;
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadybanned", "player", plugin.getPlayerName(entry.getPunished())));
+            if (entry.getType() == EntryType.JAIL) {
+                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadyjailed", "player", plugin.getPlayerName(entry.getPunished())));
+            } else {
+                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadybanned", "player", plugin.getPlayerName(entry.getPunished())));
+            }
         }
 
-        punishments.put(entry.getPunished(), entry);
+        punishments.get(entry.getType()).put(entry.getPunished(), entry);
 
         return plugin.getDatabaseManager().add(entry);
     }
@@ -136,7 +162,7 @@ public class PunishmentManager {
             } else {
                 try {
                     long endTime = Long.parseLong(value);
-                    changedEntry = new TimedPunishmentEntry(entry.getType() != EntryType.BAN ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime(), endTime);
+                    changedEntry = new TimedPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime(), endTime);
                 } catch (NumberFormatException ignored) {
                 }
             }
@@ -151,9 +177,9 @@ public class PunishmentManager {
             } else {
                 try {
                     if (value.startsWith("~")) {
-                        changedEntry = new TimedPunishmentEntry(entry.getType() != EntryType.BAN ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), value.substring(1));
+                        changedEntry = new TimedPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), value.substring(1));
                     } else {
-                        changedEntry = new TimedPunishmentEntry(entry.getType() != EntryType.BAN ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
+                        changedEntry = new TimedPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
                     }
                     dbValue = Long.toString(((TimedPunishmentEntry) changedEntry).getEndtime());
                 } catch (NumberFormatException e) {
@@ -178,7 +204,8 @@ public class PunishmentManager {
             plugin.getLogger().severe("Encountered SQLException while trying to update ban for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
             new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
         }
-        punishments.put(entry.getPunished(), changedEntry);
+        punishments.get(entry.getType()).remove(entry.getPunished());
+        punishments.get(changedEntry.getType()).put(entry.getPunished(), changedEntry);
         return changedEntry;
     }
 
@@ -231,7 +258,7 @@ public class PunishmentManager {
      * @return The previous PunishmentEntry , null if the player wasn't punished before
      */
     public Entry removePunishment(PunishmentEntry punishment, UUID invokeId, boolean log) {
-        punishments.remove(punishment.getPunished());
+        punishments.get(punishment.getType()).remove(punishment.getPunished());
 
         return plugin.getDatabaseManager().remove(punishment, invokeId, log);
     }
@@ -279,5 +306,45 @@ public class PunishmentManager {
      */
     public int getCount(EntryType type, String username) {
         return getCount(type, plugin.getPlayerId(username));
+    }
+
+    /**
+     * Unjail a player. This sends titles and moves the player to the unjail target
+     * @param sender The sender that initiated the unjail. Should be the console for automatic ones!
+     * @param playerId The UUID of the player
+     * @param silent Whether or not to broadcast this unjail if the target is set to anything else but SENDER
+     * @return The old jail entry or an error entry
+     */
+    public Entry unjail(NeoSender sender, UUID playerId, boolean silent) {
+        String playerName = plugin.getPlayerName(playerId);
+        Entry entry = getPunishment(playerId, EntryType.JAIL);
+        if (entry != null && entry.getType() == EntryType.FAILURE) {
+            return entry;
+        } else if (entry == null || entry.getType() != EntryType.JAIL) {
+            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notjailed", "player", playerName));
+        }
+
+        Entry removedEntry = removePunishment((PunishmentEntry) entry, sender.getUniqueID());
+        if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
+            return removedEntry;
+        }
+
+        plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation("neobans.title.unjailed", "player", playerName, "sender", sender.getName()));
+        plugin.broadcast(sender,
+                (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unjail"),
+                plugin.getLanguageConfig().getTranslation(
+                        "neobans.message.unjail",
+                        "player", playerName,
+                        "sender", sender.getName()
+                )
+        );
+        plugin.movePlayer(playerId, plugin.getConfig().getUnjailTarget());
+        plugin.runLater(() -> plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation(
+                "neobans.title.unjail",
+                "player", playerName,
+                "sender", sender.getName()
+        )), 100);
+
+        return entry;
     }
 }

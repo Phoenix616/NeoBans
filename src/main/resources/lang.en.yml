@@ -43,6 +43,7 @@ neobans:
     jailwithreason: "&e%player%&6 was jailed by &e%sender%&6 for &e%duration%&6. Reason: &e%reason%&6."
     entryedited: "&cEdited entry of &e%player%&c. Set &e%option%&c to &e%value%"
     unban: "&e%player%&6 was unbanned by &e%sender%&6."
+    unjail: "&e%player%&6 was unjailed."
     info:
       name: "&cName: &e%player%"
       currentjail:

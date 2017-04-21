@@ -263,7 +263,9 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                 sender.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + message);
                 break;
         }
-        this.getLogger().info(message);
+        if (sender.isPlayer()) {
+            getLogger().info(message);
+        }
     }
 
     public void broadcast(NeoSender sender, String serverName, String message) {
@@ -283,18 +285,24 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     }
 
     @Override
-    public void runSync(Runnable runnable) {
+    public int runSync(Runnable runnable) {
         runnable.run(); // Theoretically everything is always async with bungee
+        return -1;
     }
 
     @Override
-    public void runAsync(Runnable runnable) {
-        getProxy().getScheduler().runAsync(this, runnable);
+    public int runAsync(Runnable runnable) {
+        return getProxy().getScheduler().runAsync(this, runnable).getId();
     }
 
     @Override
-    public void runLater(Runnable runnable, int delay) {
-        getProxy().getScheduler().schedule(this, runnable, delay * 50, TimeUnit.MILLISECONDS);
+    public int runLater(Runnable runnable, long delay) {
+        return getProxy().getScheduler().schedule(this, runnable, delay * 50, TimeUnit.MILLISECONDS).getId();
+    }
+
+    @Override
+    public int runRepeating(Runnable runnable, long delay, long period) {
+        return getProxy().getScheduler().schedule(this, runnable, delay * 50, period * 50, TimeUnit.MILLISECONDS).getId();
     }
 
     @Override

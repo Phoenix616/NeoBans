@@ -28,35 +28,8 @@ public class UnjailCommand extends AbstractCommand {
                 return;
             }
 
-            Entry entry = plugin.getPunishmentManager().getPunishment(playerId);
-            if (entry == null || entry.getType().getRemoveType() != EntryType.UNJAIL) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notjailed", "player", args[0]));
-                return;
-            }
-
-            if (entry instanceof PunishmentEntry) {
-                Entry removedEntry = plugin.getPunishmentManager().removePunishment((PunishmentEntry) entry, sender.getUniqueID());
-                if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
-                    sender.sendMessage(entry.getReason(), "player", args[0]);
-                    return;
-                }
-
-                boolean silent = (args.length > 1 && args[1].equalsIgnoreCase("-silent"));
-                plugin.broadcast(sender,
-                        (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unjail"),
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.unjail",
-                                "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
-                                "sender", sender.getName()
-                        )
-                );
-                plugin.movePlayer(playerId, plugin.getConfig().getUnjailTarget());
-                plugin.runLater(() -> plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation(
-                        "neobans.title.unjail",
-                        "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
-                        "sender", sender.getName()
-                )), 100);
-            } else {
+            Entry entry = plugin.getPunishmentManager().unjail(sender, playerId, args.length > 1 && args[1].equalsIgnoreCase("-silent"));
+            if (entry != null && entry.getType() == EntryType.FAILURE) {
                 sender.sendMessage(entry.getReason(), "player", args[0]);
             }
         });
