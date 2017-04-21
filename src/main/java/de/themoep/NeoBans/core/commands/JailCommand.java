@@ -87,7 +87,7 @@ public class JailCommand extends AbstractCommand {
                     if (entry.getType() != EntryType.FAILURE) {
                         plugin.movePlayer(playerId, plugin.getConfig().getJailTarget());
                         plugin.runLater(() -> plugin.sendTitle(playerId, jailMsg), 100);
-                        BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("tempban");
+                        BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("jail");
                         plugin.broadcast(sender, bd, jailBc);
                     } else {
                         sender.sendMessage(entry.getReason());

@@ -28,4 +28,5 @@ broadcast:
   ban: GLOBAL
   tempban: GLOBAL
   unban: GLOBAL
-  jail:
+  jail: GLOBAL
+  unjail: SENDER
