@@ -98,22 +98,20 @@ public class MysqlManager implements DatabaseManager {
     public void updateTables() {
         if (plugin.compareVersion("0.4") >= 0) {
             try (Connection conn = getConn();
-                 Statement staTypeColumn = conn.createStatement();
+                 Statement staAddTypeColumn = conn.createStatement();
+                 Statement staFillTypeColumn = conn.createStatement();
                  Statement staUpdateBans = conn.createStatement();
                  Statement staUpdateLog = conn.createStatement();
             ) {
                 try {
-                    staTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN IF NOT EXISTS type VARCHAR(64);");
-                } catch (SQLException e) {
-                    try {
-                        staTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64);");
-                        plugin.getLogger().log(Level.INFO, "Added type column to " + getTablePrefix() + "bans!");
-                    } catch (SQLException b) {
-                        if (b.getErrorCode() == 1060) {
-                            plugin.getLogger().log(Level.INFO, "type column already exists in " + getTablePrefix() + "bans!");
-                        } else {
-                            plugin.getLogger().log(Level.SEVERE, "Error while adding column type to " + getTablePrefix() + "bans!", b);
-                        }
+                    staAddTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64) DEFAULT NULL;");
+                    staFillTypeColumn.execute("UPDATE TABLE " + getTablePrefix() + "bans SET type = IF(endtime == 0, 'BAN', 'TEMPBAN') WHERE type IS NULL;");
+                    plugin.getLogger().log(Level.INFO, "Added type column to " + getTablePrefix() + "bans!");
+                } catch (SQLException b) {
+                    if (b.getErrorCode() == 1060) {
+                        plugin.getLogger().log(Level.INFO, "'type' column already exists in " + getTablePrefix() + "bans!");
+                    } else {
+                        plugin.getLogger().log(Level.SEVERE, "Error while adding column type to " + getTablePrefix() + "bans!", b);
                     }
                 }
 
