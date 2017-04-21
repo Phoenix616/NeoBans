@@ -11,31 +11,12 @@ package de.themoep.NeoBans.core;
  */
 public enum EntryType {
     REMOVED,
-    UNBAN,
-    BAN(UNBAN),
-    TEMPBAN(UNBAN),
-    UNJAIL,
-    JAIL(UNJAIL),
+    BAN,
+    TEMPBAN,
+    JAIL,
     KICK,
     EDITBAN,
     COMMENT,
     FAILURE;
 
-    private EntryType removeType;
-
-    EntryType(EntryType removeType) {
-        this.removeType = removeType;
-    }
-
-    EntryType() {
-        removeType = null;
-    }
-
-    /**
-     * Get the type that the entry should be when an entry of this type is removed
-     * @return  The type
-     */
-    public EntryType getRemoveType() {
-        return removeType != null ? removeType : REMOVED;
-    }
 }

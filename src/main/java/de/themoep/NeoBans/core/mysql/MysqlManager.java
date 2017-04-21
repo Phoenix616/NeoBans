@@ -261,12 +261,12 @@ public class MysqlManager implements DatabaseManager {
     @Override
     public Entry remove(PunishmentEntry punishment, UUID invokeId, boolean log) {
 
-        String msg = (invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "") + "Orig. reason: " + punishment.getReason();
-        if (punishment instanceof TimedPunishmentEntry) {
-            msg += "Orig. endtime: " + ((TimedPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
-        }
         if (log) {
-            log(punishment.getType().getRemoveType(), punishment.getPunished(), invokeId, msg);
+            String msg = punishment.getType() + " " + (invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "") + "Orig. reason: " + punishment.getReason();
+            if (punishment instanceof TimedPunishmentEntry) {
+                msg += "Orig. endtime: " + ((TimedPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
+            }
+            log(EntryType.REMOVED, punishment.getPunished(), invokeId, msg);
         }
 
 

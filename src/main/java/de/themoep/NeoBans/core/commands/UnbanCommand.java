@@ -29,7 +29,7 @@ public class UnbanCommand extends AbstractCommand {
             }
 
             Entry entry = plugin.getPunishmentManager().getPunishment(playerId);
-            if (entry == null || entry.getType().getRemoveType() != EntryType.UNBAN) {
+            if (entry == null || (entry.getType() != EntryType.BAN && entry.getType() != EntryType.TEMPBAN)) {
                 sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", args[0]));
                 return;
             }
