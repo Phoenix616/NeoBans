@@ -104,7 +104,7 @@ public class MysqlManager implements DatabaseManager {
                  Statement staUpdateLog = conn.createStatement();
             ) {
                 try {
-                    staAddTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64) DEFAULT NULL;");
+                    staAddTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64) DEFAULT NULL, ADD INDEX query (type, bannedid) ;");
                     staFillTypeColumn.execute("UPDATE TABLE " + getTablePrefix() + "bans SET type = IF(endtime == 0, 'BAN', 'TEMPBAN') WHERE type IS NULL;");
                     plugin.getLogger().log(Level.INFO, "Added type column to " + getTablePrefix() + "bans!");
                 } catch (SQLException b) {
