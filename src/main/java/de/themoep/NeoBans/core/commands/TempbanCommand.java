@@ -47,7 +47,7 @@ public class TempbanCommand extends AbstractCommand {
                                     "neobans.disconnect.tempban",
                                     "player", plugin.getPlayerName(playerid),
                                     "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             )
                             : plugin.getLanguageConfig().getTranslation(
@@ -55,7 +55,7 @@ public class TempbanCommand extends AbstractCommand {
                                     "player", plugin.getPlayerName(playerid),
                                     "reason", reason,
                                     "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             );
                     String banbc = reason.isEmpty()
@@ -63,7 +63,7 @@ public class TempbanCommand extends AbstractCommand {
                                     "neobans.message.tempban",
                                     "player", plugin.getPlayerName(playerid),
                                     "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             )
                             : plugin.getLanguageConfig().getTranslation(
@@ -71,7 +71,7 @@ public class TempbanCommand extends AbstractCommand {
                                     "player", plugin.getPlayerName(playerid),
                                     "reason", reason,
                                     "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             );
 
