@@ -118,4 +118,38 @@ public class NeoUtils {
         }
         return ft;
     }
+
+    /**
+     * Compare to version strings
+     * @param versionA  Version string, should start with a normal major.minor.patch number version
+     * @param versionB  The version string to compare the other one to
+     * @return          A number below 0 if versionA is before versionB; above 0 if versionA is greater than versionB; 0 if they are equal
+     */
+    public static int compareVersions(String versionA, String versionB) {
+        String[] partsA = versionA.split("[^.\\d]")[0].split("\\.");
+        String[] partsB = versionB.split("[^.\\d]")[0].split("\\.");
+        int len = Math.max(partsA.length, partsB.length);
+        for (int i = 0; i < len; i++) {
+            if (i >= partsA.length) {
+                if (!partsB[i].equals("0")) {
+                    return 1;
+                }
+            } else if (i >= partsB.length) {
+                if (!partsA[i].equals("0")) {
+                    return -1;
+                }
+            } else {
+                int compared = Integer.compare(partsB[i].length(), partsA[i].length());
+                if (compared == 0) {
+                    compared = partsB[i].compareTo(partsA[i]);
+                }
+                if (compared < 0 ) {
+                    return -1;
+                } else if (compared > 0) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
 }

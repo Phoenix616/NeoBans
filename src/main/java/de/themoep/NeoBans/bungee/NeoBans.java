@@ -2,6 +2,7 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.NeoBansPlugin;
+import de.themoep.NeoBans.core.NeoUtils;
 import de.themoep.NeoBans.core.PunishmentManager;
 import de.themoep.NeoBans.core.commands.CommandMap;
 import de.themoep.NeoBans.core.commands.NeoSender;
@@ -312,7 +313,7 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
 
     @Override
     public int compareVersion(String version) {
-        return compareVersions(getDescription().getVersion(), version);
+        return NeoUtils.compareVersions(getDescription().getVersion(), version);
     }
 
     @Override
@@ -351,31 +352,4 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
         return false;
     }
 
-    private int compareVersions(String versionA, String versionB) {
-        String[] partsA = versionA.split("[^.\\d]")[0].split("\\.");
-        String[] partsB = versionB.split("[^.\\d]")[0].split("\\.");
-        int len = Math.max(partsA.length, partsB.length);
-        for (int i = 0; i < len; i++) {
-            if (i >= partsA.length) {
-                if (!partsB[i].equals("0")) {
-                    return 1;
-                }
-            } else if (i >= partsB.length) {
-                if (!partsA[i].equals("0")) {
-                    return -1;
-                }
-            } else {
-                int compared = Integer.compare(partsB[i].length(), partsA[i].length());
-                if (compared == 0) {
-                    compared = partsB[i].compareTo(partsA[i]);
-                }
-                if (compared < 0 ) {
-                    return -1;
-                } else if (compared > 0) {
-                    return 1;
-                }
-            }
-        }
-        return 0;
-    }
 }
