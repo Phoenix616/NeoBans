@@ -1,6 +1,9 @@
-target:
-  jail: ''
-  unjail: ''
+jail:
+  server: ''
+  unjail-server: ''
+  afk-kick-delay: 60
+  afk-kick-contains: afk
+
 backend: none
 mysql:
   user: username
@@ -18,7 +21,7 @@ commandaliases:
   neounjail: [nunjail, unjail]
   neokick: [nkick, kick]
   neokickall: [nkickall, kickall]
-  neoinfo: [ninfo, baninfo]
+  neoinfo: [ninfo, baninfo, jailinfo]
   neoeditentry: [neditentry, editentry, editjail, editban]
   neolog: [banlog]
 broadcast:

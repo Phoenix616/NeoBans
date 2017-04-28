@@ -2,7 +2,7 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
-import de.themoep.NeoBans.core.TimedPunishmentEntry;
+import de.themoep.NeoBans.core.TemporaryPunishmentEntry;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
@@ -36,18 +36,18 @@ public class LoginListener implements Listener {
                     event.setCancelled(true);
                     event.setCancelReason(msg);
                 } else if (entry.getType() == EntryType.TEMPBAN) {
-                    TimedPunishmentEntry timedPunishment = (TimedPunishmentEntry) entry;
+                    TemporaryPunishmentEntry timedPunishment = (TemporaryPunishmentEntry) entry;
                     String msg = (entry.getReason().isEmpty())
-                            ? plugin.getLanguageConfig().getTranslation("neobans.join.tempbanned", "player", event.getConnection().getName(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")))
-                            : plugin.getLanguageConfig().getTranslation("neobans.join.tempbannedwithreason", "player", event.getConnection().getName(), "reason", entry.getReason(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
+                            ? plugin.getLanguageConfig().getTranslation("neobans.join.tempbanned", "player", event.getConnection().getName(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig()), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")))
+                            : plugin.getLanguageConfig().getTranslation("neobans.join.tempbannedwithreason", "player", event.getConnection().getName(), "reason", entry.getReason(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig()), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
 
                     event.setCancelled(true);
                     event.setCancelReason(msg);
-                } else if (entry.getType() == EntryType.JAIL && plugin.getConfig().getJailTarget().isEmpty()) {
-                    TimedPunishmentEntry timedPunishment = (TimedPunishmentEntry) entry;
+                } else if (entry.getType() == EntryType.JAIL && plugin.getConfig().getJailServer().isEmpty()) {
+                    TemporaryPunishmentEntry timedPunishment = (TemporaryPunishmentEntry) entry;
                     String msg = (entry.getReason().isEmpty())
-                            ? plugin.getLanguageConfig().getTranslation("neobans.join.jailed", "player", event.getConnection().getName(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")))
-                            : plugin.getLanguageConfig().getTranslation("neobans.join.jailedwithreason", "player", event.getConnection().getName(), "reason", entry.getReason(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig(), false), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
+                            ? plugin.getLanguageConfig().getTranslation("neobans.join.jailed", "player", event.getConnection().getName(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig()), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")))
+                            : plugin.getLanguageConfig().getTranslation("neobans.join.jailedwithreason", "player", event.getConnection().getName(), "reason", entry.getReason(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig()), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
 
                     event.setCancelled(true);
                     event.setCancelReason(msg);

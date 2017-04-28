@@ -94,12 +94,12 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
             return;
         }
 
-        if (getConfig().getJailTarget().isEmpty()) {
+        if (getConfig().getJailServer().isEmpty()) {
             getLogger().log(Level.WARNING, "No jail server defined!");
         }
 
-        if (getProxy().getServerInfo(getConfig().getJailTarget()) == null) {
-            getLogger().log(Level.WARNING, "The server configured for the jail (" + getConfig().getJailTarget() + ") does not exist?");
+        if (getProxy().getServerInfo(getConfig().getJailServer()) == null) {
+            getLogger().log(Level.WARNING, "The server configured for the jail (" + getConfig().getJailServer() + ") does not exist?");
         }
 
         // load language

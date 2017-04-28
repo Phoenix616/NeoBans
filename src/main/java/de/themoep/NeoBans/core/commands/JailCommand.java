@@ -4,6 +4,7 @@ import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
+import de.themoep.NeoBans.core.TemporaryPunishmentEntry;
 import de.themoep.NeoBans.core.TimedPunishmentEntry;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class JailCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        if (plugin.getConfig().getJailTarget().isEmpty()) {
+        if (plugin.getConfig().getJailServer().isEmpty()) {
             sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.nojaildefined", "player", args[0]));
             return;
         }
@@ -55,7 +56,7 @@ public class JailCommand extends AbstractCommand {
                                     "neobans.title.tempban",
                                     "player", plugin.getPlayerName(playerId),
                                     "sender", sender.getName(),
-                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             )
                             : plugin.getLanguageConfig().getTranslation(
@@ -63,7 +64,7 @@ public class JailCommand extends AbstractCommand {
                                     "player", plugin.getPlayerName(playerId),
                                     "reason", reason,
                                     "sender", sender.getName(),
-                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             );
                     String jailBc = reason.isEmpty()
@@ -71,7 +72,7 @@ public class JailCommand extends AbstractCommand {
                                     "neobans.message.jail",
                                     "player", plugin.getPlayerName(playerId),
                                     "sender", sender.getName(),
-                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             )
                             : plugin.getLanguageConfig().getTranslation(
@@ -79,13 +80,13 @@ public class JailCommand extends AbstractCommand {
                                     "player", plugin.getPlayerName(playerId),
                                     "reason", reason,
                                     "sender", sender.getName(),
-                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig(), false),
+                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             );
 
                     Entry entry = plugin.getPunishmentManager().addPunishment(jailEntry);
                     if (entry.getType() != EntryType.FAILURE) {
-                        plugin.movePlayer(playerId, plugin.getConfig().getJailTarget());
+                        plugin.movePlayer(playerId, plugin.getConfig().getJailServer());
                         plugin.runLater(() -> plugin.sendTitle(playerId, jailMsg), 100);
                         BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("jail");
                         plugin.broadcast(sender, bd, jailBc);

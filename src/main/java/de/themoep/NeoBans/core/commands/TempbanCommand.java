@@ -40,7 +40,7 @@ public class TempbanCommand extends AbstractCommand {
                         sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", toBan));
                         return;
                     }
-                    TimedPunishmentEntry tbe = new TimedPunishmentEntry(EntryType.TEMPBAN, playerid, sender.getUniqueID(), reason, duration);
+                    TemporaryPunishmentEntry tbe = new TemporaryPunishmentEntry(EntryType.TEMPBAN, playerid, sender.getUniqueID(), reason, duration);
 
                     String banmsg = reason.isEmpty()
                             ? plugin.getLanguageConfig().getTranslation(

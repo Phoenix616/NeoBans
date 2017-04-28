@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class PluginConfig extends FileConfiguration implements NeoPluginConfig {
     private final NeoBans plugin;
+    private long afkKickDelay;
 
     /**
      * Load configuration from disk
@@ -47,14 +48,14 @@ public class PluginConfig extends FileConfiguration implements NeoPluginConfig {
     }
 
     @Override
-    public String getJailTarget() {
-        return getString("target.jail");
+    public String getJailServer() {
+        return getString("jail.server");
     }
 
     @Override
-    public String getUnjailTarget() {
-        if (isSet("target.unjail") && !getString("target.unjail").isEmpty()) {
-            return getString("target.unjail");
+    public String getUnjailServer() {
+        if (isSet("jail.unjail-server") && !getString("jail.unjail-server").isEmpty()) {
+            return getString("jail.unjail-server");
         }
         return plugin.getProxy().getConfig().getListeners().iterator().next().getServerPriority().get(0);
     }
@@ -62,5 +63,15 @@ public class PluginConfig extends FileConfiguration implements NeoPluginConfig {
     @Override
     public String getBackend() {
         return getString("backend");
+    }
+
+    @Override
+    public String getAfkKickString() {
+        return getString("jail.afk-kick-contains");
+    }
+
+    @Override
+    public int getAfkKickDelay() {
+        return getInt("jail.afk-kick-delay");
     }
 }

@@ -45,7 +45,7 @@ public interface DatabaseManager {
      */
     void disable();
 
-    boolean update(int userId, String column, String value);
+    boolean update(int entryId, String column, Object value);
 
     Entry add(PunishmentEntry entry);
 

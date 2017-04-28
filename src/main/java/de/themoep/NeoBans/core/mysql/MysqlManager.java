@@ -6,6 +6,7 @@ import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.LogEntry;
 import de.themoep.NeoBans.core.NeoBansPlugin;
+import de.themoep.NeoBans.core.TemporaryPunishmentEntry;
 import de.themoep.NeoBans.core.TimedPunishmentEntry;
 
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -201,15 +203,15 @@ public class MysqlManager implements DatabaseManager {
     }
 
     @Override
-    public boolean update(int userId, String column, String value) {
+    public boolean update(int entryId, String column, Object value) {
 
         String query = "UPDATE " + getTablePrefix() + "bans SET " + column + "=? WHERE id=?";
 
         try (Connection conn = getConn();
              PreparedStatement sta = conn.prepareStatement(query);
         ) {
-            sta.setString(1, value);
-            sta.setInt(2, userId);
+            sta.setObject(1, value);
+            sta.setInt(2, entryId);
             sta.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -231,7 +233,9 @@ public class MysqlManager implements DatabaseManager {
             sta.setString(5, entry.getComment());
             sta.setString(6, Long.toString(entry.getTime()));
             if (entry instanceof TimedPunishmentEntry)
-                sta.setLong(7, ((TimedPunishmentEntry) entry).getEndtime());
+                sta.setLong(7, ((TimedPunishmentEntry) entry).getDuration());
+            if (entry instanceof TemporaryPunishmentEntry)
+                sta.setLong(7, ((TemporaryPunishmentEntry) entry).getEndtime());
             else
                 sta.setLong(7, 0);
             sta.executeUpdate();
@@ -240,8 +244,8 @@ public class MysqlManager implements DatabaseManager {
             if (rs.next()) {
                 entry.setDbId(rs.getInt(1));
                 String msg = entry.getReason().isEmpty() ? "" : "Reason: " + entry.getReason();
-                if (entry instanceof TimedPunishmentEntry) {
-                    msg = "Duration: " + ((TimedPunishmentEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true) + " " + msg;
+                if (entry instanceof TemporaryPunishmentEntry) {
+                    msg = "Duration: " + ((TemporaryPunishmentEntry) entry).getFormattedDuration() + " " + msg;
                 }
                 if (!log(entry.getType(), entry.getPunished(), entry.getIssuer(), msg)) {
                     plugin.getLogger().warning("Error while trying to log addition of ban " + rs.getInt(1) + " for player " + plugin.getPlayerName(entry.getPunished()) + "!");
@@ -262,7 +266,9 @@ public class MysqlManager implements DatabaseManager {
         if (log) {
             String msg = punishment.getType() + " " + (invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "") + "Orig. reason: " + punishment.getReason();
             if (punishment instanceof TimedPunishmentEntry) {
-                msg += "Orig. endtime: " + ((TimedPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
+                msg += "Rest duration: " + ((TimedPunishmentEntry) punishment).getFormattedDuration();
+            } else if (punishment instanceof TemporaryPunishmentEntry) {
+                msg += "Orig. endtime: " + ((TemporaryPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
             }
             log(EntryType.REMOVED, punishment.getPunished(), invokeId, msg);
         }
@@ -344,10 +350,13 @@ public class MysqlManager implements DatabaseManager {
                     type = endtime > 0 ? EntryType.TEMPBAN : EntryType.BAN;
                 }
 
-                if (endtime > 0) {
-                    return new TimedPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
-                } else {
-                    return new PunishmentEntry(type, id, issuerId, reason, comment, time);
+                switch (type) {
+                    case JAIL:
+                        return new TimedPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
+                    case TEMPBAN:
+                        return new TemporaryPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
+                    case BAN:
+                        return new PunishmentEntry(type, id, issuerId, reason, comment, time);
                 }
             }
         } catch (SQLException e) {

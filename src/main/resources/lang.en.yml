@@ -17,18 +17,30 @@ neobans:
     tempban: "&cYou have been &etemporary banned&c by &e%sender%&c for &e%duration%&c!"
     tempbanwithreason: "&cYou have been &etemporary banned&c by &e%sender%&c for &e%duration%&c because of &e%reason%&c!"
     jailed: |
-      &cYou are &ejailed&c!
+      &cYou have to keep being active while &ejailed&c!
       &cDuration: &e%duration%&c
     jailedwithreason:  |
-      &cYou are &ejailed&c!
+      &cYou have to keep being active while &ejailed&c!
       &cReason: &e%reason% &cDuration: &e%duration%&c
+  title:
+    jailed: |
+      &cYou were &ejailed&c!
+      &cDuration: &e%duration%&c
+    jailedwithreason:  |
+      &cYou were &ejailed&c!
+      &cReason: &e%reason% &cDuration: &e%duration%&c
+    unjailed: "\n&cYou were released!&r"
   join:
     banned: "&cYou are &ebanned&c!"
     bannedwithreason: "&cYou are &ebanned&c because of &e%reason%&c!"
     tempbanned: "&cYou are &etemporary banned&c for &e%duration%&c until &e%endtime%&c!"
     tempbannedwithreason: "&cYou are &etemporary banned&c for &e%duration%&c until &e%endtime%&c because of &e%reason%&c!"
-    jailed: "&cYou are &ejailed&c for &e%duration%&c until &e%endtime%&c!"
-    jailedwithreason: "&cYou are &ejailed&c for &e%duration%&c until &e%endtime%&c because of &e%reason%&c!"
+    jailed: |
+      &cYou are &ejailed&c!
+      &cDuration: &e%duration%&c
+    jailedwithreason:  |
+      &cYou are &ejailed&c!
+      &cReason: &e%reason% &cDuration: &e%duration%&c
   message:
     kick: "&e%player%&6 was kicked by &e%sender%&6."
     kickwithreason: "&e%player%&6 was kicked by &e%sender%&6. Reason: &e%reason%&6."

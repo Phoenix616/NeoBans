@@ -40,6 +40,14 @@ neobans:
       &cRestdauer: &e%duration%&r
 
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+    jailed: |
+      &cDu musst aktiv bleiben während du eingesperrt bist!&r
+      &cRestdauer: &e%duration%&r
+      &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
+    jailedwithreason: |
+      &cDu musst aktiv bleiben während du eingesperrt bist!&r
+      &cGrund: &e%reason%&r &cRestdauer: &e%duration%&r
+      &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
   title:
     jailed: |
       &cDu wurdest eingesperrt!&r
@@ -49,7 +57,7 @@ neobans:
       &cDu wurdest eingesperrt!&r
       &cGrund: &e%reason%&r &cDauer: &e%duration%&r
       &oEinspruch? Melde dich im Forum 'Gebannte Spieler' auf www.minebench.de.
-    unjailed: '\n&cDu wurdest freigelassen!&r'
+    unjailed: "\n&cDu wurdest freigelassen!&r"
   join:
     banned: |
       &c&lDu (%player%) bist gebannt!&r

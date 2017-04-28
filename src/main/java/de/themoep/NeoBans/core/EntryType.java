@@ -15,7 +15,7 @@ public enum EntryType {
     TEMPBAN,
     JAIL,
     KICK,
-    EDITBAN,
+    EDIT,
     COMMENT,
     FAILURE;
 

@@ -55,7 +55,7 @@ public class PunishmentManager {
             entry = plugin.getDatabaseManager().get(id, types);
         }
 
-        if (entry instanceof TimedPunishmentEntry) {
+        if (entry instanceof TemporaryPunishmentEntry) {
             if (checkExpiration((PunishmentEntry) entry) != null) {
                 punishments.get(entry.getType()).put(id, (PunishmentEntry) entry);
                 return entry;
@@ -84,19 +84,17 @@ public class PunishmentManager {
                 : getPunishment(playerid, types);
     }
 
-    ;
-
     /**
      * Check if a ban is still valid or if it is a temporary ban and expired
      * @param entry The (Temp)PunishmentEntry to check
      * @return The entry if it is still valid, null if it isn't
      */
     private Entry checkExpiration(PunishmentEntry entry) {
-        if (entry instanceof TimedPunishmentEntry && ((TimedPunishmentEntry) entry).isExpired()) {
+        if (entry instanceof TemporaryPunishmentEntry && ((TemporaryPunishmentEntry) entry).isExpired()) {
             removePunishment(entry);
             plugin.getLogger().info(entry.getType() + " of " + plugin.getPlayerName(entry.getPunished()) + " expired.");
             return null;
-        } else if (!punishments.containsKey(entry.getPunished())) {
+        } else if (!punishments.get(entry.getType()).containsKey(entry.getPunished())) {
             punishments.get(entry.getType()).put(entry.getPunished(), entry);
         }
         return entry;
@@ -130,16 +128,17 @@ public class PunishmentManager {
      * Update a value of a banentry
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
-     * @param entry    The PunishmentEntry to update
-     * @param invokeId The UUID of the player who updates the ban
-     * @param option   The option of the ban to change
-     * @param value    The value to change to
+     * @param entry     The PunishmentEntry to update
+     * @param invokeId  The UUID of the player who updates the ban
+     * @param option    The option of the ban to change
+     * @param value     The value to change to
+     * @param log       Whether or not this update should be logged to the console and the database
      * @return The changed PunishmentEntry, an Entry with the EntryType FAILURE on failure with the reason as the reason
      */
-    public Entry updatePunishment(PunishmentEntry entry, UUID invokeId, String option, String value) {
+    public Entry updatePunishment(PunishmentEntry entry, UUID invokeId, String option, String value, boolean log) {
 
         String dbColumn = null;
-        String dbValue = null;
+        Object dbValue = null;
         String oldValue = "-";
         PunishmentEntry changedEntry = null;
         if (option.equalsIgnoreCase("reason")) {
@@ -147,41 +146,55 @@ public class PunishmentManager {
             dbValue = value;
             oldValue = entry.getReason();
             if (entry instanceof TimedPunishmentEntry) {
-                changedEntry = new TimedPunishmentEntry(entry.getType(), entry.getPunished(), entry.getIssuer(), value, entry.getComment(), entry.getTime(), ((TimedPunishmentEntry) entry).getEndtime());
+                changedEntry = new TimedPunishmentEntry(entry.getType(), entry.getPunished(), entry.getIssuer(), value, entry.getComment(), entry.getTime(), ((TimedPunishmentEntry) entry).getDuration());
+            } else if (entry instanceof TemporaryPunishmentEntry) {
+                changedEntry = new TemporaryPunishmentEntry(entry.getType(), entry.getPunished(), entry.getIssuer(), value, entry.getComment(), entry.getTime(), ((TemporaryPunishmentEntry) entry).getEndtime());
             } else {
                 changedEntry = new PunishmentEntry(entry.getType(), entry.getPunished(), entry.getIssuer(), value, entry.getComment(), entry.getTime());
             }
         } else if (option.equalsIgnoreCase("endtime") || option.equalsIgnoreCase("end")) {
             dbColumn = "endtime";
-            dbValue = "0";
+            dbValue = 0;
             if (entry instanceof TimedPunishmentEntry) {
-                oldValue = Long.toString(((TimedPunishmentEntry) entry).getEndtime());
+                oldValue = String.valueOf(((TimedPunishmentEntry) entry).getDuration());
+            } else if (entry instanceof TemporaryPunishmentEntry) {
+                oldValue = String.valueOf(((TemporaryPunishmentEntry) entry).getEndtime());
             }
             if (value.equalsIgnoreCase("never") || value.equalsIgnoreCase("0")) {
                 changedEntry = new PunishmentEntry(EntryType.BAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
             } else {
                 try {
                     long endTime = Long.parseLong(value);
-                    changedEntry = new TimedPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime(), endTime);
+                    changedEntry = new TemporaryPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime(), endTime);
                 } catch (NumberFormatException ignored) {
                 }
             }
         } else if (option.equalsIgnoreCase("duration") || value.equalsIgnoreCase("dur")) {
             dbColumn = "endtime";
-            if (entry instanceof TimedPunishmentEntry) {
-                oldValue = ((TimedPunishmentEntry) entry).getFormattedDuration(plugin.getLanguageConfig(), true);
+            if (entry instanceof TemporaryPunishmentEntry) {
+                oldValue = ((TemporaryPunishmentEntry) entry).getFormattedDuration();
             }
             if (value.equalsIgnoreCase("permanent") || value.equalsIgnoreCase("perm")) {
                 changedEntry = new PunishmentEntry(EntryType.BAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
-                dbValue = "0";
+                dbValue = 0;
             } else {
                 try {
-                    if (value.startsWith("~")) {
-                        changedEntry = new TimedPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), value.substring(1));
+                    if (entry instanceof TimedPunishmentEntry) {
+                        if (value.startsWith("~")) {
+                            changedEntry = new TimedPunishmentEntry(EntryType.JAIL, entry.getPunished(), entry.getIssuer(), entry.getReason(), value.substring(1));
+                        } else {
+                            long duration = NeoUtils.getDurationFromString(value) - (NeoUtils.getDurationFromString(entry.getComment()) - ((TimedPunishmentEntry) entry).getDuration());
+                            changedEntry = new TimedPunishmentEntry(EntryType.JAIL, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), duration);
+                        }
+                        dbValue = ((TimedPunishmentEntry) changedEntry).getDuration();
                     } else {
-                        changedEntry = new TimedPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
+                        if (value.startsWith("~")) {
+                            changedEntry = new TemporaryPunishmentEntry(EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), value.substring(1));
+                        } else {
+                            changedEntry = new TemporaryPunishmentEntry(EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
+                        }
+                        dbValue = ((TemporaryPunishmentEntry) changedEntry).getEndtime();
                     }
-                    dbValue = Long.toString(((TimedPunishmentEntry) changedEntry).getEndtime());
                 } catch (NumberFormatException e) {
                     changedEntry = null;
                 }
@@ -196,12 +209,15 @@ public class PunishmentManager {
         changedEntry.setDbId(entry.getDbId());
 
         if (plugin.getDatabaseManager().update(changedEntry.getDbId(), dbColumn, dbValue)) {
-            String msg = "Updated '" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
-            if (!plugin.getDatabaseManager().log(EntryType.EDITBAN, entry.getPunished(), entry.getIssuer(), msg)) {
-                plugin.getLogger().warning("Error while trying to log update of ban " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
+            if (log) {
+                String msg = "Updated " + entry.getType() + "'" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
+                plugin.getLogger().log(Level.INFO, invokeId + ": " + msg + " for " + entry.getPunished());
+                if (!plugin.getDatabaseManager().log(EntryType.EDIT, entry.getPunished(), invokeId, msg)) {
+                    plugin.getLogger().warning("Error while trying to log update of " + entry.getType() + " " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
+                }
             }
         } else {
-            plugin.getLogger().severe("Encountered SQLException while trying to update ban for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
+            plugin.getLogger().severe("Encountered SQLException while trying to update punishment for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
             new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
         }
         punishments.get(entry.getType()).remove(entry.getPunished());
@@ -224,7 +240,7 @@ public class PunishmentManager {
         if (entry == null)
             return null;
         if (entry instanceof PunishmentEntry)
-            return updatePunishment((PunishmentEntry) entry, invokeId, option, value);
+            return updatePunishment((PunishmentEntry) entry, invokeId, option, value, true);
         return new Entry(EntryType.FAILURE, "Error: Found entry but it isn't a ban entry? " + entry.getType() + "/" + entry.getClass().getName());
     }
 
@@ -338,7 +354,7 @@ public class PunishmentManager {
                         "sender", sender.getName()
                 )
         );
-        plugin.movePlayer(playerId, plugin.getConfig().getUnjailTarget());
+        plugin.movePlayer(playerId, plugin.getConfig().getUnjailServer());
         plugin.runLater(() -> plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation(
                 "neobans.title.unjail",
                 "player", playerName,

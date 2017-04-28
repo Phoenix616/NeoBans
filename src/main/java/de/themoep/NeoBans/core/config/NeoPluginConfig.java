@@ -39,17 +39,29 @@ public interface NeoPluginConfig {
      * Get the Name of the jail server as configured,  if the name is empty the jail functionality is disabled
      * @return The name of the jail server
      */
-    String getJailTarget();
+    String getJailServer();
 
     /**
      * Get the Name of the server where player should be moved to when unjailed
      * @return The name of the unjail server
      */
-    String getUnjailTarget();
+    String getUnjailServer();
 
     /**
      * Get the name of the storage backend
      * @return The name of the storage backend
      */
     String getBackend();
+
+    /**
+     * Get a string that a kick message needs to contain to be counted as an afk kick
+     * @return  The string that the kick message should contain
+     */
+    String getAfkKickString();
+
+    /**
+     * The delay in seconds that the player can be inactive for him to get kicked
+     * @return  The delay in seconds
+     */
+    int getAfkKickDelay();
 }
