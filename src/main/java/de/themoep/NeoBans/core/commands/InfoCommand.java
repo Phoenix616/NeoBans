@@ -28,167 +28,184 @@ public class InfoCommand extends AbstractCommand {
     public void execute() {
         plugin.runAsync(() -> {
 
-            UUID playerid = plugin.getPlayerId(args[0]);
+            UUID playerid = sender.getUniqueID();
+            if (args.length > 0) {
+                if (sender.hasPermission("neobans.command.info.others")) {
+                    playerid = plugin.getPlayerId(args[0]);
+                } else {
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation(
+                            "neobans.permission.insufficient-permission",
+                            "permission", "neobans.command.info.others"
+                    ));
+                    return;
+                }
+            }
 
             if(playerid != null) {
-                Entry banEntry = plugin.getPunishmentManager().getPunishment(playerid, EntryType.BAN, EntryType.TEMPBAN);
-
                 int bancurrent = 0;
                 int tempbancurrent = 0;
+                int jailcurrent = 0;
 
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.name",
-                                "player", plugin.getPlayerName(playerid)
-                        )
-                );
+                if (sender.hasPermission("neobans.command.info.ban")) {
+                    Entry banEntry = plugin.getPunishmentManager().getPunishment(playerid, EntryType.BAN, EntryType.TEMPBAN);
 
-                if (banEntry != null) {
-                    if (banEntry.getType() == EntryType.FAILURE) {
-                        sender.sendMessage(banEntry.getReason());
-                    } else if (banEntry instanceof PunishmentEntry) {
-                        PunishmentEntry be = (PunishmentEntry) banEntry;
-                        bancurrent = 1;
 
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.name",
+                                    "player", plugin.getPlayerName(playerid)
+                            )
+                    );
+
+                    if (banEntry != null) {
+                        if (banEntry.getType() == EntryType.FAILURE) {
+                            sender.sendMessage(banEntry.getReason());
+                        } else if (banEntry instanceof PunishmentEntry) {
+                            PunishmentEntry be = (PunishmentEntry) banEntry;
+                            bancurrent = 1;
+
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentban.reason",
+                                            "reason", be.getReason()
+                                    )
+                            );
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentban.issuer",
+                                            "issuer", plugin.getPlayerName(be.getIssuer())
+                                    )
+                            );
+
+                            Date date = new Date(be.getTime() * 1000L);
+                            SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
+                            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
+
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentban.time",
+                                            "time", sdf.format(date)
+                                    )
+                            );
+
+                            if (banEntry instanceof TemporaryPunishmentEntry) {
+                                bancurrent = 0;
+                                tempbancurrent = 1;
+                                Date enddate = new Date(((TemporaryPunishmentEntry) be).getEndtime() * 1000L);
+                                sender.sendMessage(
+                                        plugin.getLanguageConfig().getTranslation(
+                                                "neobans.message.info.currentban.temporary",
+                                                "endtime", sdf.format(enddate),
+                                                "duration", ((TemporaryPunishmentEntry) be).getFormattedDuration()
+                                        )
+                                );
+                            }
+
+                            if (!be.getComment().isEmpty() && sender.hasPermission("neobans.command.info.comments")) {
+                                sender.sendMessage(
+                                        plugin.getLanguageConfig().getTranslation(
+                                                "neobans.message.info.currentban.comment",
+                                                "comment", be.getComment()
+                                        )
+                                );
+                            }
+                        }
+                    } else {
                         sender.sendMessage(
                                 plugin.getLanguageConfig().getTranslation(
                                         "neobans.message.info.currentban.reason",
-                                        "reason", be.getReason()
+                                        "reason", "None"
                                 )
                         );
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentban.issuer",
-                                        "issuer", plugin.getPlayerName(be.getIssuer())
-                                )
-                        );
-
-                        Date date = new Date(be.getTime() * 1000L);
-                        SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
-                        sdf.setTimeZone(Calendar.getInstance().getTimeZone());
-
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentban.time",
-                                        "time", sdf.format(date)
-                                )
-                        );
-
-                        if (banEntry instanceof TemporaryPunishmentEntry) {
-                            bancurrent = 0;
-                            tempbancurrent = 1;
-                            Date enddate = new Date(((TemporaryPunishmentEntry) be).getEndtime() * 1000L);
-                            sender.sendMessage(
-                                    plugin.getLanguageConfig().getTranslation(
-                                            "neobans.message.info.currentban.temporary",
-                                            "endtime", sdf.format(enddate),
-                                            "duration",((TemporaryPunishmentEntry) be).getFormattedDuration()
-                                    )
-                            );
-                        }
-
-                        if (!be.getComment().isEmpty()) {
-                            sender.sendMessage(
-                                    plugin.getLanguageConfig().getTranslation(
-                                            "neobans.message.info.currentban.comment",
-                                            "comment", be.getComment()
-                                    )
-                            );
-                        }
                     }
-                } else {
-                    sender.sendMessage(
-                            plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.info.currentban.reason",
-                                    "reason", "None"
-                            )
-                    );
                 }
 
-                Entry jailEntry = plugin.getPunishmentManager().getPunishment(playerid, EntryType.JAIL);
+                if (sender.hasPermission("neobans.command.info.jail")) {
+                    Entry jailEntry = plugin.getPunishmentManager().getPunishment(playerid, EntryType.JAIL);
 
-                int jailcurrent = 0;
+                    if (jailEntry != null) {
+                        if (jailEntry.getType() == EntryType.FAILURE) {
+                            sender.sendMessage(jailEntry.getReason());
+                        } else if (jailEntry instanceof TemporaryPunishmentEntry) {
+                            PunishmentEntry je = (PunishmentEntry) jailEntry;
+                            jailcurrent = 1;
 
-                if (jailEntry != null) {
-                    if (jailEntry.getType() == EntryType.FAILURE) {
-                        sender.sendMessage(jailEntry.getReason());
-                    } else if (jailEntry instanceof TemporaryPunishmentEntry) {
-                        PunishmentEntry je = (PunishmentEntry) jailEntry;
-                        jailcurrent = 1;
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentjail.reason",
+                                            "reason", je.getReason()
+                                    )
+                            );
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentjail.issuer",
+                                            "issuer", plugin.getPlayerName(je.getIssuer())
+                                    )
+                            );
 
+                            Date date = new Date(je.getTime() * 1000L);
+                            SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
+                            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
+
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentjail.time",
+                                            "time", sdf.format(date)
+                                    )
+                            );
+
+                            sender.sendMessage(
+                                    plugin.getLanguageConfig().getTranslation(
+                                            "neobans.message.info.currentjail.temporary",
+                                            "duration", ((TimedPunishmentEntry) je).getFormattedDuration()
+                                    )
+                            );
+
+                            if (!je.getComment().isEmpty() && sender.hasPermission("neobans.command.info.comments")) {
+                                sender.sendMessage(
+                                        plugin.getLanguageConfig().getTranslation(
+                                                "neobans.message.info.currentban.comment",
+                                                "comment", je.getComment()
+                                        )
+                                );
+                            }
+                        }
+                    } else {
                         sender.sendMessage(
                                 plugin.getLanguageConfig().getTranslation(
                                         "neobans.message.info.currentjail.reason",
-                                        "reason", je.getReason()
+                                        "reason", "None"
                                 )
                         );
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentjail.issuer",
-                                        "issuer", plugin.getPlayerName(je.getIssuer())
-                                )
-                        );
-
-                        Date date = new Date(je.getTime() * 1000L);
-                        SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
-                        sdf.setTimeZone(Calendar.getInstance().getTimeZone());
-
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentjail.time",
-                                        "time", sdf.format(date)
-                                )
-                        );
-
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.info.currentjail.temporary",
-                                        "duration",((TimedPunishmentEntry) je).getFormattedDuration()
-                                )
-                        );
-
-                        if (!je.getComment().isEmpty()) {
-                            sender.sendMessage(
-                                    plugin.getLanguageConfig().getTranslation(
-                                            "neobans.message.info.currentban.comment",
-                                            "comment", je.getComment()
-                                    )
-                            );
-                        }
                     }
-                } else {
+                }
+
+                if (sender.hasPermission("neobans.command.info.previous")) {
                     sender.sendMessage(
                             plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.info.currentjail.reason",
-                                    "reason", "None"
+                                    "neobans.message.info.previous.bans",
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.BAN, playerid) - bancurrent)
+                            )
+                    );
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.previous.tempbans",
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
+                            )
+                    );
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.previous.jails",
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.JAIL, playerid) - jailcurrent)
+                            )
+                    );
+                    sender.sendMessage(
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.info.previous.kicks",
+                                    "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.KICK, playerid))
                             )
                     );
                 }
-
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.bans",
-                                "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.BAN, playerid) - bancurrent)
-                        )
-                );
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.tempbans",
-                                "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.TEMPBAN, playerid) - tempbancurrent)
-                        )
-                );
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.jails",
-                                "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.JAIL, playerid) - jailcurrent)
-                        )
-                );
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.info.previous.kicks",
-                                "count", Integer.toString(plugin.getPunishmentManager().getCount(EntryType.KICK, playerid))
-                        )
-                );
             } else {
                 sender.sendMessage(
                         plugin.getLanguageConfig().getTranslation(
@@ -202,7 +219,7 @@ public class InfoCommand extends AbstractCommand {
 
     @Override
     public boolean validateInput() {
-        return args.length > 0;
+        return args.length > 0 || sender.isPlayer();
     }
 
 }
