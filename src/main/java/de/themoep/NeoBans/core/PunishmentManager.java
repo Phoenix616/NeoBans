@@ -41,7 +41,9 @@ public class PunishmentManager {
 
         List<Entry> entries = new ArrayList<>();
         for (EntryType type : types) {
-            entries.add(punishments.get(type).get(id));
+            if (punishments.get(type).containsKey(id)) {
+                entries.add(punishments.get(type).get(id));
+            }
         }
         Entry entry;
         if (!entries.isEmpty()) {
