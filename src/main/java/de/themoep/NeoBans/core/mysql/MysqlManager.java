@@ -319,11 +319,11 @@ public class MysqlManager implements DatabaseManager {
         if (types.length == 1) {
             query += " AND type = ?";
         } else if (types.length > 0) {
-            query += " AND type IN (" + types[0].toString();
+            query += " AND type IN (`" + types[0].toString();
             for (int i = 1; i < types.length; i++) {
-                query += "," + types[i].toString();
+                query += "`,`" + types[i].toString();
             }
-            query += ")";
+            query += "`)";
         }
         query += " ORDER BY time DESC;";
 
