@@ -25,8 +25,8 @@ public class NeoUtils {
 
         long duration = 0L;
 
-        for(int i = 0; i < values.length; i++) {
-            String unit = units[i + 1].toLowerCase();
+        for(int i = 0; i < values.length && i < units.length; i++) {
+            String unit = units[i].toLowerCase();
             switch (unit) {
                 case "s":
                     duration = duration + Long.parseLong(values[i]);
