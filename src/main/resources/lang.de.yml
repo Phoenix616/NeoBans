@@ -9,7 +9,7 @@ neobans:
     jailcommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
     unjailcommand: "&cUsage: &e/%name% <username>"
     infocommand: "&cUsage: &e/%name% <username>"
-    editbancommand: "&cUsage: &e/%name% <username> [duration|reason] <value>"
+    editentrycommand: "&cUsage: &e/%name% <username> [duration|reason] <value>"
     logcommand: "&cUsage: &e/%name% <username> [<page>]"
   disconnect:
     kick: "&cDu wurdest von &e%sender%&c gekickt!"
