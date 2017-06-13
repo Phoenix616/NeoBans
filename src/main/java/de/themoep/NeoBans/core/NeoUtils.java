@@ -27,22 +27,31 @@ public class NeoUtils {
 
         for(int i = 0; i < values.length; i++) {
             String unit = units[i + 1].toLowerCase();
-            if(unit.equals("s"))
-                duration = duration + Long.parseLong(values[i]);
-            else if(unit.equals("m"))
-                duration = duration + TimeUnit.MINUTES.toSeconds(Long.parseLong(values[i]));
-            else if(unit.equals("h"))
-                duration = duration + TimeUnit.HOURS.toSeconds(Long.parseLong(values[i]));
-            else if(unit.equals("d"))
-                duration = duration + TimeUnit.DAYS.toSeconds(Long.parseLong(values[i]));
-            else if(unit.equals("w"))
-                duration = duration + 7 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i]));
-            else if(unit.equals("mo"))
-                duration = (long) (duration + 29.53 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i])));
-            else if(unit.equals("y"))
-                duration = (long) (duration + 365.2425 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i])));
-            else
-                throw new NumberFormatException("You inputted a time unit (" + unit + ") which is not available!");
+            switch (unit) {
+                case "s":
+                    duration = duration + Long.parseLong(values[i]);
+                    break;
+                case "m":
+                    duration = duration + TimeUnit.MINUTES.toSeconds(Long.parseLong(values[i]));
+                    break;
+                case "h":
+                    duration = duration + TimeUnit.HOURS.toSeconds(Long.parseLong(values[i]));
+                    break;
+                case "d":
+                    duration = duration + TimeUnit.DAYS.toSeconds(Long.parseLong(values[i]));
+                    break;
+                case "w":
+                    duration = duration + 7 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i]));
+                    break;
+                case "mo":
+                    duration = (long) (duration + 29.53 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i])));
+                    break;
+                case "y":
+                    duration = (long) (duration + 365.2425 * TimeUnit.DAYS.toSeconds(Long.parseLong(values[i])));
+                    break;
+                default:
+                    throw new NumberFormatException("You inputted a time unit (" + unit + ") which is not available!");
+            }
         }
 
         return duration;
