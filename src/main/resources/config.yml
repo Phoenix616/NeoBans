@@ -8,7 +8,7 @@ backend: none
 mysql:
   user: username
   pass: password1
-  dbname: mydatabase
+  database: mydatabase
   host: localhost
   port: 3306
   tableprefix: neo_

@@ -38,7 +38,7 @@ public class MysqlManager implements DatabaseManager {
 
         String host = plugin.getConfig().getString("mysql.host", "127.0.0.1");
         String port = plugin.getConfig().getString("mysql.port", "3306");
-        String database = plugin.getConfig().getString("mysql.database", "minebench");
+        String database = plugin.getConfig().getString("mysql.database", "mydatabase");
 
         ds = new HikariDataSource();
         ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database);
@@ -125,7 +125,7 @@ public class MysqlManager implements DatabaseManager {
 
                 String sqlUpdateLog = "ALTER TABLE " + getTablePrefix() + "log " +
                         "MODIFY COLUMN type VARCHAR(64)," +
-                        "MODIFY COLUMN bannedid CHAR(36)," +
+                        "MODIFY COLUMN playerid CHAR(36)," +
                         "MODIFY COLUMN issuerid CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000';";
 
                 staUpdateLog.execute(sqlUpdateLog);
