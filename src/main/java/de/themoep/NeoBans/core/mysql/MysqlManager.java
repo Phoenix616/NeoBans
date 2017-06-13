@@ -107,7 +107,7 @@ public class MysqlManager implements DatabaseManager {
             ) {
                 try {
                     staAddTypeColumn.execute("ALTER TABLE " + getTablePrefix() + "bans ADD COLUMN type VARCHAR(64) DEFAULT NULL, ADD INDEX (type, bannedid) ;");
-                    staFillTypeColumn.execute("UPDATE TABLE " + getTablePrefix() + "bans SET type = IF(endtime == 0, 'BAN', 'TEMPBAN') WHERE type IS NULL;");
+                    staFillTypeColumn.execute("UPDATE " + getTablePrefix() + "bans SET type = IF(endtime = 0, 'BAN', 'TEMPBAN') WHERE type IS NULL;");
                     plugin.getLogger().log(Level.INFO, "Added type column to " + getTablePrefix() + "bans!");
                 } catch (SQLException b) {
                     if (b.getErrorCode() == 1060) {
