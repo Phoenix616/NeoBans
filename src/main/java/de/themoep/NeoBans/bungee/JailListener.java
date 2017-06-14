@@ -108,7 +108,7 @@ public class JailListener implements Listener {
             Entry currentEntry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
             if (currentEntry != null && currentEntry.getType() == EntryType.JAIL) {
                 ((TimedPunishmentEntry) currentEntry).setDuration(((TimedPunishmentEntry) currentEntry).getDuration() + plugin.getConfig().getAfkKickDelay());
-                event.getPlayer().disconnect(plugin.getLanguageConfig().getTranslation(""));
+                event.getPlayer().disconnect(getMessage(event.getPlayer(), (TimedPunishmentEntry) currentEntry));
             }
         }
     }
