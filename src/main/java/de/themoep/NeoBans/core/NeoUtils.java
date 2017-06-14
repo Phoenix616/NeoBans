@@ -22,8 +22,8 @@ public class NeoUtils {
         if(values.length == 0)
             throw new NumberFormatException("You didn't input a time!");
         String[] units = durationString.split("[0-9]+");
-        if(values.length != units.length + 1)
-            throw new NumberFormatException("You didn't input a unit for each time value (!" + values.length + " " + units.length + ")");
+        if(values.length + 1 != units.length)
+            throw new NumberFormatException("You didn't input a unit for each time value! (" + values.length + " " + units.length + ")");
 
         long duration = 0L;
 
