@@ -22,11 +22,13 @@ public class NeoUtils {
         if(values.length == 0)
             throw new NumberFormatException("You didn't input a time!");
         String[] units = durationString.split("[0-9]+");
+        if(values.length != units.length + 1)
+            throw new NumberFormatException("You didn't input a unit for each time value (!" + values.length + " " + units.length + ")");
 
         long duration = 0L;
 
-        for(int i = 0; i < values.length && i < units.length; i++) {
-            String unit = units[i].toLowerCase();
+        for(int i = 0; i < values.length && i + 1 < units.length; i++) {
+            String unit = units[i + 1].toLowerCase();
             switch (unit) {
                 case "s":
                     duration = duration + Long.parseLong(values[i]);
@@ -113,19 +115,17 @@ public class NeoUtils {
             else
                 stringList.add(minutes + (lang == null ? "m" : " " + lang.getTranslation("time.minutes")));
 
-        if(seconds > 0)
+        if(stringList.isEmpty() || seconds > 0)
             if(seconds == 1)
                 stringList.add(seconds + (lang == null ? "s" : " " + lang.getTranslation("time.second")));
             else
                 stringList.add(seconds + (lang == null ? "s" : " " + lang.getTranslation("time.seconds")));
 
-        String ft = "";
-        for(int i = 0; i < stringList.size(); i++) {
-            if(i != 0)
-                ft += " ";
-            ft += stringList.get(i);
+        StringBuilder ft = new StringBuilder(stringList.get(1));
+        for(int i = 1; i < stringList.size(); i++) {
+            ft.append(" ").append(stringList.get(i));
         }
-        return ft;
+        return ft.toString();
     }
 
     /**
