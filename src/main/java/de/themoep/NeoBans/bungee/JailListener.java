@@ -125,7 +125,7 @@ public class JailListener implements Listener {
 
     @EventHandler
     public void onPlayerChat(ChatEvent event) {
-        if (!(event.getSender() instanceof ProxiedPlayer) || ((ProxiedPlayer) event.getSender()).hasPermission("neobans.exempt.jail")) {
+        if (!(event.getSender() instanceof ProxiedPlayer) || ((ProxiedPlayer) event.getSender()).hasPermission("neobans.exempt.jail.chat")) {
             return;
         }
 
