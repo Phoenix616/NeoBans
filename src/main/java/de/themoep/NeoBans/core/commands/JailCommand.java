@@ -53,14 +53,14 @@ public class JailCommand extends AbstractCommand {
 
                     String jailMsg = reason.isEmpty()
                             ? plugin.getLanguageConfig().getTranslation(
-                                    "neobans.title.tempban",
+                                    "neobans.title.jailed",
                                     "player", plugin.getPlayerName(playerId),
                                     "sender", sender.getName(),
                                     "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
                                     "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
                             )
                             : plugin.getLanguageConfig().getTranslation(
-                                    "neobans.title.jailwithreason",
+                                    "neobans.title.jailedwithreason",
                                     "player", plugin.getPlayerName(playerId),
                                     "reason", reason,
                                     "sender", sender.getName(),
