@@ -114,7 +114,7 @@ neobans:
         time: "&cJailed at: &e%time%"
         comment: "&cComment: &e%comment%"
         # temporary can have an %duration% value which will display something like 4d 2h 23m 12s
-        temporary: "&cJailed until: &e%endtime%"
+        temporary: "&cJailed for: &e%duration%"
       currentban:
         reason: "&cCurrent ban: &e%reason%"
         issuer: "&cBanned by: &e%issuer%"
