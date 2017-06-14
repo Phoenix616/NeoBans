@@ -121,7 +121,7 @@ public class NeoUtils {
             else
                 stringList.add(seconds + (lang == null ? "s" : " " + lang.getTranslation("time.seconds")));
 
-        StringBuilder ft = new StringBuilder(stringList.get(1));
+        StringBuilder ft = new StringBuilder(stringList.get(0));
         for(int i = 1; i < stringList.size(); i++) {
             ft.append(" ").append(stringList.get(i));
         }
