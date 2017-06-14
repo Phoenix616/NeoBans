@@ -2,6 +2,7 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.NeoBans.core.commands.SenderType;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -52,7 +53,7 @@ public class Sender implements NeoSender {
 
     @Override
     public void sendMessage(String message) {
-        sender.sendMessage(TextComponent.fromLegacyText(message));
+        sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
     }
 
     @Override
