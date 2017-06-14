@@ -92,7 +92,7 @@ public class PunishmentManager {
      * @return The entry if it is still valid, null if it isn't
      */
     private Entry checkExpiration(PunishmentEntry entry) {
-        if (entry instanceof TemporaryPunishmentEntry && ((TemporaryPunishmentEntry) entry).isExpired()) {
+        if (!(entry instanceof TimedPunishmentEntry) && entry instanceof TemporaryPunishmentEntry && ((TemporaryPunishmentEntry) entry).isExpired()) {
             removePunishment(entry);
             plugin.getLogger().info(entry.getType() + " of " + plugin.getPlayerName(entry.getPunished()) + " expired.");
             return null;

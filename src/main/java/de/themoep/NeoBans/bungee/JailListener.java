@@ -64,6 +64,11 @@ public class JailListener implements Listener {
                 event.setCancelled(true);
                 plugin.sendTitle(event.getPlayer().getUniqueId(), getMessage(event.getPlayer(), (TimedPunishmentEntry) entry));
             }
+        } else if (event.getTarget().getName().equalsIgnoreCase(plugin.getConfig().getJailServer())) { // Player switches to jail server (e.g. because he was jailed)
+            Entry entry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
+            if (entry != null && entry.getType() == EntryType.JAIL) {
+                startNoticeTask(((PunishmentEntry) entry).getPunished());
+            }
         }
     }
 
@@ -83,12 +88,11 @@ public class JailListener implements Listener {
                     Entry currentEntry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.JAIL);
                     if (currentEntry == null) {
                         it.remove();
-                        plugin.getPunishmentManager().unjail(new Sender(plugin.getProxy().getConsole()), player.getUniqueId(), true);
                     } else if (currentEntry.getType() == EntryType.JAIL) {
                         ((TimedPunishmentEntry) currentEntry).setDuration(((TimedPunishmentEntry) currentEntry).getDuration() - 60);
                         if (((TimedPunishmentEntry) currentEntry).isExpired()) {
                             it.remove();
-                            plugin.getPunishmentManager().unjail(new Sender(plugin.getProxy().getConsole()), player.getUniqueId(), true);
+                            plugin.getPunishmentManager().unjail(new Sender(plugin.getProxy().getConsole()), playerId, true);
                         } else {
                             plugin.sendTitle(playerId, getMessage(player, (TimedPunishmentEntry) currentEntry));
                         }
