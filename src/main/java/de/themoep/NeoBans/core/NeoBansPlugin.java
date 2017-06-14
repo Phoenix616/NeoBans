@@ -145,6 +145,12 @@ public interface NeoBansPlugin {
     String getName();
 
     /**
+     * Get the version of the plugin
+     * @return The version as a string
+     */
+    String  getVersion();
+
+    /**
      * Load the plugin's config from file
      */
     void loadConfig();
@@ -171,4 +177,5 @@ public interface NeoBansPlugin {
      * @return true if the player is online; false if the player is offline or the target doesn't exist
      */
     boolean movePlayer(UUID playerId, String target);
+
 }

@@ -312,6 +312,11 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
     }
 
     @Override
+    public String getVersion() {
+        return getDescription().getVersion();
+    }
+
+    @Override
     public int compareVersion(String version) {
         return NeoUtils.compareVersions(getDescription().getVersion(), version);
     }

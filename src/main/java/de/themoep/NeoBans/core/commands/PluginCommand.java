@@ -18,15 +18,17 @@ public class PluginCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        if("reload".equals(args[0])) {
+        if("reload".equalsIgnoreCase(args[0])) {
             plugin.loadConfig();
             sender.sendMessage(ChatColor.GREEN + plugin.getName() + " config reloaded!");
+        } else  if ("version".equalsIgnoreCase(args[0])) {
+            sender.sendMessage(ChatColor.GREEN + plugin.getName() + " " + plugin.getVersion() + "");
         }
     }
 
     @Override
     public boolean validateInput() {
-        return args.length > 0 && "reload".equalsIgnoreCase(args[0]);
+        return args.length > 0 && "|reload|version|".contains("|" + args[0].toLowerCase() + "|");
     }
 
 }

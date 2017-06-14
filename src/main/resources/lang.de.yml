@@ -1,6 +1,6 @@
 neobans:
   usage:
-    plugincommand: "&cUsage: &e/%name% [reload]"
+    plugincommand: "&cUsage: &e/%name% [reload|version]"
     kickcommand: "&cUsage: &e/%name% <username> [<reason>]"
     kickallcommand: "&cUsage: &e/%name% [server:<name>] [<reason>]"
     bancommand: "&cUsage: &e/%name% <username> [<reason>]"
