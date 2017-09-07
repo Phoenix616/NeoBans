@@ -41,7 +41,7 @@ public class UnbanCommand extends AbstractCommand {
                     return;
                 }
 
-                boolean silent = (args.length > 1 && args[1].equalsIgnoreCase("-silent"));
+                boolean silent = (args.length > 1 && (args[1].equalsIgnoreCase("-silent") || args[1].equalsIgnoreCase("-s")));
                 plugin.broadcast(sender,
                         (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
                         plugin.getLanguageConfig().getTranslation(
