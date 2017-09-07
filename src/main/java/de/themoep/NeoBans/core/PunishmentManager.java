@@ -171,7 +171,7 @@ public class PunishmentManager {
                 } catch (NumberFormatException ignored) {
                 }
             }
-        } else if (option.equalsIgnoreCase("duration") || value.equalsIgnoreCase("dur")) {
+        } else if (option.equalsIgnoreCase("duration") || option.equalsIgnoreCase("dur")) {
             dbColumn = "endtime";
             if (entry instanceof TemporaryPunishmentEntry) {
                 oldValue = ((TemporaryPunishmentEntry) entry).getFormattedDuration();
