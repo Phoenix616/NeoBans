@@ -24,7 +24,7 @@ public class TempbanCommand extends AbstractCommand {
             boolean silent = false;
             if (args.length > 2) {
                 for (int i = 2; i < args.length; i++) {
-                    if (i == 2 && args[i].equalsIgnoreCase("-silent")) {
+                    if (i == 2 && args[i].equalsIgnoreCase("-silent") || "-s".equalsIgnoreCase(args[i])) {
                         silent = true;
                     } else {
                         reason += args[i] + " ";
