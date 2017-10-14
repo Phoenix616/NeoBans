@@ -1,4 +1,4 @@
-package de.themoep.NeoBans.core.mysql;
+package de.themoep.NeoBans.core.storage;
 
 import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.Entry;

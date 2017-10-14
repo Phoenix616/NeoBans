@@ -1,4 +1,4 @@
-package de.themoep.NeoBans.core.mysql;
+package de.themoep.NeoBans.core.storage;
 
 import com.zaxxer.hikari.HikariDataSource;
 import de.themoep.NeoBans.core.PunishmentEntry;
@@ -8,13 +8,13 @@ import de.themoep.NeoBans.core.LogEntry;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 import de.themoep.NeoBans.core.TemporaryPunishmentEntry;
 import de.themoep.NeoBans.core.TimedPunishmentEntry;
+import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +37,19 @@ public class MysqlManager implements DatabaseManager {
         this.tablePrefix = plugin.getConfig().getString("mysql.tableprefix", "neo_");
 
         String host = plugin.getConfig().getString("mysql.host", "127.0.0.1");
-        String port = plugin.getConfig().getString("mysql.port", "3306");
+        int port = plugin.getConfig().getInt("mysql.port", 3306);
         String database = plugin.getConfig().getString("mysql.database", "mydatabase");
+        String connector = plugin.getConfig().getString("mysql.connector", "mariadb");
 
         ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database);
+        if ("mysql".equalsIgnoreCase(connector) || "jdbc".equalsIgnoreCase(connector)) {
+            ds.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database);
+        } else {
+            if (!"mariadb".equalsIgnoreCase(connector)) {
+                plugin.getLogger().log(Level.WARNING, "Unknown connector '" + connector + "', using default MariaDB connector!");
+            }
+            ds.setDataSource(new MariaDbDataSource(host, port, database));
+        }
         ds.setUsername(plugin.getConfig().getString("mysql.user", "root"));
         ds.setPassword(plugin.getConfig().getString("mysql.pass", ""));
         ds.setConnectionTimeout(5000);

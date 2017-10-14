@@ -6,8 +6,8 @@ import de.themoep.NeoBans.core.NeoUtils;
 import de.themoep.NeoBans.core.PunishmentManager;
 import de.themoep.NeoBans.core.commands.CommandMap;
 import de.themoep.NeoBans.core.commands.NeoSender;
-import de.themoep.NeoBans.core.mysql.DatabaseManager;
-import de.themoep.NeoBans.core.mysql.MysqlManager;
+import de.themoep.NeoBans.core.storage.DatabaseManager;
+import de.themoep.NeoBans.core.storage.MysqlManager;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;

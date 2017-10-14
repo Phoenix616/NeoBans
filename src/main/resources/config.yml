@@ -12,6 +12,7 @@ mysql:
   host: localhost
   port: 3306
   tableprefix: neo_
+  connector: mariadb
 language: en
 commandaliases:
   neoban: [nban, ban]

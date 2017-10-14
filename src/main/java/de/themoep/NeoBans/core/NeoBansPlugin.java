@@ -4,7 +4,7 @@ import de.themoep.NeoBans.core.commands.CommandMap;
 import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.NeoBans.core.config.NeoLanguageConfig;
 import de.themoep.NeoBans.core.config.NeoPluginConfig;
-import de.themoep.NeoBans.core.mysql.DatabaseManager;
+import de.themoep.NeoBans.core.storage.DatabaseManager;
 
 import java.util.List;
 import java.util.NoSuchElementException;

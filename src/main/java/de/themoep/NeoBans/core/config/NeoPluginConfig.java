@@ -9,6 +9,8 @@ public interface NeoPluginConfig {
 
     String getString(String key, String def);
 
+    int getInt(String key, int def);
+
     /**
      * Get language name
      * @return The language string
