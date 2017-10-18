@@ -28,7 +28,8 @@ public class UnjailCommand extends AbstractCommand {
                 return;
             }
 
-            Entry entry = plugin.getPunishmentManager().unjail(sender, playerId, args.length > 1 && args[1].equalsIgnoreCase("-silent"));
+            Entry entry = plugin.getPunishmentManager().unjail(sender, playerId,
+                    args.length > 1 && (args[1].equalsIgnoreCase("-silent") || args[1].equalsIgnoreCase("-s")));
             if (entry != null && entry.getType() == EntryType.FAILURE) {
                 sender.sendMessage(entry.getReason(), "player", args[0]);
             }
