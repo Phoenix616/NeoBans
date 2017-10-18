@@ -73,7 +73,8 @@ public class InfoCommand extends AbstractCommand {
                             sender.sendMessage(
                                     plugin.getLanguageConfig().getTranslation(
                                             "neobans.message.info.currentban.issuer",
-                                            "issuer", plugin.getPlayerName(be.getIssuer())
+                                            "issuer", be.getIssuer().equals(new UUID(0, 0)) ?
+                                                    "Console" : plugin.getPlayerName(be.getIssuer())
                                     )
                             );
 
