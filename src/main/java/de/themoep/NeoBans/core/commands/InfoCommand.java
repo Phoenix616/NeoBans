@@ -78,25 +78,21 @@ public class InfoCommand extends AbstractCommand {
                                     )
                             );
 
-                            Date date = new Date(be.getTime() * 1000L);
-                            SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
-                            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
 
                             sender.sendMessage(
                                     plugin.getLanguageConfig().getTranslation(
                                             "neobans.message.info.currentban.time",
-                                            "time", sdf.format(date)
+                                            "time", be.getTime(plugin.getLanguageConfig().getTranslation("time.format"))
                                     )
                             );
 
                             if (banEntry instanceof TemporaryPunishmentEntry) {
                                 bancurrent = 0;
                                 tempbancurrent = 1;
-                                Date enddate = new Date(((TemporaryPunishmentEntry) be).getEndtime() * 1000L);
                                 sender.sendMessage(
                                         plugin.getLanguageConfig().getTranslation(
                                                 "neobans.message.info.currentban.temporary",
-                                                "endtime", sdf.format(enddate),
+                                                "endtime", ((TemporaryPunishmentEntry) be).getEndtime(plugin.getLanguageConfig().getTranslation("time.format")),
                                                 "duration", ((TemporaryPunishmentEntry) be).getFormattedDuration()
                                         )
                                 );
@@ -144,14 +140,10 @@ public class InfoCommand extends AbstractCommand {
                                     )
                             );
 
-                            Date date = new Date(je.getTime() * 1000L);
-                            SimpleDateFormat sdf = new SimpleDateFormat(plugin.getLanguageConfig().getTranslation("time.format"));
-                            sdf.setTimeZone(Calendar.getInstance().getTimeZone());
-
                             sender.sendMessage(
                                     plugin.getLanguageConfig().getTranslation(
                                             "neobans.message.info.currentjail.time",
-                                            "time", sdf.format(date)
+                                            "time", je.getTime(plugin.getLanguageConfig().getTranslation("time.format"))
                                     )
                             );
 

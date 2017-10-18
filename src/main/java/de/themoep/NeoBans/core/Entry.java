@@ -67,11 +67,7 @@ public class Entry {
     public String getTime(String format) {
         Date date = new Date(getTime() * 1000L);
         SimpleDateFormat sdf = new SimpleDateFormat(format);
-        sdf.setTimeZone(Calendar.getInstance().
-
-        getTimeZone()
-
-        );
+        sdf.setTimeZone(Calendar.getInstance().getTimeZone());
         return sdf.format(date);
     }
 
