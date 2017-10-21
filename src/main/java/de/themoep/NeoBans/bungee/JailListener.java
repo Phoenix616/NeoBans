@@ -119,7 +119,7 @@ public class JailListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerDisconnectEvent event) {
-        if (event.getPlayer().getServer().getInfo().getName().equals(plugin.getConfig().getJailServer())) {
+        if (event.getPlayer().getServer() != null && event.getPlayer().getServer().getInfo().getName().equals(plugin.getConfig().getJailServer())) {
             Entry currentEntry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
             if (currentEntry != null && currentEntry.getType() == EntryType.JAIL) {
                 plugin.getDatabaseManager().update(((TimedPunishmentEntry) currentEntry).getDbId(), "endtime", ((TimedPunishmentEntry) currentEntry).getDuration());
