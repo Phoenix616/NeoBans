@@ -134,6 +134,7 @@ neobans:
         &c%type% &eissued by &b%issuer%&e on &c%player%&e:
         &7%time%&7 - &f%reason%
   error:
+    nopermission: "You don't have the permission to use that! (&e%permission%&c)"
     notonline: "&e%player%&c was not found online!"
     notfound: "&e%value%&c was not found!"
     notanumber: "&e%value%&c is not a valid number!"

@@ -43,7 +43,7 @@ public class CommandExecutor extends Command implements Listener {
             }
         } else {
             sender.sendMessage(plugin.getLanguageConfig().getTranslation(
-                    "neobans.permission.insufficient-permission",
+                    "neobans.error.nopermission",
                     "permission", this.getPermission()
             ));
         }

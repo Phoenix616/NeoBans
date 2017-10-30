@@ -34,7 +34,7 @@ public class InfoCommand extends AbstractCommand {
                     playerid = plugin.getPlayerId(args[0]);
                 } else {
                     sender.sendMessage(plugin.getLanguageConfig().getTranslation(
-                            "neobans.permission.insufficient-permission",
+                            "neobans.error.nopermission",
                             "permission", "neobans.command.info.others"
                     ));
                     return;
