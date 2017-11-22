@@ -21,7 +21,7 @@ public class TimedPunishmentEntry extends TemporaryPunishmentEntry {
      * @param durationString The duration this punishment will last for
      */
     public TimedPunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason, String durationString) {
-        super(type, punished, issuer, reason, durationString, System.currentTimeMillis(), NeoUtils.getDurationFromString(durationString));
+        super(type, punished, issuer, reason, durationString, System.currentTimeMillis() / 1000, NeoUtils.getDurationFromString(durationString));
     }
 
     public TimedPunishmentEntry(EntryType type, UUID punished, UUID issuer, String reason, long time, long duration) {
