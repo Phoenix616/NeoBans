@@ -241,12 +241,13 @@ public class MysqlManager implements DatabaseManager {
             sta.setString(4, entry.getReason());
             sta.setString(5, entry.getComment());
             sta.setLong(6, entry.getTime());
-            if (entry instanceof TimedPunishmentEntry)
+            if (entry instanceof TimedPunishmentEntry) {
                 sta.setLong(7, ((TimedPunishmentEntry) entry).getDuration());
-            if (entry instanceof TemporaryPunishmentEntry)
+            } else if (entry instanceof TemporaryPunishmentEntry) {
                 sta.setLong(7, ((TemporaryPunishmentEntry) entry).getEndtime());
-            else
+            } else {
                 sta.setLong(7, 0);
+            }
             sta.executeUpdate();
             ResultSet rs = sta.getGeneratedKeys();
 
