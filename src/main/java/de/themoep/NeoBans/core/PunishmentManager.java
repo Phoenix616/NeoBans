@@ -3,7 +3,7 @@ package de.themoep.NeoBans.core;
 import de.themoep.NeoBans.core.commands.NeoSender;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,7 +17,7 @@ public class PunishmentManager {
 
     private NeoBansPlugin plugin;
 
-    private Map<EntryType, Map<UUID, PunishmentEntry>> punishments = new HashMap<>();
+    private Map<EntryType, Map<UUID, PunishmentEntry>> punishments = new EnumMap<>(EntryType.class);
 
     public PunishmentManager(NeoBansPlugin plugin) {
         this.plugin = plugin;

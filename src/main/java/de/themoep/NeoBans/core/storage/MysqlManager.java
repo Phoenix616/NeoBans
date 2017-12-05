@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 08.03.2015.
@@ -239,7 +240,7 @@ public class MysqlManager implements DatabaseManager {
             sta.setString(3, entry.getIssuer().toString());
             sta.setString(4, entry.getReason());
             sta.setString(5, entry.getComment());
-            sta.setString(6, Long.toString(entry.getTime()));
+            sta.setLong(6, entry.getTime());
             if (entry instanceof TimedPunishmentEntry)
                 sta.setLong(7, ((TimedPunishmentEntry) entry).getDuration());
             if (entry instanceof TemporaryPunishmentEntry)
@@ -251,11 +252,14 @@ public class MysqlManager implements DatabaseManager {
 
             if (rs.next()) {
                 entry.setDbId(rs.getInt(1));
-                String msg = entry.getReason().isEmpty() ? "" : "Reason: " + entry.getReason();
+                List<String> msg = new ArrayList<>();
                 if (entry instanceof TemporaryPunishmentEntry) {
-                    msg = "Duration: " + ((TemporaryPunishmentEntry) entry).getFormattedDuration() + " " + msg;
+                    msg.add("Duration: " + ((TemporaryPunishmentEntry) entry).getFormattedDuration());
                 }
-                if (!log(entry.getType(), entry.getPunished(), entry.getIssuer(), msg)) {
+                if (entry.getReason().isEmpty()) {
+                    msg.add("Reason: " + entry.getReason());
+                }
+                if (!log(entry.getType(), entry.getPunished(), entry.getIssuer(), msg.stream().collect(Collectors.joining(", ")))) {
                     plugin.getLogger().warning("Error while trying to log addition of ban " + rs.getInt(1) + " for player " + plugin.getPlayerName(entry.getPunished()) + "!");
                 }
                 return entry;
@@ -272,13 +276,20 @@ public class MysqlManager implements DatabaseManager {
     public Entry remove(PunishmentEntry punishment, UUID invokeId, boolean log) {
 
         if (log) {
-            String msg = punishment.getType() + " " + (invokeId.equals(new UUID(0, 0)) ? "Automatic removal. " : "") + "Orig. reason: " + punishment.getReason();
-            if (punishment instanceof TimedPunishmentEntry) {
-                msg += "Rest duration: " + ((TimedPunishmentEntry) punishment).getFormattedDuration();
-            } else if (punishment instanceof TemporaryPunishmentEntry) {
-                msg += "Orig. endtime: " + ((TemporaryPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format"));
+            List<String> msg = new ArrayList<>();
+            msg.add(punishment.getType().toString());
+            if (invokeId.equals(new UUID(0, 0))) {
+                msg.add("Automatic removal. ");
             }
-            log(EntryType.REMOVED, punishment.getPunished(), invokeId, msg);
+            if (punishment.getReason().isEmpty()) {
+                msg.add("Orig. reason: " + punishment.getReason());
+            }
+            if (punishment instanceof TimedPunishmentEntry) {
+                msg.add("Rest duration: " + ((TimedPunishmentEntry) punishment).getFormattedDuration());
+            } else if (punishment instanceof TemporaryPunishmentEntry) {
+                msg.add("Orig. endtime: " + ((TemporaryPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
+            }
+            log(EntryType.REMOVED, punishment.getPunished(), invokeId, msg.stream().collect(Collectors.joining(", ")));
         }
 
 

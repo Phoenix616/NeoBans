@@ -23,7 +23,7 @@ public class Entry {
     public Entry(EntryType type, String reason) {
         this.type = type;
         this.reason = reason;
-        this.time = (int) (System.currentTimeMillis() / 1000);
+        this.time = System.currentTimeMillis() / 1000;
     }
 
     /**
@@ -46,8 +46,6 @@ public class Entry {
     public EntryType getType() {
         return type;
     }
-
-    ;
 
     /**
      * Get the time the entry was issued.
