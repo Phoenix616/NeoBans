@@ -8,8 +8,10 @@ import de.themoep.NeoBans.core.TemporaryPunishmentEntry;
 import de.themoep.NeoBans.core.TimedPunishmentEntry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 19.04.2017.
@@ -29,18 +31,8 @@ public class JailCommand extends AbstractCommand {
         plugin.runAsync(() -> {
             String toJail = args[0];
             String duration = args[1];
-            String reason = "";
-            boolean silent = false;
-            if (args.length > 2) {
-                for (int i = 2; i < args.length; i++) {
-                    if (i == 2 && ("-silent".equalsIgnoreCase(args[i]) || "-s".equalsIgnoreCase(args[i]))) {
-                        silent = true;
-                    } else {
-                        reason += args[i] + " ";
-                    }
-                }
-            }
-            reason = reason.trim();
+            boolean silent = args.length > 2 && ("-silent".equalsIgnoreCase(args[2]) || "-s".equalsIgnoreCase(args[2]));
+            String reason = Arrays.stream(args).skip(silent ? 3 : 2).collect(Collectors.joining(" "));
 
             if (reason.length() < 140) {
                 try {

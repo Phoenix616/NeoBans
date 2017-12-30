@@ -3,8 +3,10 @@ package de.themoep.NeoBans.core.commands;
 import de.themoep.NeoBans.core.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
@@ -20,18 +22,8 @@ public class TempbanCommand extends AbstractCommand {
         plugin.runAsync(() -> {
             String toBan = args[0];
             String duration = args[1];
-            String reason = "";
-            boolean silent = false;
-            if (args.length > 2) {
-                for (int i = 2; i < args.length; i++) {
-                    if (i == 2 && args[i].equalsIgnoreCase("-silent") || "-s".equalsIgnoreCase(args[i])) {
-                        silent = true;
-                    } else {
-                        reason += args[i] + " ";
-                    }
-                }
-            }
-            reason = reason.trim();
+            boolean silent = args.length > 2 && ("-silent".equalsIgnoreCase(args[2]) || "-s".equalsIgnoreCase(args[2]));
+            String reason = Arrays.stream(args).skip(silent ? 3 : 2).collect(Collectors.joining(" "));
 
             if (reason.length() < 140) {
                 try {

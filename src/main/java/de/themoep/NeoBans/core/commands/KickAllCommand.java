@@ -4,9 +4,11 @@ import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
@@ -34,18 +36,8 @@ public class KickAllCommand extends AbstractCommand {
         } else {
             players.addAll(plugin.getOnlinePlayers());
         }
-        String reason = "";
-        boolean silent = false;
-        if(args.length > reasonStart) {
-            for (int i = reasonStart; i < args.length; i++) {
-                if(i == reasonStart && ("-silent".equalsIgnoreCase(args[i]) || "-s".equalsIgnoreCase(args[i]))) {
-                    silent = true;
-                } else {
-                    reason += args[i] + " ";
-                }
-            }
-        }
-        reason = reason.trim();
+        boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[reasonStart]) || "-s".equalsIgnoreCase(args[reasonStart]));
+        String reason = Arrays.stream(args).skip(silent ? reasonStart + 1 : reasonStart).collect(Collectors.joining(" "));
 
         for(String toKick : players) {
             String kickmsg = reason.isEmpty()

@@ -6,8 +6,10 @@ import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
@@ -21,18 +23,8 @@ public class KickCommand extends AbstractCommand {
     @Override
     public void execute() {
         final String toKick = args[0];
-        String reason = "";
-        boolean silent = false;
-        if(args.length > 1) {
-            for (int i = 1; i < args.length; i++) {
-                if(i == 1 && ("-silent".equalsIgnoreCase(args[i]) || "-s".equalsIgnoreCase(args[i]))) {
-                    silent = true;
-                } else {
-                    reason += args[i] + " ";
-                }
-            }
-        }
-        reason = reason.trim();
+        boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
+        String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
         
         String kickmsg = (reason.isEmpty()) 
                 ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", "player", toKick, "sender", sender.getName())
