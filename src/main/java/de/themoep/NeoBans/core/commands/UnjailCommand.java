@@ -7,8 +7,10 @@ import de.themoep.NeoBans.core.NeoBansPlugin;
 import de.themoep.NeoBans.core.PunishmentEntry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 19.04.2017.
@@ -27,9 +29,10 @@ public class UnjailCommand extends AbstractCommand {
                 sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", args[0]));
                 return;
             }
-
-            Entry entry = plugin.getPunishmentManager().unjail(sender, playerId,
-                    args.length > 1 && (args[1].equalsIgnoreCase("-silent") || args[1].equalsIgnoreCase("-s")));
+    
+            boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
+            String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
+            Entry entry = plugin.getPunishmentManager().unjail(sender, playerId, reason, silent);
             if (entry != null && entry.getType() == EntryType.FAILURE) {
                 sender.sendMessage(entry.getReason(), "player", args[0]);
             }

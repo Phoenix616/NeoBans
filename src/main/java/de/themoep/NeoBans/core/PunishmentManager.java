@@ -276,9 +276,23 @@ public class PunishmentManager {
      * @return The previous PunishmentEntry , null if the player wasn't punished before
      */
     public Entry removePunishment(PunishmentEntry punishment, UUID invokeId, boolean log) {
+        return removePunishment(punishment, invokeId, "", log);
+    }
+
+    /**
+     * Remove a punishment entry from the punishment map and database
+     * <br /><br />
+     * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
+     * @param punishment The punishment entry to remove
+     * @param invokeId   The id of the player who invoked the removal of this punishment.
+     * @param reason     The reason why this punishment was removed
+     * @param log        If we should log this change to the log table or not
+     * @return The previous PunishmentEntry , null if the player wasn't punished before
+     */
+    public Entry removePunishment(PunishmentEntry punishment, UUID invokeId, String reason, boolean log) {
         punishments.get(punishment.getType()).remove(punishment.getPunished());
 
-        return plugin.getDatabaseManager().remove(punishment, invokeId, log);
+        return plugin.getDatabaseManager().remove(punishment, invokeId, reason, log);
     }
 
     /**
@@ -286,10 +300,24 @@ public class PunishmentManager {
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
      * @param punishmentEntry The punishment entry to remove
+     * @param invokeId   The id of the player who invoked the removal of this punishment.
      * @return The previous PunishmentEntry , null if the player wasn't punished before
      */
     public Entry removePunishment(PunishmentEntry punishmentEntry, UUID invokeId) {
         return removePunishment(punishmentEntry, invokeId, true);
+    }
+
+    /**
+     * Remove a punishment entry from the punishment map and database
+     * <br /><br />
+     * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
+     * @param punishmentEntry The punishment entry to remove
+     * @param invokeId   The id of the player who invoked the removal of this punishment.
+     * @param reason     The reason why this punishment was removed
+     * @return The previous PunishmentEntry , null if the player wasn't punished before
+     */
+    public Entry removePunishment(PunishmentEntry punishmentEntry, UUID invokeId, String reason) {
+        return removePunishment(punishmentEntry, invokeId, reason, true);
     }
 
     /**
@@ -330,10 +358,10 @@ public class PunishmentManager {
      * Unjail a player. This sends titles and moves the player to the unjail target
      * @param sender The sender that initiated the unjail. Should be the console for automatic ones!
      * @param playerId The UUID of the player
-     * @param silent Whether or not to broadcast this unjail if the target is set to anything else but SENDER
-     * @return The old jail entry or an error entry
+     * @param reason
+     *@param silent Whether or not to broadcast this unjail if the target is set to anything else but SENDER  @return The old jail entry or an error entry
      */
-    public Entry unjail(NeoSender sender, UUID playerId, boolean silent) {
+    public Entry unjail(NeoSender sender, UUID playerId, String reason, boolean silent) {
         String playerName = plugin.getPlayerName(playerId);
         Entry entry = getPunishment(playerId, EntryType.JAIL);
         if (entry != null && entry.getType() == EntryType.FAILURE) {

@@ -7,8 +7,10 @@ import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by Phoenix616 on 09.02.2015.
@@ -35,13 +37,14 @@ public class UnbanCommand extends AbstractCommand {
             }
 
             if (entry instanceof PunishmentEntry) {
-                Entry removedEntry = plugin.getPunishmentManager().removePunishment((PunishmentEntry) entry, sender.getUniqueID());
+                boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
+                String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
+                Entry removedEntry = plugin.getPunishmentManager().removePunishment((PunishmentEntry) entry, sender.getUniqueID(), reason);
                 if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
                     sender.sendMessage(entry.getReason(), "player", args[0]);
                     return;
                 }
 
-                boolean silent = (args.length > 1 && (args[1].equalsIgnoreCase("-silent") || args[1].equalsIgnoreCase("-s")));
                 plugin.broadcast(sender,
                         (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
                         plugin.getLanguageConfig().getTranslation(

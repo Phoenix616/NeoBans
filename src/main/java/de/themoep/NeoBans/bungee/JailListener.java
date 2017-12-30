@@ -92,7 +92,7 @@ public class JailListener implements Listener {
                         ((TimedPunishmentEntry) currentEntry).setDuration(((TimedPunishmentEntry) currentEntry).getDuration() - 60);
                         if (((TimedPunishmentEntry) currentEntry).isExpired()) {
                             it.remove();
-                            plugin.getPunishmentManager().unjail(new Sender(plugin.getProxy().getConsole()), playerId, true);
+                            plugin.getPunishmentManager().unjail(new Sender(plugin.getProxy().getConsole()), playerId, "Expired", true);
                         } else {
                             plugin.sendTitle(playerId, getMessage(player, (TimedPunishmentEntry) currentEntry, "join"));
                         }

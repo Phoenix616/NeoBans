@@ -49,7 +49,7 @@ public interface DatabaseManager {
 
     Entry add(PunishmentEntry entry);
 
-    Entry remove(PunishmentEntry banentry, UUID invokeId, boolean log);
+    Entry remove(PunishmentEntry banentry, UUID invokeId, String reason, boolean log);
 
     int getCount(EntryType type, UUID playerId);
 
