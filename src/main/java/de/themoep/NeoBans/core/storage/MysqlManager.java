@@ -257,7 +257,7 @@ public class MysqlManager implements DatabaseManager {
                 if (entry instanceof TemporaryPunishmentEntry) {
                     msg.add("Duration: " + ((TemporaryPunishmentEntry) entry).getFormattedDuration());
                 }
-                if (entry.getReason().isEmpty()) {
+                if (!entry.getReason().isEmpty()) {
                     msg.add("Reason: " + entry.getReason());
                 }
                 if (!log(entry.getType(), entry.getPunished(), entry.getIssuer(), msg.stream().collect(Collectors.joining(", ")))) {

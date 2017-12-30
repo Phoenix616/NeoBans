@@ -51,7 +51,7 @@ public class KickCommand extends AbstractCommand {
             plugin.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    plugin.getDatabaseManager().log(EntryType.KICK, playerid, sender.getUniqueID(), finalReason);
+                    plugin.getDatabaseManager().log(EntryType.KICK, playerid, sender.getUniqueID(), "Reason: " + finalReason);
                 }
             });
         } else if(success == -1)
