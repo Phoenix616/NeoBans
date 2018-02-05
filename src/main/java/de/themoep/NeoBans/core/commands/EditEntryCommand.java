@@ -29,7 +29,7 @@ public class EditEntryCommand extends AbstractCommand {
             if(value.length() < 140) {
                 Entry entry = plugin.getPunishmentManager().updatePunishment(playerName, sender.getUniqueID(), option.toLowerCase(), value);
                 if(entry.getType() != EntryType.FAILURE) {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.message.banedited", "player", playerName, "option", option.toLowerCase(), "value", value));
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.message.entryedited", "player", playerName, "option", option.toLowerCase(), "value", value));
                 } else {
                     sender.sendMessage(entry.getReason());
                 }
