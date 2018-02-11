@@ -212,15 +212,25 @@ public class MysqlManager implements DatabaseManager {
     }
 
     @Override
-    public boolean update(int entryId, String column, Object value) {
+    public boolean update(PunishmentEntry entry) {
 
-        String query = "UPDATE " + getTablePrefix() + "bans SET " + column + "=? WHERE id=?";
+        String query = "UPDATE " + getTablePrefix() + "bans SET type=?,reason=?,comment=?,time=?,endtime=? WHERE id=?";
 
         try (Connection conn = getConn();
              PreparedStatement sta = conn.prepareStatement(query);
         ) {
-            sta.setObject(1, value);
-            sta.setInt(2, entryId);
+            sta.setString(1, entry.getType().toString());
+            sta.setString(2, entry.getReason());
+            sta.setString(3, entry.getComment());
+            sta.setLong(4, entry.getTime());
+            if (entry instanceof TimedPunishmentEntry) {
+                sta.setLong(5, ((TimedPunishmentEntry) entry).getDuration());
+            } else if (entry instanceof TemporaryPunishmentEntry) {
+                sta.setLong(5, ((TemporaryPunishmentEntry) entry).getEndtime());
+            } else {
+                sta.setLong(5, 0);
+            }
+            sta.setInt(6, entry.getDbId());
             sta.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

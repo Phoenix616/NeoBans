@@ -139,13 +139,9 @@ public class PunishmentManager {
      */
     public Entry updatePunishment(PunishmentEntry entry, UUID invokeId, String option, String value, boolean log) {
 
-        String dbColumn = null;
-        Object dbValue = null;
         String oldValue = "-";
         PunishmentEntry changedEntry = null;
         if (option.equalsIgnoreCase("reason")) {
-            dbColumn = "reason";
-            dbValue = value;
             oldValue = entry.getReason();
             if (entry instanceof TimedPunishmentEntry) {
                 changedEntry = new TimedPunishmentEntry(entry.getType(), entry.getPunished(), entry.getIssuer(), value, entry.getComment(), entry.getTime(), ((TimedPunishmentEntry) entry).getDuration());
@@ -155,8 +151,6 @@ public class PunishmentManager {
                 changedEntry = new PunishmentEntry(entry.getType(), entry.getPunished(), entry.getIssuer(), value, entry.getComment(), entry.getTime());
             }
         } else if (option.equalsIgnoreCase("endtime") || option.equalsIgnoreCase("end")) {
-            dbColumn = "endtime";
-            dbValue = 0;
             if (entry instanceof TimedPunishmentEntry) {
                 oldValue = String.valueOf(((TimedPunishmentEntry) entry).getDuration());
             } else if (entry instanceof TemporaryPunishmentEntry) {
@@ -169,16 +163,15 @@ public class PunishmentManager {
                     long endTime = Long.parseLong(value);
                     changedEntry = new TemporaryPunishmentEntry(entry.getType() == EntryType.JAIL ? EntryType.JAIL : EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime(), endTime);
                 } catch (NumberFormatException ignored) {
+                    changedEntry = null;
                 }
             }
         } else if (option.equalsIgnoreCase("duration") || option.equalsIgnoreCase("dur")) {
-            dbColumn = "endtime";
             if (entry instanceof TemporaryPunishmentEntry) {
                 oldValue = ((TemporaryPunishmentEntry) entry).getFormattedDuration();
             }
             if (value.equalsIgnoreCase("permanent") || value.equalsIgnoreCase("perm")) {
                 changedEntry = new PunishmentEntry(EntryType.BAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getComment(), entry.getTime());
-                dbValue = 0;
             } else {
                 try {
                     if (entry instanceof TimedPunishmentEntry) {
@@ -188,29 +181,27 @@ public class PunishmentManager {
                             long duration = NeoUtils.getDurationFromString(value) - (NeoUtils.getDurationFromString(entry.getComment()) - ((TimedPunishmentEntry) entry).getDuration());
                             changedEntry = new TimedPunishmentEntry(EntryType.JAIL, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), duration);
                         }
-                        dbValue = ((TimedPunishmentEntry) changedEntry).getDuration();
                     } else {
                         if (value.startsWith("~")) {
                             changedEntry = new TemporaryPunishmentEntry(EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), value.substring(1));
                         } else {
                             changedEntry = new TemporaryPunishmentEntry(EntryType.TEMPBAN, entry.getPunished(), entry.getIssuer(), entry.getReason(), entry.getTime(), value);
                         }
-                        dbValue = ((TemporaryPunishmentEntry) changedEntry).getEndtime();
                     }
                 } catch (NumberFormatException e) {
                     changedEntry = null;
                 }
             }
-        }
-
-        if (dbColumn == null) {
+        } else  {
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongoption", "option", option.toLowerCase()));
-        } else if (dbValue == null || changedEntry == null) {
+        }
+        
+        if (changedEntry == null) {
             return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongvalue", "option", option.toLowerCase(), "value", value.toLowerCase()));
         }
         changedEntry.setDbId(entry.getDbId());
 
-        if (plugin.getDatabaseManager().update(changedEntry.getDbId(), dbColumn, dbValue)) {
+        if (plugin.getDatabaseManager().update(changedEntry)) {
             if (log) {
                 String msg = "Updated " + entry.getType() + "'" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
                 plugin.getLogger().log(Level.INFO, invokeId + ": " + msg + " for " + entry.getPunished());
