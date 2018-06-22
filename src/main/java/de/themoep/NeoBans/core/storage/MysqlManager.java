@@ -375,10 +375,15 @@ public class MysqlManager implements DatabaseManager {
                 String comment = rs.getString("comment");
                 long time = rs.getLong("time");
                 long endtime = rs.getLong("endtime");
-                EntryType type;
-                try {
-                    type = EntryType.valueOf(rs.getString("type").toUpperCase());
-                } catch (IllegalArgumentException e) {
+                String typeStr = rs.getString("type");
+                EntryType type = null;
+                if (typeStr != null) {
+                    try {
+                        type = EntryType.valueOf(typeStr.toUpperCase());
+                    } catch (IllegalArgumentException ignored) {}
+                }
+                
+                if (type == null) {
                     type = endtime > 0 ? EntryType.TEMPBAN : EntryType.BAN;
                 }
 
