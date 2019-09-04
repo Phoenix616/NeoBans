@@ -22,34 +22,29 @@ public class KickCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        final String toKick = args[0];
         boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
         String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
-        
-        String kickmsg = (reason.isEmpty()) 
-                ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", "player", toKick, "sender", sender.getName())
-                : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
-        String kickbc = (reason.isEmpty()) 
-                ? plugin.getLanguageConfig().getTranslation("neobans.message.kick", "player", toKick, "sender", sender.getName())
-                : plugin.getLanguageConfig().getTranslation("neobans.message.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
 
-        final UUID playerid = plugin.getPlayerId(toKick);
-        
-        int success = plugin.kickPlayer(sender, toKick, kickmsg);
-        if(success == 1) {
-            BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("kick");
-            plugin.broadcast(sender, bd, kickbc);
-            final String finalReason = reason;
-            plugin.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    plugin.getDatabaseManager().log(EntryType.KICK, playerid, sender.getUniqueID(), "Reason: " + finalReason);
-                }
-            });
-        } else if(success == -1)
-            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", "player", toKick));
-        else
-            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notonline", "player", toKick));
+        for (String toKick : args[0].split(",")) {
+            String kickmsg = (reason.isEmpty())
+                    ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", "player", toKick, "sender", sender.getName())
+                    : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
+            String kickbc = (reason.isEmpty())
+                    ? plugin.getLanguageConfig().getTranslation("neobans.message.kick", "player", toKick, "sender", sender.getName())
+                    : plugin.getLanguageConfig().getTranslation("neobans.message.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
+
+            int success = plugin.kickPlayer(sender, toKick, kickmsg);
+            if(success == 1) {
+                BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("kick");
+                plugin.broadcast(sender, bd, kickbc);
+                final String finalReason = reason;
+                plugin.runAsync(() -> plugin.getDatabaseManager().log(EntryType.KICK, plugin.getPlayerId(toKick), sender.getUniqueID(), "Reason: " + finalReason));
+            } else if(success == -1)
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", "player", toKick));
+            else
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notonline", "player", toKick));
+
+        }
         
     }
 

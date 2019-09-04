@@ -4,6 +4,7 @@ import de.themoep.NeoBans.core.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,53 +28,61 @@ public class TempbanCommand extends AbstractCommand {
 
             if (reason.length() < 140) {
                 try {
-                    UUID playerid = plugin.getPlayerId(toBan);
-                    if (playerid == null) {
-                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", toBan));
+                    List<UUID> playerIds = new ArrayList<>();
+                    for (String nameString : toBan.split(",")) {
+                        UUID playerId = plugin.getPlayerId(nameString);
+                        if (playerId == null) {
+                            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", nameString));
+                        } else {
+                            playerIds.add(playerId);
+                        }
+                    }
+                    if (playerIds.isEmpty()) {
                         return;
                     }
-                    TemporaryPunishmentEntry tbe = new TemporaryPunishmentEntry(EntryType.TEMPBAN, playerid, sender.getUniqueID(), reason, duration);
+                    for (UUID playerId : playerIds) {
+                        TemporaryPunishmentEntry tbe = new TemporaryPunishmentEntry(EntryType.TEMPBAN, playerId, sender.getUniqueID(), reason, duration);
+                        String banmsg = reason.isEmpty()
+                                ? plugin.getLanguageConfig().getTranslation(
+                                        "neobans.disconnect.tempban",
+                                        "player", plugin.getPlayerName(playerId),
+                                        "sender", sender.getName(),
+                                        "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
+                                        "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
+                                )
+                                : plugin.getLanguageConfig().getTranslation(
+                                        "neobans.disconnect.tempbanwithreason",
+                                        "player", plugin.getPlayerName(playerId),
+                                        "reason", reason,
+                                        "sender", sender.getName(),
+                                        "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
+                                        "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
+                                );
+                        String banbc = reason.isEmpty()
+                                ? plugin.getLanguageConfig().getTranslation(
+                                        "neobans.message.tempban",
+                                        "player", plugin.getPlayerName(playerId),
+                                        "sender", sender.getName(),
+                                        "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
+                                        "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
+                                )
+                                : plugin.getLanguageConfig().getTranslation(
+                                        "neobans.message.tempbanwithreason",
+                                        "player", plugin.getPlayerName(playerId),
+                                        "reason", reason,
+                                        "sender", sender.getName(),
+                                        "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
+                                        "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
+                                );
 
-                    String banmsg = reason.isEmpty()
-                            ? plugin.getLanguageConfig().getTranslation(
-                                    "neobans.disconnect.tempban",
-                                    "player", plugin.getPlayerName(playerid),
-                                    "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
-                                    "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                            )
-                            : plugin.getLanguageConfig().getTranslation(
-                                    "neobans.disconnect.tempbanwithreason",
-                                    "player", plugin.getPlayerName(playerid),
-                                    "reason", reason,
-                                    "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
-                                    "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                            );
-                    String banbc = reason.isEmpty()
-                            ? plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.tempban",
-                                    "player", plugin.getPlayerName(playerid),
-                                    "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
-                                    "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                            )
-                            : plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.tempbanwithreason",
-                                    "player", plugin.getPlayerName(playerid),
-                                    "reason", reason,
-                                    "sender", sender.getName(),
-                                    "duration", tbe.getFormattedDuration(plugin.getLanguageConfig()),
-                                    "endtime", tbe.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                            );
-
-                    Entry entry = plugin.getPunishmentManager().addPunishment(tbe);
-                    if (entry.getType() != EntryType.FAILURE) {
-                        plugin.kickPlayer(sender, playerid, banmsg);
-                        BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("tempban");
-                        plugin.broadcast(sender, bd, banbc);
-                    } else {
-                        sender.sendMessage(entry.getReason());
+                        Entry entry = plugin.getPunishmentManager().addPunishment(tbe);
+                        if (entry.getType() != EntryType.FAILURE) {
+                            plugin.kickPlayer(sender, playerId, banmsg);
+                            BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("tempban");
+                            plugin.broadcast(sender, bd, banbc);
+                        } else {
+                            sender.sendMessage(entry.getReason());
+                        }
                     }
                 } catch (NumberFormatException e) {
                     sender.sendMessage("&c" + e.getMessage());

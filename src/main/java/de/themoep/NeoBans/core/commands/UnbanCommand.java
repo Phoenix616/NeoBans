@@ -8,6 +8,7 @@ import de.themoep.NeoBans.core.NeoBansPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,37 +25,46 @@ public class UnbanCommand extends AbstractCommand {
     @Override
     public void execute() {
         plugin.runAsync(() -> {
-            UUID playerId = plugin.getPlayerId(args[0]);
-            if (playerId == null) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", args[0]));
+            List<UUID> playerIds = new ArrayList<>();
+            for (String nameString : args[0].split(",")) {
+                UUID playerId = plugin.getPlayerId(nameString);
+                if (playerId == null) {
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", nameString));
+                } else {
+                    playerIds.add(playerId);
+                }
+            }
+            if (playerIds.isEmpty()) {
                 return;
             }
 
-            Entry entry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.BAN, EntryType.TEMPBAN);
-            if (entry == null) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", args[0]));
-                return;
-            }
-
-            if (entry instanceof PunishmentEntry) {
-                boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
-                String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
-                Entry removedEntry = plugin.getPunishmentManager().removePunishment((PunishmentEntry) entry, sender.getUniqueID(), reason);
-                if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
-                    sender.sendMessage(entry.getReason(), "player", args[0]);
+            for (UUID playerId : playerIds) {
+                Entry entry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.BAN, EntryType.TEMPBAN);
+                if (entry == null) {
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", args[0]));
                     return;
                 }
 
-                plugin.broadcast(sender,
-                        (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.unban",
-                                "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
-                                "sender", sender.getName()
-                        )
-                );
-            } else {
-                sender.sendMessage(entry.getReason(), "player", args[0]);
+                if (entry instanceof PunishmentEntry) {
+                    boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
+                    String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
+                    Entry removedEntry = plugin.getPunishmentManager().removePunishment((PunishmentEntry) entry, sender.getUniqueID(), reason);
+                    if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
+                        sender.sendMessage(entry.getReason(), "player", args[0]);
+                        return;
+                    }
+
+                    plugin.broadcast(sender,
+                            (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
+                            plugin.getLanguageConfig().getTranslation(
+                                    "neobans.message.unban",
+                                    "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
+                                    "sender", sender.getName()
+                            )
+                    );
+                } else {
+                    sender.sendMessage(entry.getReason(), "player", args[0]);
+                }
             }
         });
 
