@@ -36,12 +36,12 @@ public class UnjailCommand extends AbstractCommand {
                 return;
             }
 
+            boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
             for (UUID playerId : playerIds) {
-                boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
                 String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
                 Entry entry = plugin.getPunishmentManager().unjail(sender, playerId, reason, silent);
                 if (entry != null && entry.getType() == EntryType.FAILURE) {
-                    sender.sendMessage(entry.getReason(), "player", args[0]);
+                    sender.sendMessage(entry.getReason(), "player", plugin.getPlayerName(playerId));
                 }
             }
         });

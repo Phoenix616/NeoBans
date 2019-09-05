@@ -1,10 +1,10 @@
 package de.themoep.NeoBans.core.commands;
 
-import de.themoep.NeoBans.core.EntryType;
-import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.Entry;
+import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
+import de.themoep.NeoBans.core.PunishmentEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,20 +38,20 @@ public class UnbanCommand extends AbstractCommand {
                 return;
             }
 
+            boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
             for (UUID playerId : playerIds) {
                 Entry entry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.BAN, EntryType.TEMPBAN);
                 if (entry == null) {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", args[0]));
-                    return;
+                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", plugin.getPlayerName(playerId)));
+                    continue;
                 }
 
                 if (entry instanceof PunishmentEntry) {
-                    boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
                     String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
                     Entry removedEntry = plugin.getPunishmentManager().removePunishment((PunishmentEntry) entry, sender.getUniqueID(), reason);
                     if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
-                        sender.sendMessage(entry.getReason(), "player", args[0]);
-                        return;
+                        sender.sendMessage(entry.getReason(), "player", plugin.getPlayerName(playerId));
+                        continue;
                     }
 
                     plugin.broadcast(sender,
@@ -63,7 +63,7 @@ public class UnbanCommand extends AbstractCommand {
                             )
                     );
                 } else {
-                    sender.sendMessage(entry.getReason(), "player", args[0]);
+                    sender.sendMessage(entry.getReason(), "player", plugin.getPlayerName(playerId));
                 }
             }
         });
