@@ -370,6 +370,7 @@ public class MysqlManager implements DatabaseManager {
             ResultSet rs = sta.executeQuery();
 
             if (rs.next()) {
+                int dbId = rs.getInt("id");
                 UUID issuerId = UUID.fromString(rs.getString("issuerid"));
                 String reason = rs.getString("reason");
                 String comment = rs.getString("comment");
@@ -387,14 +388,22 @@ public class MysqlManager implements DatabaseManager {
                     type = endtime > 0 ? EntryType.TEMPBAN : EntryType.BAN;
                 }
 
+                PunishmentEntry entry;
                 switch (type) {
                     case JAIL:
-                        return new TimedPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
+                        entry = new TimedPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
+                        break;
                     case TEMPBAN:
-                        return new TemporaryPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
+                        entry = new TemporaryPunishmentEntry(type, id, issuerId, reason, comment, time, endtime);
+                        break;
                     case BAN:
-                        return new PunishmentEntry(type, id, issuerId, reason, comment, time);
+                        entry = new PunishmentEntry(type, id, issuerId, reason, comment, time);
+                        break;
+                    default:
+                        return new Entry(EntryType.FAILURE, "Unsupported entry type " + typeStr);
                 }
+                entry.setDbId(dbId);
+                return entry;
             }
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to get ban of player " + plugin.getPlayerName(id) + " from the ban table!");
