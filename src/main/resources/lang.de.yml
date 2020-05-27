@@ -1,16 +1,5 @@
 neobans:
-  usage:
-    plugincommand: "&cUsage: &e/%name% [reload|version]"
-    kickcommand: "&cUsage: &e/%name% <username> [<reason>]"
-    kickallcommand: "&cUsage: &e/%name% [server:<name>] [<reason>]"
-    bancommand: "&cUsage: &e/%name% <username> [<reason>]"
-    tempbancommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
-    unbancommand: "&cUsage: &e/%name% <username>"
-    jailcommand: "&cUsage: &e/%name% <username> <duration> [<reason>]"
-    unjailcommand: "&cUsage: &e/%name% <username>"
-    infocommand: "&cUsage: &e/%name% <username>"
-    editentrycommand: "&cUsage: &e/%name% <username> [duration|reason] <value>"
-    logcommand: "&cUsage: &e/%name% <username> [<page>]"
+  usage: "&cUsage: &e%usage%"
   disconnect:
     kick: "&cDu wurdest von &e%sender%&c gekickt!"
     kickwithreason: |

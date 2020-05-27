@@ -32,7 +32,7 @@ public class JailCommand extends AbstractCommand {
         plugin.runAsync(() -> {
             String toJail = args[0];
             String duration = args[1];
-            boolean silent = args.length > 2 && ("-silent".equalsIgnoreCase(args[2]) || "-s".equalsIgnoreCase(args[2]));
+            boolean silent = args.length > 2 && sender.hasPermission("neobans.silent") && ("-silent".equalsIgnoreCase(args[2]) || "-s".equalsIgnoreCase(args[2]));
             String reason = Arrays.stream(args).skip(silent ? 3 : 2).collect(Collectors.joining(" "));
 
             if (reason.length() < 140) {

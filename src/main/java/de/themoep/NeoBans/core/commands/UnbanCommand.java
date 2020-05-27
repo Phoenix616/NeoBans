@@ -38,7 +38,7 @@ public class UnbanCommand extends AbstractCommand {
                 return;
             }
 
-            boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
+            boolean silent = args.length > 1 && sender.hasPermission("neobans.silent") && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
             for (UUID playerId : playerIds) {
                 Entry entry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.BAN, EntryType.TEMPBAN);
                 if (entry == null) {

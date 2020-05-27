@@ -22,7 +22,7 @@ public class KickCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
+        boolean silent = args.length > 1 && sender.hasPermission("neobans.silent") && ("-silent".equalsIgnoreCase(args[1]) || "-s".equalsIgnoreCase(args[1]));
         String reason = Arrays.stream(args).skip(silent ? 2 : 1).collect(Collectors.joining(" "));
 
         for (String toKick : args[0].split(",")) {

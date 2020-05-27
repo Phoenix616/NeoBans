@@ -9,6 +9,7 @@ import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.NeoBans.core.storage.DatabaseManager;
 import de.themoep.NeoBans.core.storage.MysqlManager;
 
+import de.themoep.bungeeplugin.BungeePlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.Title;
@@ -17,7 +18,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.api.plugin.Plugin;
 
 import net.zaiyers.UUIDDB.bungee.UUIDDB;
 
@@ -32,7 +32,7 @@ import java.util.logging.Level;
 /**
  * Created by Phoenix616 on 09.02.2015.
  */
-public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
+public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
 
     /**
      * NeoBans config 
@@ -262,6 +262,11 @@ public class NeoBans extends Plugin implements NeoBansPlugin, Listener {
                 break;
             case SENDER:
                 sender.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + message);
+                for(ProxiedPlayer p : getProxy().getPlayers()) {
+                    if (!p.getUniqueId().equals(sender.getUniqueID()) && p.hasPermission("neobans.seesilent")) {
+                        p.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + message);
+                    }
+                }
                 break;
         }
         if (sender.isPlayer()) {

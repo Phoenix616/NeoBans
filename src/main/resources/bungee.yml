@@ -2,3 +2,110 @@ name: ${project.name}
 main: de.themoep.NeoBans.bungee.NeoBans
 version: '${minecraft.plugin.version}'
 author: Phoenix616
+commands:
+  neobans:
+    description: Main plugin command
+    usage: '/<command> reload|version'
+    permission: neobans.command.bans
+    permission-message: You don't have the permission <permission>
+  neoban:
+    aliases: [nban, ban]
+    description: Ban command
+    usage: '/<command> <user> [--silent] [<reason>]'
+    permission: neobans.command.ban
+    permission-message: You don't have the permission <permission>
+  neounban:
+    aliases: [nunban, unban]
+    description: Unban command
+    usage: '/<command> <user> [--silent]'
+    permission: neobans.command.unban
+    permission-message: You don't have the permission <permission>
+  neotempban:
+    aliases: [ntempban, tempban]
+    description: Temporary ban command
+    usage: '/<command> <user> [--silent] [<reason>]'
+    permission: neobans.command.tempban
+    permission-message: You don't have the permission <permission>
+  neojail:
+    aliases: [njail, jail]
+    description: Jail command
+    usage: '/<command> <user> [--silent] [<reason>]'
+    permission: neobans.command.jail
+    permission-message: You don't have the permission <permission>
+  neounjail:
+    aliases: [nunjail, unjail]
+    description: Unjail command
+    usage: '/<command> <user> [--silent]'
+    permission: neobans.command.unjail
+    permission-message: You don't have the permission <permission>
+  neokick:
+    aliases: [nkick, kick]
+    description: Kick command
+    usage: '/<command> <user> [--silent] [<reason>]'
+    permission: neobans.command.kick
+    permission-message: You don't have the permission <permission>
+  neokickall:
+    aliases: [nkickall, kickall]
+    description: Kick all online players without exempt permission
+    usage: '/<command> [server:<name>] [--silent] [<reason>]'
+    permission: neobans.command.kickall
+    permission-message: You don't have the permission <permission>
+  neoinfo:
+    aliases: [ninfo, baninfo, jailinfo]
+    description: Info command
+    usage: '/<command> <user>'
+    permission: neobans.command.info
+    permission-message: You don't have the permission <permission>
+  neoeditentry:
+    aliases: [neditentry, editentry, editjail, editban]
+    description: Edit command
+    usage: '/<command> <user> reason|endtime|duration <value>'
+    permission: neobans.command.editentry
+    permission-message: You don't have the permission <permission>
+  neolog:
+    aliases: [banlog]
+    description: Log command
+    usage: '/<command> <user> [<page>]'
+    permission: neobans.command.log
+    permission-message: You don't have the permission <permission>
+permissions:
+  neobans.silent:
+    description: Be able to execute silent actions
+  neobans.seesilent:
+    description: Get notified about silent actions
+  neobans.exempt.jail:
+    description: permission to not have jail limitations applied
+  neobans.exempt.jail.chat:
+    description: permission to not have jail chat limitations applied
+  neobans.command.bans:
+    description: Main command permission
+  neobans.command.ban:
+    description: ban command permission
+  neobans.command.tempban:
+    description: tempban command permission
+  neobans.command.unban:
+    description: unban command permission
+  neobans.command.jail:
+    description: jail command permission
+  neobans.command.unjail:
+    description: unjail command permission
+  neobans.command.kick:
+    description: kick command permission
+  neobans.command.kick.exempt:
+    description: permission which stops the player from getting kicked if not kicked by player with same permission
+  neobans.command.kickall:
+    description: kickall command permission
+  neobans.command.info:
+    description: info command permission
+  neobans.command.info.others:
+    description: permission to run info command on other players
+  neobans.command.info.ban:
+    description: permission to see bans in info command
+  neobans.command.info.jail:
+    description: permission to see jails in info command
+  neobans.command.info.comments:
+    description: permission to see comments in info command
+  neobans.command.info.previous:
+    description: permission to see previous amount of infrinctions in info command
+  neobans.command.log:
+    description: log command permission

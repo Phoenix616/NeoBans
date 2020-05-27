@@ -24,7 +24,7 @@ public class BanCommand extends AbstractCommand {
             boolean silent = false;
             if(args.length > 1) {
                 for (int i = 1; i < args.length; i++) {
-                    if(i == 1 && ("-silent".equalsIgnoreCase(args[i]) || "-s".equalsIgnoreCase(args[i]))) {
+                    if(i == 1 && sender.hasPermission("neobans.silent") && ("-silent".equalsIgnoreCase(args[i]) || "-s".equalsIgnoreCase(args[i]))) {
                         silent = true;
                     } else {
                         reason += args[i] + " ";

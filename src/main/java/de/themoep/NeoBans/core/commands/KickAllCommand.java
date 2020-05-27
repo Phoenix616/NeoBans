@@ -36,7 +36,7 @@ public class KickAllCommand extends AbstractCommand {
         } else {
             players.addAll(plugin.getOnlinePlayers());
         }
-        boolean silent = args.length > 1 && ("-silent".equalsIgnoreCase(args[reasonStart]) || "-s".equalsIgnoreCase(args[reasonStart]));
+        boolean silent = args.length > 1 && sender.hasPermission("neobans.silent") && ("-silent".equalsIgnoreCase(args[reasonStart]) || "-s".equalsIgnoreCase(args[reasonStart]));
         String reason = Arrays.stream(args).skip(silent ? reasonStart + 1 : reasonStart).collect(Collectors.joining(" "));
 
         for(String toKick : players) {

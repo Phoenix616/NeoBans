@@ -6,7 +6,7 @@
 
     <groupId>de.themoep</groupId>
     <artifactId>NeoBans</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,6 +15,10 @@
     </properties>
     
     <repositories>
+        <repository>
+            <id>minebench-repo</id>
+            <url>https://repo.minebench.de/</url>
+        </repository>
         <repository>
             <id>bungee-repo</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
@@ -25,7 +29,7 @@
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.12-SNAPSHOT</version>
+            <version>1.13-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -53,7 +57,7 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>bungeeplugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

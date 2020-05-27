@@ -2,10 +2,9 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.commands.NeoCommand;
 
+import de.themoep.bungeeplugin.PluginCommand;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.TabCompleteEvent;
-import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -16,18 +15,18 @@ import java.util.Arrays;
  * Based on zaiyers ChannelsCommandExecutor:
  * https://github.com/zaiyers/Channels/blob/master/src/main/java/net/zaiyers/Channels/name/ChannelsCommandExecutor.java
  */
-public class CommandExecutor extends Command implements Listener {
+public class CommandExecutor extends PluginCommand implements Listener {
 
     private final NeoBans plugin;
 
     public CommandExecutor(NeoBans plugin, String name) {
-        super(name.toLowerCase(), "neobans.command." + name.toLowerCase().replace("neo", ""), plugin.getConfig().getCommandAliases(name));
+        super(plugin, name.toLowerCase());
         this.plugin = plugin;
         plugin.getProxy().getPluginManager().registerListener(plugin, this);
     }
 
     @Override
-    public void execute(CommandSender commandSender, String[] args) {
+    public boolean run(CommandSender commandSender, String[] args) {
         Sender sender = new Sender(commandSender);
 
         NeoCommand cmd = plugin.getCommandMap().get(this.getName(), sender, args);
@@ -37,9 +36,7 @@ public class CommandExecutor extends Command implements Listener {
             if (cmd.validateInput()) {
                 cmd.execute();
             } else {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation(
-                        "neobans.usage." + cmd.getClass().getSimpleName().toLowerCase()
-                ), "name", getName());
+                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.usage", "usage", getUsage().replace("<command>", getName())));
             }
         } else {
             sender.sendMessage(plugin.getLanguageConfig().getTranslation(
@@ -47,6 +44,7 @@ public class CommandExecutor extends Command implements Listener {
                     "permission", this.getPermission()
             ));
         }
+        return true;
     }
 
     @EventHandler
