@@ -1,5 +1,6 @@
 package de.themoep.NeoBans.bungee;
 
+import de.themoep.NeoBans.bungee.integration.ServerListPlusIntegration;
 import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.NeoBansPlugin;
 import de.themoep.NeoBans.core.NeoUtils;
@@ -64,6 +65,10 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
             uuiddb = true;
 
         loadConfig();
+
+        if (getConfig().getBoolean("serverlistplus") && getProxy().getPluginManager().getPlugin("ServerListPlus") != null) {
+            new ServerListPlusIntegration(this);
+        }
 
         pm = new PunishmentManager(this);
         

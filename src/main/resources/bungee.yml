@@ -2,6 +2,7 @@ name: ${project.name}
 main: de.themoep.NeoBans.bungee.NeoBans
 version: '${minecraft.plugin.version}'
 author: Phoenix616
+softDepends: [UUIDDB,ServerListPlus]
 commands:
   neobans:
     description: Main plugin command

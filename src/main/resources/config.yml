@@ -3,7 +3,8 @@ jail:
   unjail-server: ''
   afk-kick-delay: 60
   afk-kick-contains: afk
-
+  
+serverlistplus: true
 backend: none
 mysql:
   user: username
