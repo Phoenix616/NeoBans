@@ -4,77 +4,35 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.themoep</groupId>
-    <artifactId>NeoBans</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <groupId>de.themoep.neobans</groupId>
+    <artifactId>parent</artifactId>
+    <version>parent</version>
+    <name>${plugin.name}</name>
+    <packaging>pom</packaging>
 
     <properties>
+        <plugin.name>NeoBans</plugin.name>
+        <plugin.version>0.6-SNAPSHOT</plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>${buildNumber}</build.number>
         <minecraft.plugin.version>${project.version} ${buildDescription}</minecraft.plugin.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    
+
+    <modules>
+        <module>core</module>
+        <module>bungee</module>
+        <module>plugin</module>
+    </modules>
+
     <repositories>
         <repository>
             <id>minebench-repo</id>
             <url>https://repo.minebench.de/</url>
         </repository>
-        <repository>
-            <id>bungee-repo</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
     </repositories>
-    
-    <dependencies>
-        <dependency>
-            <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-api</artifactId>
-            <version>1.15-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.zaiyers</groupId>
-            <artifactId>UUIDDB</artifactId>
-            <version>1.2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.minecrell</groupId>
-            <artifactId>ServerListPlus</artifactId>
-            <version>3.5.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.minecrell</groupId>
-            <artifactId>ServerListPlus</artifactId>
-            <version>3.5.0-SNAPSHOT</version>
-            <classifier>Bungee</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.25</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-            <version>2.1.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.themoep</groupId>
-            <artifactId>bungeeplugin</artifactId>
-            <version>1.2-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-    
+
     <profiles>
         <profile>
             <id>static_build_number</id>
@@ -102,57 +60,4 @@
         </profile>
     </profiles>
 
-    <build>
-        <finalName>${project.name}</finalName>
-        <resources>
-            <resource>
-                <filtering>true</filtering>
-                <directory>${project.basedir}/src/main/resources</directory>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
-                <configuration>
-                    <minimizeJar>true</minimizeJar>
-                    <relocations>
-                        <relocation>
-                            <pattern>org.slf4j</pattern>
-                            <shadedPattern>de.themoep.NeoBans.lib.slf4j</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>com.zaxxer.hikari</pattern>
-                            <shadedPattern>de.themoep.NeoBans.lib.hikari</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>de.themoep.bungeeplugin</pattern>
-                            <shadedPattern>de.themoep.NeoBans.bungee</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.mariadb.jdbc</pattern>
-                            <shadedPattern>de.themoep.NeoBans.lib.mariadb</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

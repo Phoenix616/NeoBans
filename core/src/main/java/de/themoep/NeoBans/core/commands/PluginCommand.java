@@ -1,7 +1,6 @@
 package de.themoep.NeoBans.core.commands;
 
 import de.themoep.NeoBans.core.NeoBansPlugin;
-import net.md_5.bungee.api.ChatColor;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,9 +19,9 @@ public class PluginCommand extends AbstractCommand {
     public void execute() {
         if("reload".equalsIgnoreCase(args[0])) {
             plugin.loadConfig();
-            sender.sendMessage(ChatColor.GREEN + plugin.getName() + " config reloaded!");
+            sender.sendMessage(plugin.getName() + " config reloaded!");
         } else  if ("version".equalsIgnoreCase(args[0])) {
-            sender.sendMessage(ChatColor.GREEN + plugin.getName() + " " + plugin.getVersion() + "");
+            sender.sendMessage(plugin.getName() + " " + plugin.getVersion() + "");
         }
     }
 
