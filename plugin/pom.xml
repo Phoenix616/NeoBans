@@ -37,7 +37,7 @@
                 <version>3.2.3</version>
                 <configuration>
                     <minimizeJar>true</minimizeJar>
-                    <!--<relocations>
+                    <relocations>
                         <relocation>
                             <pattern>org.slf4j</pattern>
                             <shadedPattern>de.themoep.NeoBans.lib.slf4j</shadedPattern>
@@ -54,7 +54,7 @@
                             <pattern>org.mariadb.jdbc</pattern>
                             <shadedPattern>de.themoep.NeoBans.lib.mariadb</shadedPattern>
                         </relocation>
-                    </relocations>-->
+                    </relocations>
                 </configuration>
                 <executions>
                     <execution>
