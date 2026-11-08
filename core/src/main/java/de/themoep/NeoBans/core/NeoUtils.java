@@ -1,6 +1,6 @@
 package de.themoep.NeoBans.core;
 
-import de.themoep.NeoBans.core.config.NeoLanguageConfig;
+import de.themoep.utils.lang.LanguageConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,7 @@ public class NeoUtils {
      *                  if null it will use the same short format that {@link NeoUtils#getDurationFromString} accepts
      * @return          A formatted string
      */
-    public static String formatDuration(long duration, NeoLanguageConfig lang) {
+    public static String formatDuration(long duration, LanguageConfig lang) {
         int seconds = (int) (duration % 60);
         int minutes = (int) (TimeUnit.SECONDS.toMinutes(duration) % 60);
         int hours = (int) (TimeUnit.SECONDS.toHours(duration) % 24);
@@ -87,39 +87,39 @@ public class NeoUtils {
 
         if(years > 0)
             if(years == 1)
-                stringList.add(years + (lang == null ? "y" : " " + lang.getTranslation("time.year")));
+                stringList.add(years + (lang == null ? "y" : " " + lang.get("time.year")));
             else
-                stringList.add(years + (lang == null ? "y" : " " + lang.getTranslation("time.years")));
+                stringList.add(years + (lang == null ? "y" : " " + lang.get("time.years")));
 
         if(months > 0)
             if(months == 1)
-                stringList.add(months + (lang == null ? "mo" : " " + lang.getTranslation("time.month")));
+                stringList.add(months + (lang == null ? "mo" : " " + lang.get("time.month")));
             else
-                stringList.add(months + (lang == null ? "mo" : " " + lang.getTranslation("time.months")));
+                stringList.add(months + (lang == null ? "mo" : " " + lang.get("time.months")));
 
         if(days > 0)
             if(days == 1)
-                stringList.add(days + (lang == null ? "d" : " " + lang.getTranslation("time.day")));
+                stringList.add(days + (lang == null ? "d" : " " + lang.get("time.day")));
             else
-                stringList.add(days + (lang == null ? "d" : " " + lang.getTranslation("time.days")));
+                stringList.add(days + (lang == null ? "d" : " " + lang.get("time.days")));
 
         if(hours > 0)
             if(hours == 1)
-                stringList.add(hours + (lang == null ? "h" : " " + lang.getTranslation("time.hour")));
+                stringList.add(hours + (lang == null ? "h" : " " + lang.get("time.hour")));
             else
-                stringList.add(hours + (lang == null ? "h" : " " + lang.getTranslation("time.hours")));
+                stringList.add(hours + (lang == null ? "h" : " " + lang.get("time.hours")));
 
         if(minutes > 0)
             if(minutes == 1)
-                stringList.add(minutes + (lang == null ? "m" : " " + lang.getTranslation("time.minute")));
+                stringList.add(minutes + (lang == null ? "m" : " " + lang.get("time.minute")));
             else
-                stringList.add(minutes + (lang == null ? "m" : " " + lang.getTranslation("time.minutes")));
+                stringList.add(minutes + (lang == null ? "m" : " " + lang.get("time.minutes")));
 
         if(stringList.isEmpty() || seconds > 0)
             if(seconds == 1)
-                stringList.add(seconds + (lang == null ? "s" : " " + lang.getTranslation("time.second")));
+                stringList.add(seconds + (lang == null ? "s" : " " + lang.get("time.second")));
             else
-                stringList.add(seconds + (lang == null ? "s" : " " + lang.getTranslation("time.seconds")));
+                stringList.add(seconds + (lang == null ? "s" : " " + lang.get("time.seconds")));
 
         StringBuilder ft = new StringBuilder(stringList.get(0));
         for(int i = 1; i < stringList.size(); i++) {

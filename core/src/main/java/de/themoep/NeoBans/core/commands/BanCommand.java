@@ -38,7 +38,7 @@ public class BanCommand extends AbstractCommand {
                 for (String nameString : toBan.split(",")) {
                     UUID playerId = plugin.getPlayerId(nameString);
                     if (playerId == null) {
-                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", nameString));
+                        sender.sendTranslation("neobans.error.uuidnotfound", "player", nameString);
                     } else {
                         playerIds.add(playerId);
                     }
@@ -49,24 +49,17 @@ public class BanCommand extends AbstractCommand {
                 for (UUID playerId : playerIds) {
                     PunishmentEntry be = new PunishmentEntry(EntryType.BAN, playerId, sender.getUniqueID(), reason);
 
-                    String banmsg = (reason.isEmpty())
-                            ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.ban", "player", plugin.getPlayerName(playerId), "sender", sender.getName())
-                            : plugin.getLanguageConfig().getTranslation("neobans.disconnect.banwithreason", "player", plugin.getPlayerName(playerId), "reason", reason, "sender", sender.getName());
-                    String banbc = (reason.isEmpty())
-                            ? plugin.getLanguageConfig().getTranslation("neobans.message.ban", "player", plugin.getPlayerName(playerId), "sender", sender.getName())
-                            : plugin.getLanguageConfig().getTranslation("neobans.message.banwithreason", "player", plugin.getPlayerName(playerId), "reason", reason, "sender", sender.getName());
-
                     Entry entry = plugin.getPunishmentManager().addPunishment(be);
                     if (entry.getType() != EntryType.FAILURE) {
-                        plugin.kickPlayer(sender, playerId, banmsg);
+                        plugin.kickPlayer(sender, playerId, "neobans.disconnect.ban" + (reason.isEmpty() ? "" : "withreason"), "sender", sender.getName(), "reason", reason);
                         BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("ban");
-                        plugin.broadcast(sender, bd, banbc);
+                        plugin.broadcast(sender, bd, "neobans.message.ban" + (reason.isEmpty() ? "" : "withreason"), "sender", sender.getName(), "reason", reason);
                     } else {
                         sender.sendMessage(entry.getReason());
                     }
                 }
             } else {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", "player", toBan, "reason", reason));
+                sender.sendTranslation("neobans.error.reasontoolong", "player", toBan, "reason", reason);
             }
         });
     }

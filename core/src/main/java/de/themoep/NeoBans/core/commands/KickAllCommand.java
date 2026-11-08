@@ -21,7 +21,7 @@ public class KickAllCommand extends AbstractCommand {
 
     @Override
     public void execute() {
-        List<String> players = new ArrayList<String>();
+        List<String> players = new ArrayList<>();
         String serverName = "";
         int reasonStart = 0;
         if(args.length > 0 && (args[0].toLowerCase().startsWith("server:") || args[0].toLowerCase().startsWith("world:"))) {
@@ -29,7 +29,7 @@ public class KickAllCommand extends AbstractCommand {
             try {
                 players.addAll(plugin.getOnlinePlayers(serverName));
             } catch(NoSuchElementException e) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notfound", "value", serverName));
+                sender.sendTranslation("neobans.error.notfound", "value", serverName);
                 return;
             }
             reasonStart = 1;
@@ -40,20 +40,14 @@ public class KickAllCommand extends AbstractCommand {
         String reason = Arrays.stream(args).skip(silent ? reasonStart + 1 : reasonStart).collect(Collectors.joining(" "));
 
         for(String toKick : players) {
-            String kickmsg = reason.isEmpty()
-                    ? plugin.getLanguageConfig().getTranslation("neobans.disconnect.kick", "player", toKick, "sender", sender.getName())
-                    : plugin.getLanguageConfig().getTranslation("neobans.disconnect.kickwithreason", "player", toKick, "reason", reason, "sender", sender.getName());
-            if(plugin.kickPlayer(sender, toKick, kickmsg) == -1) {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.kicknotallowed", "player", toKick));
+            if (plugin.kickPlayer(sender, toKick, "neobans.disconnect.kick" + (reason.isEmpty() ? "" : "withreason"),
+                    "player", toKick, "reason", reason, "sender", sender.getName()) == -1) {
+                sender.sendMessage("neobans.error.kicknotallowed", "player", toKick);
             }
         }
-        String kickbc = serverName.isEmpty()
-                ? plugin.getLanguageConfig().getTranslation("neobans.message.kickall", "sender", sender.getName())
-                : plugin.getLanguageConfig().getTranslation("neobans.message.kickallserver", "server", serverName, "sender", sender.getName());
-
-        if(!reason.isEmpty()) {
-            kickbc += plugin.getLanguageConfig().getTranslation("neobans.message.kickallreason", "reason", reason);
-        }
+        String kickBroadcastLang = serverName.isEmpty()
+                ? ("neobans.message.kickall" + (reason.isEmpty() ? "" : "withreason"))
+                : ("neobans.message.kickallserver" + (reason.isEmpty() ? "" : "withreason"));
 
         BroadcastDestination bd = serverName.isEmpty()
                 ? plugin.getConfig().getBroadcastDestination("kickall")
@@ -63,9 +57,9 @@ public class KickAllCommand extends AbstractCommand {
             bd = BroadcastDestination.SENDER;
         }
         if(bd != BroadcastDestination.SERVER || serverName.isEmpty()) {
-            plugin.broadcast(sender, bd, kickbc);
+            plugin.broadcast(sender, bd, kickBroadcastLang, "sender", sender.getName(), "server", serverName, "reason", reason);
         } else {
-            plugin.broadcast(sender, serverName, kickbc);
+            plugin.broadcast(sender, serverName, kickBroadcastLang, "sender", sender.getName(), "server", serverName, "reason", reason);
         }
         
     }

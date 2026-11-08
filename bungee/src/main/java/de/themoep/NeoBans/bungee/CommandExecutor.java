@@ -2,6 +2,7 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.commands.NeoCommand;
 
+import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.bungeeplugin.PluginCommand;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.event.TabCompleteEvent;
@@ -27,7 +28,7 @@ public class CommandExecutor extends PluginCommand implements Listener {
 
     @Override
     public boolean run(CommandSender commandSender, String[] args) {
-        Sender sender = new Sender(commandSender);
+        NeoSender sender = plugin.createSender(commandSender);
 
         NeoCommand cmd = plugin.getCommandMap().get(this.getName(), sender, args);
 
@@ -36,13 +37,12 @@ public class CommandExecutor extends PluginCommand implements Listener {
             if (cmd.validateInput()) {
                 cmd.execute();
             } else {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.usage", "usage", getUsage().replace("<command>", getName())));
+                sender.sendMessage(plugin.getLanguageManager().getConfig(commandSender).get("neobans.usage"), "usage", getUsage().replace("<command>", getName()));
             }
         } else {
-            sender.sendMessage(plugin.getLanguageConfig().getTranslation(
-                    "neobans.error.nopermission",
+            sender.sendMessage(plugin.getLanguageManager().getConfig(commandSender).get("neobans.error.nopermission"),
                     "permission", this.getPermission()
-            ));
+            );
         }
         return true;
     }
@@ -60,7 +60,7 @@ public class CommandExecutor extends PluginCommand implements Listener {
             args = new String[]{};
 
         if (cmd.equals(this.getName()) || Arrays.asList(getAliases()).contains(cmd)) {
-            Sender sender = new Sender((CommandSender) event.getSender());
+            NeoSender sender = plugin.createSender((CommandSender) event.getSender());
             event.getSuggestions().clear();
             event.getSuggestions().addAll(plugin.getCommandMap().get(this.getName(), sender, args).getTabSuggestions(event.getCursor()));
         } else if (args.length == 0)

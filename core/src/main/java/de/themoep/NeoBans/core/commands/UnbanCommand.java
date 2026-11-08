@@ -29,7 +29,7 @@ public class UnbanCommand extends AbstractCommand {
             for (String nameString : args[0].split(",")) {
                 UUID playerId = plugin.getPlayerId(nameString);
                 if (playerId == null) {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", nameString));
+                    sender.sendTranslation("neobans.error.uuidnotfound", "player", nameString);
                 } else {
                     playerIds.add(playerId);
                 }
@@ -42,7 +42,7 @@ public class UnbanCommand extends AbstractCommand {
             for (UUID playerId : playerIds) {
                 Entry entry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.BAN, EntryType.TEMPBAN);
                 if (entry == null) {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", plugin.getPlayerName(playerId)));
+                    sender.sendTranslation("neobans.error.notbanned", "player", plugin.getPlayerName(playerId));
                     continue;
                 }
 
@@ -56,11 +56,9 @@ public class UnbanCommand extends AbstractCommand {
 
                     plugin.broadcast(sender,
                             (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unban"),
-                            plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.unban",
-                                    "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
-                                    "sender", sender.getName()
-                            )
+                            "neobans.message.unban",
+                            "player", plugin.getPlayerName(((PunishmentEntry) entry).getPunished()),
+                            "sender", sender.getName()
                     );
                 } else {
                     sender.sendMessage(entry.getReason(), "player", plugin.getPlayerName(playerId));

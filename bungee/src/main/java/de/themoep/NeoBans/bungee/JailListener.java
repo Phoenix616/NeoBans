@@ -4,6 +4,7 @@ import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.PunishmentEntry;
 import de.themoep.NeoBans.core.TimedPunishmentEntry;
+import de.themoep.NeoBans.core.commands.NeoSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -43,26 +44,29 @@ public class JailListener implements Listener {
 
         if (event.getPlayer().getServer() == null) { // Is join
             Entry entry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
-            if (entry == null || entry.getType() != EntryType.JAIL) {
+            if (entry == null || entry.getType() != EntryType.JAIL || !(entry instanceof TimedPunishmentEntry timedPunishment)) {
                 return;
             }
 
             ServerInfo server = plugin.getProxy().getServerInfo(plugin.getConfig().getJailServer());
             if (server != null) {
                 event.setTarget(server);
-                plugin.getProxy().getScheduler().schedule(plugin, () -> plugin.sendTitle(event.getPlayer().getUniqueId(), getMessage(event.getPlayer(), (TimedPunishmentEntry) entry, "join")), 5, TimeUnit.SECONDS);
+                plugin.getProxy().getScheduler().schedule(plugin,
+                        () -> plugin.sendTitle(event.getPlayer().getUniqueId(), getLangKey(timedPunishment, "join"),
+                                getReplacements(plugin.createSender(event.getPlayer()), timedPunishment)),
+                        5, TimeUnit.SECONDS);
                 startNoticeTask(((PunishmentEntry) entry).getPunished());
             } else {
                 event.setCancelled(true);
-                event.getPlayer().disconnect(TextComponent.fromLegacyText(getMessage(event.getPlayer(), (TimedPunishmentEntry) entry, "join")));
+                plugin.kickPlayer(null, event.getPlayer(), getLangKey(timedPunishment, "join"), getReplacements(plugin.createSender(event.getPlayer()), timedPunishment));
             }
 
         } else if (event.getPlayer().getServer().getInfo().getName().equals(plugin.getConfig().getJailServer())) { // Player is on jail server
             Entry entry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
-            if (entry != null && entry.getType() == EntryType.JAIL) {
+            if (entry != null && entry.getType() == EntryType.JAIL && entry instanceof TimedPunishmentEntry timedPunishment) {
                 event.setTarget(event.getPlayer().getServer().getInfo());
                 event.setCancelled(true);
-                plugin.sendTitle(event.getPlayer().getUniqueId(), getMessage(event.getPlayer(), (TimedPunishmentEntry) entry, "join"));
+                plugin.sendTitle(event.getPlayer().getUniqueId(), getLangKey(timedPunishment, "join"), getReplacements(plugin.createSender(event.getPlayer()), timedPunishment));
             }
         } else if (event.getTarget().getName().equalsIgnoreCase(plugin.getConfig().getJailServer())) { // Player switches to jail server (e.g. because he was jailed)
             Entry entry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
@@ -88,13 +92,13 @@ public class JailListener implements Listener {
                     Entry currentEntry = plugin.getPunishmentManager().getPunishment(playerId, EntryType.JAIL);
                     if (currentEntry == null) {
                         it.remove();
-                    } else if (currentEntry.getType() == EntryType.JAIL) {
-                        ((TimedPunishmentEntry) currentEntry).setDuration(((TimedPunishmentEntry) currentEntry).getDuration() - 60);
-                        if (((TimedPunishmentEntry) currentEntry).isExpired()) {
+                    } else if (currentEntry.getType() == EntryType.JAIL && currentEntry instanceof TimedPunishmentEntry timedPunishment) {
+                        timedPunishment.setDuration(timedPunishment.getDuration() - 60);
+                        if (timedPunishment.isExpired()) {
                             it.remove();
-                            plugin.getPunishmentManager().unjail(new Sender(plugin.getProxy().getConsole()), playerId, "Expired", true);
+                            plugin.getPunishmentManager().unjail(plugin.createSender(plugin.getProxy().getConsole()), playerId, "Expired", true);
                         } else {
-                            plugin.sendTitle(playerId, getMessage(player, (TimedPunishmentEntry) currentEntry, "join"));
+                            plugin.sendTitle(playerId, getLangKey(timedPunishment, "join"), getReplacements(plugin.createSender(player), timedPunishment));
                         }
                     }
                 }
@@ -110,9 +114,9 @@ public class JailListener implements Listener {
     public void onPlayerKick(ServerKickEvent event) {
         if (event.getKickedFrom().getName().equals(plugin.getConfig().getJailServer()) && TextComponent.toPlainText(event.getKickReasonComponent()).contains(plugin.getConfig().getAfkKickString())) {
             Entry currentEntry = plugin.getPunishmentManager().getPunishment(event.getPlayer().getUniqueId(), EntryType.JAIL);
-            if (currentEntry != null && currentEntry.getType() == EntryType.JAIL) {
-                ((TimedPunishmentEntry) currentEntry).setDuration(((TimedPunishmentEntry) currentEntry).getDuration() + plugin.getConfig().getAfkKickDelay());
-                event.getPlayer().disconnect(getMessage(event.getPlayer(), (TimedPunishmentEntry) currentEntry, "disconnect"));
+            if (currentEntry != null && currentEntry.getType() == EntryType.JAIL && currentEntry instanceof TimedPunishmentEntry timedPunishment) {
+                timedPunishment.setDuration(timedPunishment.getDuration() + plugin.getConfig().getAfkKickDelay());
+                plugin.kickPlayer(null, event.getPlayer(), getLangKey(timedPunishment, "disconnect"), getReplacements(plugin.createSender(event.getPlayer()), timedPunishment));
             }
         }
     }
@@ -138,16 +142,24 @@ public class JailListener implements Listener {
         }
 
         Entry entry = plugin.getPunishmentManager().getPunishment(((ProxiedPlayer) event.getSender()).getUniqueId(), EntryType.JAIL);
-        if (entry != null && entry.getType() == EntryType.JAIL) {
+        if (entry != null && entry.getType() == EntryType.JAIL && entry instanceof TimedPunishmentEntry timedPunishment) {
             event.setCancelled(true);
 
-            plugin.sendTitle(((ProxiedPlayer) event.getSender()).getUniqueId(), getMessage((ProxiedPlayer) event.getSender(), (TimedPunishmentEntry) entry, "join"));
+            NeoSender sender = plugin.createSender(((ProxiedPlayer) event.getSender()));
+            plugin.sendTitle(((ProxiedPlayer) event.getSender()).getUniqueId(), getLangKey(timedPunishment, "join"), getReplacements(sender, timedPunishment));
         }
     }
 
-    private String getMessage(ProxiedPlayer player, TimedPunishmentEntry timedPunishment, String type) {
-        return (timedPunishment.getReason().isEmpty())
-                ? plugin.getLanguageConfig().getTranslation("neobans." + type + ".jailed", "player", player.getName(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig()), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")))
-                : plugin.getLanguageConfig().getTranslation("neobans." + type + ".jailedwithreason", "player", player.getName(), "reason", timedPunishment.getReason(), "duration", timedPunishment.getFormattedDuration(plugin.getLanguageConfig()), "endtime", timedPunishment.getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
+    private String[] getReplacements(NeoSender sender, TimedPunishmentEntry timedPunishment) {
+        return new String[]{
+                "player", sender.getName(),
+                "reason", timedPunishment.getReason(),
+                "duration", timedPunishment.getFormattedDuration(sender.getLanguageConfig()),
+                "endtime", timedPunishment.getEndtime(sender.getLanguageConfig().get("time.format"))
+        };
+    }
+
+    private String getLangKey(TimedPunishmentEntry timedPunishment, String type) {
+        return timedPunishment.getReason().isEmpty() ? "neobans." + type + ".jailed" : "neobans." + type + ".jailedwithreason";
     }
 }

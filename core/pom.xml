@@ -51,6 +51,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>de.themoep.utils</groupId>
+            <artifactId>lang-core</artifactId>
+            <version>${dependency.version.lang}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.7.1-jre</version>

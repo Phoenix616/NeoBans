@@ -1,5 +1,7 @@
 package de.themoep.NeoBans.core.commands;
 
+import de.themoep.utils.lang.LanguageConfig;
+
 import java.util.UUID;
 
 /**
@@ -32,6 +34,12 @@ public interface NeoSender {
     UUID getUniqueID();
 
     /**
+     * Get the language config for this sender
+     * @return The language config
+     */
+    LanguageConfig<?> getLanguageConfig();
+
+    /**
      * Get whether or not the sender has the permission given in the string
      * @param perm The permission to check for
      * @return True if sender has the permission, false if not
@@ -39,10 +47,11 @@ public interface NeoSender {
     boolean hasPermission(String perm);
 
     /**
-     * Sends a message to a sender
-     * @param message The message string to send
+     * Directly send translations to the sender
+     * @param langKey       The language key to get the message for
+     * @param replacements  The replacements
      */
-    void sendMessage(String message);
+    void sendTranslation(String langKey, String... replacements);
 
     /**
      * Sends a message to a sender and replace placeholder

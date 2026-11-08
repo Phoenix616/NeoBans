@@ -1,10 +1,11 @@
 package de.themoep.NeoBans.core;
 
-import de.themoep.NeoBans.core.config.NeoLanguageConfig;
+import de.themoep.utils.lang.LanguageConfig;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by Phoenix616 on 12.02.2015.
@@ -95,7 +96,7 @@ public class TemporaryPunishmentEntry extends PunishmentEntry {
      * @param lang The language config to use for formatting, if it is null it will use a short, english format
      * @return The formatted duration string
      */
-    public String getFormattedDuration(NeoLanguageConfig lang) {
+    public String getFormattedDuration(LanguageConfig lang) {
         long duration = (endtime - System.currentTimeMillis() / 1000);
         return NeoUtils.formatDuration(duration, lang);
     }

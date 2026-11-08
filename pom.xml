@@ -12,7 +12,8 @@
 
     <properties>
         <plugin.name>NeoBans</plugin.name>
-        <plugin.version>0.6-SNAPSHOT</plugin.version>
+        <plugin.version>0.7-SNAPSHOT</plugin.version>
+        <dependency.version.lang>1.3-SNAPSHOT</dependency.version.lang>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>${buildNumber}</build.number>
         <minecraft.plugin.version>${project.version} ${buildDescription}</minecraft.plugin.version>

@@ -187,7 +187,7 @@ public class MysqlManager implements DatabaseManager {
                     logList.add(new LogEntry(type, entryPlayerId, issuerId, message, timestamp.getTime() / 1000));
                 } catch (IllegalArgumentException e) {
                     plugin.getLogger().log(Level.SEVERE, "Unknown entry type " + rs.getString("type") + " while loading log entry!");
-                    logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
+                    logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get(
                             "neobans.error.unknownentrytype",
                             "type", typeStr
                     )));
@@ -195,7 +195,7 @@ public class MysqlManager implements DatabaseManager {
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error while trying to get the log entries on page " + page + " for player " + playerId + "!", e);
-            logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation(
+            logList.add(new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get(
                     "neobans.error.database"
             )));
         }
@@ -278,7 +278,7 @@ public class MysqlManager implements DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to add ban for player " + plugin.getPlayerName(entry.getPunished()) + " to the ban table!");
             e.printStackTrace();
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get("neobans.error.database"));
         }
         return entry;
     }
@@ -300,7 +300,7 @@ public class MysqlManager implements DatabaseManager {
             if (punishment instanceof TimedPunishmentEntry) {
                 msg.add("Rest duration: " + ((TimedPunishmentEntry) punishment).getFormattedDuration());
             } else if (punishment instanceof TemporaryPunishmentEntry) {
-                msg.add("Orig. endtime: " + ((TemporaryPunishmentEntry) punishment).getEndtime(plugin.getLanguageConfig().getTranslation("time.format")));
+                msg.add("Orig. endtime: " + ((TemporaryPunishmentEntry) punishment).getEndtime(plugin.getLanguageManager().getDefaultConfig().get("time.format")));
             }
             log(EntryType.REMOVED, punishment.getPunished(), invokeId, msg.stream().collect(Collectors.joining(", ")));
         }
@@ -320,7 +320,7 @@ public class MysqlManager implements DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to delete ban of player " + plugin.getPlayerName(punishment.getPunished()) + " (BanID: " + punishment.getDbId() + ") from the ban table!");
             e.printStackTrace();
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get("neobans.error.database"));
         }
         return punishment;
     }
@@ -408,7 +408,7 @@ public class MysqlManager implements DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().severe("Encountered SQLException while trying to get ban of player " + plugin.getPlayerName(id) + " from the ban table!");
             e.printStackTrace();
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+            return new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get("neobans.error.database"));
         }
         return null;
     }

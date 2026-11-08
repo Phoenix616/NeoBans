@@ -32,36 +32,24 @@ public class LogCommand extends AbstractCommand {
                     try {
                         page = Integer.parseInt(args[1]);
                     } catch (NumberFormatException e) {
-                        sender.sendMessage(
-                                plugin.getLanguageConfig().getTranslation(
-                                        "neobans.error.notanumber",
-                                        "value", args[1]
-                                )
-                        );
+                        sender.sendTranslation( "neobans.error.notanumber",
+                                        "value", args[1]);
                         return;
                     }
                 }
 
                 if (page <= 0) {
-                    sender.sendMessage(
-                            plugin.getLanguageConfig().getTranslation(
-                                    "neobans.error.numbertoosmall",
-                                    "value", Integer.toString(page)
-                            )
-                    );
+                    sender.sendTranslation("neobans.error.numbertoosmall",
+                                    "value", Integer.toString(page));
                 }
 
                 List<Entry> entries = plugin.getDatabaseManager().getLogEntries(playerId, page - 1, 5);
 
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.message.log.head",
+                sender.sendTranslation("neobans.message.log.head",
                                 "player", args[0],
-                                "page", Integer.toString(page)
-                        )
-                );
+                                "page", Integer.toString(page));
 
-                if (entries.size() > 0) {
+                if (!entries.isEmpty()) {
                     for (Entry entry : entries) {
                         if (entry.getType() == EntryType.FAILURE) {
                             sender.sendMessage("&6" + entry.getReason());
@@ -71,41 +59,22 @@ public class LogCommand extends AbstractCommand {
                                     "Console" : plugin.getPlayerName(logEntry.getPlayerId());
                             String issuer = logEntry.getIssuerId().equals(new UUID(0, 0)) ?
                                     "Console" : plugin.getPlayerName(logEntry.getIssuerId());
-                            sender.sendMessage(
-                                    plugin.getLanguageConfig().getTranslation(
-                                            "neobans.message.log.entry",
-                                            "type", logEntry.getType().toString(),
-                                            "reason", logEntry.getReason(),
-                                            "time", logEntry.getTime(plugin.getLanguageConfig().getTranslation("time.format")),
-                                            "player", player != null ? player : logEntry.getPlayerId().toString(),
-                                            "issuer", issuer != null ? issuer : logEntry.getIssuerId().toString()
-                                    )
-                            );
+                            sender.sendTranslation("neobans.message.log.entry",
+                                    "type", logEntry.getType().toString(),
+                                    "reason", logEntry.getReason(),
+                                    "time", logEntry.getTime(sender.getLanguageConfig().get("time.format")),
+                                    "player", player != null ? player : logEntry.getPlayerId().toString(),
+                                    "issuer", issuer != null ? issuer : logEntry.getIssuerId().toString());
                         } else {
-                            sender.sendMessage(
-                                    plugin.getLanguageConfig().getTranslation(
-                                            "neobans.error.unknownentrytype",
-                                            "type", entry.getType().toString()
-                                    )
-                            );
+                            sender.sendTranslation("neobans.error.unknownentrytype", "type", entry.getType().toString());
                         }
                     }
                 } else {
-                    sender.sendMessage(
-                            plugin.getLanguageConfig().getTranslation(
-                                    "neobans.message.log.noentries",
-                                    "player", args[0]
-                            )
-                    );
+                    sender.sendTranslation("neobans.message.log.noentries", "player", args[0]);
                 }
 
             } else {
-                sender.sendMessage(
-                        plugin.getLanguageConfig().getTranslation(
-                                "neobans.error.uuidnotfound",
-                                "player", args[0]
-                        )
-                );
+                sender.sendTranslation("neobans.error.uuidnotfound", "player", args[0]);
             }
         });
     }

@@ -4,7 +4,6 @@ import de.themoep.NeoBans.core.BroadcastDestination;
 import de.themoep.NeoBans.core.Entry;
 import de.themoep.NeoBans.core.EntryType;
 import de.themoep.NeoBans.core.NeoBansPlugin;
-import de.themoep.NeoBans.core.TemporaryPunishmentEntry;
 import de.themoep.NeoBans.core.TimedPunishmentEntry;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class JailCommand extends AbstractCommand {
     @Override
     public void execute() {
         if (plugin.getConfig().getJailServer().isEmpty()) {
-            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.nojaildefined", "player", args[0]));
+            sender.sendTranslation("neobans.error.nojaildefined", "player", args[0]);
             return;
         }
         plugin.runAsync(() -> {
@@ -41,7 +40,7 @@ public class JailCommand extends AbstractCommand {
                     for (String nameString : toJail.split(",")) {
                         UUID playerId = plugin.getPlayerId(nameString);
                         if (playerId == null) {
-                            sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", nameString));
+                            sender.sendTranslation("neobans.error.uuidnotfound", "player", nameString);
                         } else {
                             playerIds.add(playerId);
                         }
@@ -52,45 +51,24 @@ public class JailCommand extends AbstractCommand {
                     for (UUID playerId : playerIds) {
                         TimedPunishmentEntry jailEntry = new TimedPunishmentEntry(EntryType.JAIL, playerId, sender.getUniqueID(), reason, duration);
 
-                        String jailMsg = reason.isEmpty()
-                                ? plugin.getLanguageConfig().getTranslation(
-                                        "neobans.title.jailed",
-                                        "player", plugin.getPlayerName(playerId),
-                                        "sender", sender.getName(),
-                                        "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
-                                        "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                                )
-                                : plugin.getLanguageConfig().getTranslation(
-                                        "neobans.title.jailedwithreason",
-                                        "player", plugin.getPlayerName(playerId),
-                                        "reason", reason,
-                                        "sender", sender.getName(),
-                                        "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
-                                        "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                                );
-                        String jailBc = reason.isEmpty()
-                                ? plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.jail",
-                                        "player", plugin.getPlayerName(playerId),
-                                        "sender", sender.getName(),
-                                        "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
-                                        "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                                )
-                                : plugin.getLanguageConfig().getTranslation(
-                                        "neobans.message.jailwithreason",
-                                        "player", plugin.getPlayerName(playerId),
-                                        "reason", reason,
-                                        "sender", sender.getName(),
-                                        "duration", jailEntry.getFormattedDuration(plugin.getLanguageConfig()),
-                                        "endtime", jailEntry.getEndtime(plugin.getLanguageConfig().getTranslation("time.format"))
-                                );
-
                         Entry entry = plugin.getPunishmentManager().addPunishment(jailEntry);
                         if (entry.getType() != EntryType.FAILURE) {
                             plugin.movePlayer(playerId, plugin.getConfig().getJailServer());
-                            plugin.runLater(() -> plugin.sendTitle(playerId, jailMsg), 100);
+                            plugin.runLater(() -> plugin.sendTitle(playerId, reason.isEmpty() ? "neobans.title.jailed" : "neobans.title.jailedwithreason",
+                                    "player", plugin.getPlayerName(playerId),
+                                    "reason", reason,
+                                    "sender", sender.getName(),
+                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageManager().getDefaultConfig()),
+                                    "endtime", jailEntry.getEndtime(plugin.getLanguageManager().getDefaultConfig().get("time.format"))),
+                                    100);
                             BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("jail");
-                            plugin.broadcast(sender, bd, jailBc);
+                            plugin.broadcast(sender, bd, reason.isEmpty() ? "neobans.message.jail" : "neobans.message.jailwithreason",
+                                    "player", plugin.getPlayerName(playerId),
+                                    "reason", reason,
+                                    "sender", sender.getName(),
+                                    "duration", jailEntry.getFormattedDuration(plugin.getLanguageManager().getDefaultConfig()),
+                                    "endtime", jailEntry.getEndtime(plugin.getLanguageManager().getDefaultConfig().get("time.format"))
+                            );
                         } else {
                             sender.sendMessage(entry.getReason());
                         }
@@ -99,7 +77,7 @@ public class JailCommand extends AbstractCommand {
                     sender.sendMessage("&c" + e.getMessage());
                 }
             } else {
-                sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", "player", toJail, "reason", reason));
+                sender.sendTranslation("neobans.error.reasontoolong", "player", toJail, "reason", reason);
             }
         });
     }

@@ -11,15 +11,20 @@ import de.themoep.NeoBans.core.storage.DatabaseManager;
 import de.themoep.NeoBans.core.storage.MysqlManager;
 
 import de.themoep.bungeeplugin.BungeePlugin;
+import de.themoep.minedown.MineDown;
+import de.themoep.utils.lang.LanguageManagerCore;
+import de.themoep.utils.lang.bungee.LanguageManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.Title;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 
+import net.md_5.bungee.config.Configuration;
 import net.zaiyers.UUIDDB.bungee.UUIDDB;
 
 import java.io.IOException;
@@ -33,7 +38,7 @@ import java.util.logging.Level;
 /**
  * Created by Phoenix616 on 09.02.2015.
  */
-public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
+public class NeoBans extends BungeePlugin implements NeoBansPlugin<CommandSender>, Listener {
 
     /**
      * NeoBans config 
@@ -43,7 +48,7 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
     /**
      * Language config
      */
-    private LanguageConfig lang;
+    private LanguageManager lang;
 
     /**
      * PunishmentManager
@@ -109,14 +114,7 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
         }
 
         // load language
-        try {
-            lang = new LanguageConfig(this, "lang." + config.getLanguage() + ".yml");
-        } catch (IOException e) {
-            getLogger().severe("Unable to load language! NeoBans will not be enabled.");
-            e.printStackTrace();
-
-            return;
-        }
+        lang = new LanguageManager(this, "languages", config.getLanguage());
 
         if(getConfig().getBackend().equalsIgnoreCase("mysql"))
             dbm = new MysqlManager(this);
@@ -169,7 +167,7 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
         return config;
     }
 
-    public LanguageConfig getLanguageConfig() {
+    public LanguageManagerCore<CommandSender, Configuration> getLanguageManager() {
         return lang;
     }
 
@@ -233,65 +231,69 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
         return "ID:" + playerid.toString();
     };
 
-    public int kickPlayer(NeoSender sender, String name, String reason) {
-        return kickPlayer(sender, getProxy().getPlayer(name), reason);
+    public int kickPlayer(NeoSender sender, String name, String langKey, String... replacements) {
+        return kickPlayer(sender, getProxy().getPlayer(name), langKey);
     }
 
-    public int kickPlayer(NeoSender sender, UUID id, String reason) {
-        return kickPlayer(sender, getProxy().getPlayer(id), reason);
+    public int kickPlayer(NeoSender sender, UUID id, String langKey, String... replacements) {
+        return kickPlayer(sender, getProxy().getPlayer(id), langKey, replacements);
     }
 
-    public int kickPlayer(NeoSender sender, ProxiedPlayer player, String reason) {
+    public int kickPlayer(NeoSender sender, ProxiedPlayer player, String langKey, String... replacements) {
         if(player != null) {
-            if(player.hasPermission("neobans.command.kick.exempt") && !sender.hasPermission("neobans.command.kick.exempt"))
+            if(player.hasPermission("neobans.command.kick.exempt") && (sender == null || !sender.hasPermission("neobans.command.kick.exempt")))
                 return -1;
-            player.disconnect(TextComponent.fromLegacyText(reason));
+            player.disconnect(MineDown.parse(lang.getConfig(player).get(langKey), replacements));
             return 1;
         }
         return 0;
     }
     
-    public void broadcast(NeoSender sender, BroadcastDestination destination, String message) {
-        message = ChatColor.translateAlternateColorCodes('&', message);
-        BaseComponent[] msg = TextComponent.fromLegacyText(message);
+    public void broadcast(NeoSender sender, BroadcastDestination destination, String langKey, String... replacements) {
+        langKey = ChatColor.translateAlternateColorCodes('&', langKey);
         switch(destination){
             case GLOBAL:
                 for(ProxiedPlayer p : getProxy().getPlayers())
-                    p.sendMessage(msg);
+                    createSender(p).sendTranslation(langKey, replacements);
                 break;
             case SERVER:
                 if(sender.isPlayer()) {
-                    broadcast(sender, getProxy().getPlayer(sender.getUniqueID()).getServer().getInfo().getName(), message);
+                    broadcast(sender, getProxy().getPlayer(sender.getUniqueID()).getServer().getInfo().getName(), langKey, replacements);
                 } else
-                    sender.sendMessage(message);
+                    sender.sendTranslation(langKey, replacements);
                 break;
             case SENDER:
-                sender.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + message);
+                sender.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + langKey);
                 for(ProxiedPlayer p : getProxy().getPlayers()) {
                     if (!p.getUniqueId().equals(sender.getUniqueID()) && p.hasPermission("neobans.seesilent")) {
-                        p.sendMessage("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] " + message);
+                        ComponentBuilder cb = new ComponentBuilder();
+                        cb.append(TextComponent.fromLegacyText("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] "));
+                        cb.append(MineDown.parse(lang.getConfig(p).get(langKey), replacements));
+                        p.sendMessage(cb.create());
                     }
                 }
                 break;
         }
         if (sender.isPlayer()) {
-            getLogger().info(message);
+            createSender(getProxy().getConsole()).sendTranslation(langKey, replacements);
         }
     }
 
-    public void broadcast(NeoSender sender, String serverName, String message) {
+    public void broadcast(NeoSender sender, String serverName, String langKey, String... replacements) {
         ServerInfo server = getProxy().getServerInfo(serverName);
         if(server != null) {
-            BaseComponent[] msg = TextComponent.fromLegacyText(message);
             for(ProxiedPlayer p : server.getPlayers()) {
-                p.sendMessage(msg);
+                createSender(p).sendTranslation(langKey, replacements);
             }
 
             if(sender.isPlayer() && !getProxy().getPlayer(sender.getUniqueID()).getServer().getInfo().equals(server)) {
-                sender.sendMessage("[Sent to " + serverName + "] " + message);
+                ComponentBuilder cb = new ComponentBuilder();
+                cb.append(TextComponent.fromLegacyText("[" + ChatColor.RED + "Silent" + ChatColor.RESET + "] "));
+                cb.append(MineDown.parse(sender.getLanguageConfig().get(langKey), replacements));
+                ((Sender) sender).sendMessage(cb.create());
             }
         } else {
-            sender.sendMessage(getLanguageConfig().getTranslation("neobans.error.notfound", "value", serverName));
+            sender.sendTranslation("neobans.error.notfound", "value", serverName);
         }
     }
 
@@ -332,20 +334,20 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
     }
 
     @Override
-    public boolean sendTitle(UUID playerId, String message) {
+    public boolean sendTitle(UUID playerId, String langKey, String... replacements) {
         ProxiedPlayer player = getProxy().getPlayer(playerId);
         if (player != null) {
-            String[] parts = message.split("\n");
+            String[] parts = lang.getConfig(player).get(langKey).split("\n");
             Title title = getProxy().createTitle();
             if (parts.length > 0) {
-                title.title(TextComponent.fromLegacyText(parts[0]));
+                title.title(MineDown.parse(parts[0], replacements));
             }
             if (parts.length > 1) {
-                title.subTitle(TextComponent.fromLegacyText(parts[1]));
+                title.subTitle(MineDown.parse(parts[1], replacements));
             }
             title.send(player);
             if (parts.length > 2) {
-                player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(parts[2]));
+                player.sendMessage(ChatMessageType.ACTION_BAR, MineDown.parse(parts[2], replacements));
             }
             return true;
         }
@@ -367,4 +369,8 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin, Listener {
         return false;
     }
 
+    @Override
+    public NeoSender createSender(CommandSender sender) {
+        return new Sender(sender, getLanguageManager().getConfig(sender));
+    }
 }

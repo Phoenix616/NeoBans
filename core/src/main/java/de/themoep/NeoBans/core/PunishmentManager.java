@@ -82,7 +82,7 @@ public class PunishmentManager {
     public Entry getPunishment(String username, EntryType... types) {
         UUID playerid = plugin.getPlayerId(username);
         return (playerid == null)
-                ? new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", username))
+                ? new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get("neobans.error.uuidnotfound", "player", username))
                 : getPunishment(playerid, types);
     }
 
@@ -115,9 +115,9 @@ public class PunishmentManager {
             if (existingEntry.getType() == EntryType.FAILURE)
                 return existingEntry;
             if (entry.getType() == EntryType.JAIL) {
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadyjailed", "player", plugin.getPlayerName(entry.getPunished())));
+                return new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get("neobans.error.alreadyjailed", "player", plugin.getPlayerName(entry.getPunished())));
             } else {
-                return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.alreadybanned", "player", plugin.getPlayerName(entry.getPunished())));
+                return new Entry(EntryType.FAILURE, plugin.getLanguageManager().getDefaultConfig().get("neobans.error.alreadybanned", "player", plugin.getPlayerName(entry.getPunished())));
             }
         }
 
@@ -131,13 +131,13 @@ public class PunishmentManager {
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
      * @param entry     The PunishmentEntry to update
-     * @param invokeId  The UUID of the player who updates the ban
+     * @param sender    The player who updates the ban
      * @param option    The option of the ban to change
      * @param value     The value to change to
      * @param log       Whether or not this update should be logged to the console and the database
      * @return The changed PunishmentEntry, an Entry with the EntryType FAILURE on failure with the reason as the reason
      */
-    public Entry updatePunishment(PunishmentEntry entry, UUID invokeId, String option, String value, boolean log) {
+    public Entry updatePunishment(PunishmentEntry entry, NeoSender sender, String option, String value, boolean log) {
 
         String oldValue = "-";
         PunishmentEntry changedEntry = null;
@@ -193,25 +193,25 @@ public class PunishmentManager {
                 }
             }
         } else  {
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongoption", "option", option.toLowerCase()));
+            return new Entry(EntryType.FAILURE, sender.getLanguageConfig().get("neobans.error.wrongoption", "option", option.toLowerCase()));
         }
         
         if (changedEntry == null) {
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.wrongvalue", "option", option.toLowerCase(), "value", value.toLowerCase()));
+            return new Entry(EntryType.FAILURE, sender.getLanguageConfig().get("neobans.error.wrongvalue", "option", option.toLowerCase(), "value", value.toLowerCase()));
         }
         changedEntry.setDbId(entry.getDbId());
 
         if (plugin.getDatabaseManager().update(changedEntry)) {
             if (log) {
                 String msg = "Updated " + entry.getType() + "'" + option.toLowerCase() + "' from '" + oldValue + "' to '" + value.toLowerCase() + "'";
-                plugin.getLogger().log(Level.INFO, invokeId + ": " + msg + " for " + entry.getPunished());
-                if (!plugin.getDatabaseManager().log(EntryType.EDIT, entry.getPunished(), invokeId, msg)) {
+                plugin.getLogger().log(Level.INFO, sender + ": " + msg + " for " + entry.getPunished());
+                if (!plugin.getDatabaseManager().log(EntryType.EDIT, entry.getPunished(), sender.getUniqueID(), msg)) {
                     plugin.getLogger().warning("Error while trying to log update of " + entry.getType() + " " + entry.getDbId() + " for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
                 }
             }
         } else {
             plugin.getLogger().severe("Encountered SQLException while trying to update punishment for player " + plugin.getPlayerName(entry.getPunished()) + "! (" + option + ": " + value + ")");
-            new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.database"));
+            new Entry(EntryType.FAILURE, sender.getLanguageConfig().get("neobans.error.database"));
         }
         punishments.get(entry.getType()).remove(entry.getPunished());
         punishments.get(changedEntry.getType()).put(entry.getPunished(), changedEntry);
@@ -223,17 +223,17 @@ public class PunishmentManager {
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
      * @param playerId The UUID to update
-     * @param invokeId The UUID of the player who updates the ban
+     * @param sender   The player who updates the ban
      * @param option   The option of the ban to change
      * @param value    The value to change to
      * @return The changed PunishmentEntry, <tt>null</tt> if player wasn't punished, an Entry with the EntryType FAILURE on failure with the reason as the reason
      */
-    public Entry updatePunishment(UUID playerId, UUID invokeId, String option, String value) {
+    public Entry updatePunishment(UUID playerId, NeoSender sender, String option, String value) {
         Entry entry = getPunishment(playerId);
         if (entry == null)
             return null;
         if (entry instanceof PunishmentEntry)
-            return updatePunishment((PunishmentEntry) entry, invokeId, option, value, true);
+            return updatePunishment((PunishmentEntry) entry, sender, option, value, true);
         return new Entry(EntryType.FAILURE, "Error: Found entry but it isn't a ban entry? " + entry.getType() + "/" + entry.getClass().getName());
     }
 
@@ -242,18 +242,18 @@ public class PunishmentManager {
      * <br /><br />
      * <strong>Note:</strong> This method will execute a database query and should not be run on the main thread!
      * @param username The name of the player to update
-     * @param invokeId The UUID of the player who updates the punishment
+     * @param sender   The player who updates the punishment
      * @param option   The option of the punishment to change
      * @param value    The value to change to
      * @return The changed PunishmentEntry, an Entry with the EntryType FAILURE on failure with the reason as the reason
      */
-    public Entry updatePunishment(String username, UUID invokeId, String option, String value) {
+    public Entry updatePunishment(String username, NeoSender sender, String option, String value) {
         UUID playerId = plugin.getPlayerId(username);
         if (playerId == null)
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", username));
-        Entry entry = updatePunishment(playerId, invokeId, option, value);
+            return new Entry(EntryType.FAILURE, sender.getLanguageConfig().get("neobans.error.uuidnotfound", "player", username));
+        Entry entry = updatePunishment(playerId, sender, option, value);
         if (entry == null)
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notbanned", "player", username));
+            return new Entry(EntryType.FAILURE, sender.getLanguageConfig().get("neobans.error.notbanned", "player", username));
         return entry;
     }
 
@@ -358,25 +358,25 @@ public class PunishmentManager {
         if (entry != null && entry.getType() == EntryType.FAILURE) {
             return entry;
         } else if (entry == null || entry.getType() != EntryType.JAIL) {
-            return new Entry(EntryType.FAILURE, plugin.getLanguageConfig().getTranslation("neobans.error.notjailed", "player", playerName));
+            return new Entry(EntryType.FAILURE, sender.getLanguageConfig().get("neobans.error.notjailed", "player", playerName));
         }
 
-        Entry removedEntry = removePunishment((PunishmentEntry) entry, sender.getUniqueID());
+        Entry removedEntry = removePunishment((PunishmentEntry) entry, sender.getUniqueID(), reason);
         if (removedEntry != null && removedEntry.getType() == EntryType.FAILURE) {
             return removedEntry;
         }
 
-        plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation("neobans.title.unjailed", "player", playerName, "sender", sender.getName()));
+        plugin.sendTitle(playerId, sender.getLanguageConfig().get("neobans.title.unjailed", "player", playerName, "sender", sender.getName()));
         plugin.broadcast(sender,
                 (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("unjail"),
-                plugin.getLanguageConfig().getTranslation(
+                sender.getLanguageConfig().get(
                         "neobans.message.unjail",
                         "player", playerName,
                         "sender", sender.getName()
                 )
         );
         plugin.movePlayer(playerId, plugin.getConfig().getUnjailServer());
-        plugin.runLater(() -> plugin.sendTitle(playerId, plugin.getLanguageConfig().getTranslation(
+        plugin.runLater(() -> plugin.sendTitle(playerId, sender.getLanguageConfig().get(
                 "neobans.title.unjail",
                 "player", playerName,
                 "sender", sender.getName()

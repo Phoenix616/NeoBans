@@ -2,9 +2,9 @@ package de.themoep.NeoBans.core;
 
 import de.themoep.NeoBans.core.commands.CommandMap;
 import de.themoep.NeoBans.core.commands.NeoSender;
-import de.themoep.NeoBans.core.config.NeoLanguageConfig;
 import de.themoep.NeoBans.core.config.NeoPluginConfig;
 import de.themoep.NeoBans.core.storage.DatabaseManager;
+import de.themoep.utils.lang.LanguageManagerCore;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -14,12 +14,12 @@ import java.util.logging.Logger;
 /**
  * Created by Phoenix616 on 11.02.2015.
  */
-public interface NeoBansPlugin {
+public interface NeoBansPlugin<S> {
 
     /**
      *Gets the plugin's language config
      */
-    public NeoLanguageConfig getLanguageConfig();
+    public LanguageManagerCore<?, ?> getLanguageManager();
 
     /**
      * Get the plugin's config
@@ -74,32 +74,36 @@ public interface NeoBansPlugin {
     /**
      * Kick a player with a reason 
      * @param name The name of the player to kick
-     * @param reason The reason to display in chat and to the player
+     * @param langKey The language key to display in chat and to the player
+     * @param replacements Replacements for the message which is displayed
      * @return 1 if the player was online, 0 if not, -1 if the sender is not allowed to kick this player
      */
-    int kickPlayer(NeoSender sender, String name, String reason);
+    int kickPlayer(NeoSender sender, String name, String langKey, String... replacements);
 
     /**
      * Kick a player with a reason
      * @param id The uuid of the player to kick
-     * @param reason The reason to display in chat and to the player
+     * @param langKey The language key to display in chat and to the player
+     * @param replacements Replacements for the message which is displayed
      * @return 1 if the player was online, 0 if not, -1 if the sender is not allowed to kick this player
      */
-    int kickPlayer(NeoSender sender, UUID id, String reason);
+    int kickPlayer(NeoSender sender, UUID id, String langKey, String... replacements);
 
     /**
      * Broadcast a message to certain players
      * @param destination The players to broadcast to
-     * @param message The message to broadcast
+     * @param langKey The language key to broadcast
+     * @param replacements Replacements for the message which is displayed
      */
-    public void broadcast(NeoSender sender, BroadcastDestination destination, String message);
+    public void broadcast(NeoSender sender, BroadcastDestination destination, String langKey, String... replacements);
 
     /**
      * Broadcast a message to certain players
      * @param serverName The name of the server (or world on Minecraft) where this message should be sent to
-     * @param message The message to broadcast
+     * @param langKey The language key to broadcast
+     * @param replacements Replacements for the message which is displayed
      */
-    public void broadcast(NeoSender sender, String serverName, String message);
+    public void broadcast(NeoSender sender, String serverName, String langKey, String... replacements);
 
     /**
      * Run a synchronous task
@@ -165,10 +169,11 @@ public interface NeoBansPlugin {
     /**
      * Send a title to a player
      * @param playerId The UUID of the player
-     * @param message The message to send (use a new line character to split the message)
+     * @param langKey The language key to broadcast
+     * @param replacements Replacements for the message which is displayed
      * @return true if the player is online; false if the player is offline
      */
-    boolean sendTitle(UUID playerId, String message);
+    boolean sendTitle(UUID playerId, String langKey, String... replacements);
 
     /**
      * Move the player either to another world or server
@@ -178,4 +183,10 @@ public interface NeoBansPlugin {
      */
     boolean movePlayer(UUID playerId, String target);
 
+    /**
+     * Create a new NeoSender from a platform sender
+     * @param sender The platform sender
+     * @return The NeoSender wrapper
+     */
+    NeoSender createSender(S sender);
 }

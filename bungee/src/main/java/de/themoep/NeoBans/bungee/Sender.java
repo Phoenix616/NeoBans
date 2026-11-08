@@ -2,10 +2,12 @@ package de.themoep.NeoBans.bungee;
 
 import de.themoep.NeoBans.core.commands.NeoSender;
 import de.themoep.NeoBans.core.commands.SenderType;
-import net.md_5.bungee.api.ChatColor;
+import de.themoep.minedown.MineDown;
+import de.themoep.utils.lang.LanguageConfig;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.config.Configuration;
 
 import java.util.UUID;
 
@@ -19,11 +21,17 @@ public class Sender implements NeoSender {
     protected CommandSender sender;
 
     /**
+     * The language config used by this sender
+     */
+    private LanguageConfig<?> languageConfig;
+
+    /**
      * Constructor for the sender
      * @param sender The CommandSender
      */
-    public Sender(CommandSender sender) {
+    public Sender(CommandSender sender, LanguageConfig<Configuration> languageConfig) {
         this.sender = sender;
+	    this.languageConfig = languageConfig;
     }
 
     @Override
@@ -47,22 +55,26 @@ public class Sender implements NeoSender {
     }
 
     @Override
+    public LanguageConfig<?> getLanguageConfig() {
+        return languageConfig;
+    }
+
+    @Override
     public boolean hasPermission(String perm) {
         return sender.hasPermission(perm);
     }
 
-    @Override
-    public void sendMessage(String message) {
-        sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+    public void sendMessage(BaseComponent[] components) {
+        sender.sendMessage(components);
     }
 
     @Override
     public void sendMessage(String message, String... replacements) {
-        // insert replacements
-        if (replacements != null)
-            for (int i = 0; i + 1 < replacements.length; i += 2)
-                message = message.replaceAll("%" + replacements[i] + "%", replacements[i + 1]);
-        
-        sender.sendMessage(TextComponent.fromLegacyText(message));
+        sendMessage(MineDown.parse(message, replacements));
+    }
+
+    @Override
+    public void sendTranslation(String langKey, String... replacements) {
+        sendMessage(MineDown.parse(languageConfig.get(langKey), replacements));
     }
 }

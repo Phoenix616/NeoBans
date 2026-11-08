@@ -24,14 +24,14 @@ public class EditEntryCommand extends AbstractCommand {
             String value = Arrays.stream(args).skip(2).collect(Collectors.joining(" ")).trim();
             for (String playerName : args[0].split(",")) {
                 if(value.length() < 140) {
-                    Entry entry = plugin.getPunishmentManager().updatePunishment(playerName, sender.getUniqueID(), option.toLowerCase(), value);
+                    Entry entry = plugin.getPunishmentManager().updatePunishment(playerName, sender, option.toLowerCase(), value);
                     if(entry.getType() != EntryType.FAILURE) {
-                        sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.message.entryedited", "player", playerName, "option", option.toLowerCase(), "value", value));
+                        sender.sendTranslation("neobans.message.entryedited", "player", playerName, "option", option.toLowerCase(), "value", value);
                     } else {
                         sender.sendMessage(entry.getReason());
                     }
                 } else {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.reasontoolong", "player", playerName, "reason", value));
+                    sender.sendTranslation("neobans.error.reasontoolong", "player", playerName, "reason", value);
                 }
             }
         });

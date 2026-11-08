@@ -27,7 +27,7 @@ public class UnjailCommand extends AbstractCommand {
             for (String nameString : args[0].split(",")) {
                 UUID playerId = plugin.getPlayerId(nameString);
                 if (playerId == null) {
-                    sender.sendMessage(plugin.getLanguageConfig().getTranslation("neobans.error.uuidnotfound", "player", nameString));
+                    sender.sendTranslation("neobans.error.uuidnotfound", "player", nameString);
                 } else {
                     playerIds.add(playerId);
                 }
