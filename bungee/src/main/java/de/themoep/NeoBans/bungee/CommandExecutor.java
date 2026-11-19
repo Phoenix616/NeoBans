@@ -16,7 +16,7 @@ import java.util.Arrays;
  * Based on zaiyers ChannelsCommandExecutor:
  * https://github.com/zaiyers/Channels/blob/master/src/main/java/net/zaiyers/Channels/name/ChannelsCommandExecutor.java
  */
-public class CommandExecutor extends PluginCommand implements Listener {
+public class CommandExecutor extends PluginCommand<NeoBans> implements Listener {
 
     private final NeoBans plugin;
 
@@ -33,7 +33,7 @@ public class CommandExecutor extends PluginCommand implements Listener {
         NeoCommand cmd = plugin.getCommandMap().get(this.getName(), sender, args);
 
         // execute command
-        if (sender.hasPermission(this.getPermission())) {
+        if (sender.hasPermission(this.getCommandPermission())) {
             if (cmd.validateInput()) {
                 cmd.execute();
             } else {
@@ -41,7 +41,7 @@ public class CommandExecutor extends PluginCommand implements Listener {
             }
         } else {
             sender.sendMessage(plugin.getLanguageManager().getConfig(commandSender).get("neobans.error.nopermission"),
-                    "permission", this.getPermission()
+                    "permission", this.getCommandPermission()
             );
         }
         return true;
