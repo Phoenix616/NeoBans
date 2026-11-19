@@ -232,7 +232,7 @@ public class NeoBans extends BungeePlugin implements NeoBansPlugin<CommandSender
     };
 
     public int kickPlayer(NeoSender sender, String name, String langKey, String... replacements) {
-        return kickPlayer(sender, getProxy().getPlayer(name), langKey);
+        return kickPlayer(sender, getProxy().getPlayer(name), langKey, replacements);
     }
 
     public int kickPlayer(NeoSender sender, UUID id, String langKey, String... replacements) {
