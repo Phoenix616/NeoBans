@@ -61,7 +61,7 @@ public class Sender implements NeoSender {
 
     @Override
     public boolean hasPermission(String perm) {
-        return sender.hasPermission(perm);
+        return perm == null || sender.hasPermission(perm);
     }
 
     public void sendMessage(BaseComponent[] components) {
