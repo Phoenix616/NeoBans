@@ -51,9 +51,9 @@ public class BanCommand extends AbstractCommand {
 
                     Entry entry = plugin.getPunishmentManager().addPunishment(be);
                     if (entry.getType() != EntryType.FAILURE) {
-                        plugin.kickPlayer(sender, playerId, "neobans.disconnect.ban" + (reason.isEmpty() ? "" : "withreason"), "sender", sender.getName(), "reason", reason);
+                        plugin.kickPlayer(sender, playerId, "neobans.disconnect.ban" + (reason.isEmpty() ? "" : "withreason"), "sender", sender.getName(), "player", plugin.getPlayerName(playerId), "reason", reason);
                         BroadcastDestination bd = (silent) ? BroadcastDestination.SENDER : plugin.getConfig().getBroadcastDestination("ban");
-                        plugin.broadcast(sender, bd, "neobans.message.ban" + (reason.isEmpty() ? "" : "withreason"), "sender", sender.getName(), "reason", reason);
+                        plugin.broadcast(sender, bd, "neobans.message.ban" + (reason.isEmpty() ? "" : "withreason"), "sender", sender.getName(), "player", plugin.getPlayerName(playerId), "reason", reason);
                     } else {
                         sender.sendMessage(entry.getReason());
                     }
